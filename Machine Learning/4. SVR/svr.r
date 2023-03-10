@@ -69,3 +69,26 @@ ggplot() +
   ggtitle("Predicción (SVR)") +
   xlab("X1") +
   ylab("Y")
+#Dos variables
+regression = svm(formula = Y~X1+X2, 
+                 data = X, 
+                 type = "eps-regression", 
+                 kernel = "radial")
+summary(regression)
+#####################################
+##############################
+cakes$X1c = cakes$X1 - mean(cakes$X1)
+cakes$X2c = cakes$X2 - mean(cakes$X2)
+modc.cakes = lm(Y ~ X1c*X2c + I(X1c^2)+I(X2c^2),data=cakes)
+summary(modc.cakes)
+X1 = seq(32, 38, length.out = 50)
+X2 = seq(335, 365, length= 50)
+
+y <- outer(X= X1, Y = X2, FUN = function(x, y) {
+  predict(modc.cakes, newdata = data.frame(X1c = x-mean(cakes$X1), X2c = y-mean(cakes$X2)))
+})
+
+contour(X1, X2, y,xlab='tiempo de horneado (minutos)',
+        ylab='temperatura de horneado (Fahrenheit)')
+bivn.kde<- kde2d(cakes$X1c,cakes$X2c)
+?kde2d
