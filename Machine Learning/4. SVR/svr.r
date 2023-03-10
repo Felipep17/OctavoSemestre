@@ -41,3 +41,31 @@ ggplot() +
   ggtitle("Predicción (SVR)") +
   xlab("Nivel del empleado") +
   ylab("Sueldo (en $)")
+########################
+#Univariante
+library(alr4)
+library(ggfortify)
+X<- cakes
+model<- lm(Y~X1,data =X)
+autoplot(model)
+summary(model)
+plot(Y~X1,data=X)
+#############
+regression = svm(formula = Y~X1, 
+                 data = X, 
+                 type = "eps-regression", 
+                 kernel = "radial")
+
+# Visualización del modelo de SVR
+# install.packages("ggplot2")
+library(ggplot2)
+x_grid = seq(min(X$X1), max(X$X1), 0.1)
+ggplot() +
+  geom_point(aes(x = X$X1 , y = X$Y),
+             color = "red") +
+  geom_line(aes(x = X$X1, y = predict(regression, 
+                                               newdata = data.frame(X1 = X$X1))),
+            color = "blue") +
+  ggtitle("Predicción (SVR)") +
+  xlab("X1") +
+  ylab("Y")
