@@ -11,4 +11,4 @@ View(yarn)
 X<- yarn
 ncol(yarn)
 plot(yarn[,1:10])
-plot(density~NIR.50,data=X)
+plot(density~NIR.50,data=X,pch=19,panel.first=grid())
