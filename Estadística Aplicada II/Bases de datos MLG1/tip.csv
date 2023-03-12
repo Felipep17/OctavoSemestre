@@ -1,0 +1,423 @@
+"Meal","Age","Alcohol","Bill","Tip","weekend"
+"Dinner","Middle","Yes",34.5,4,0
+"Dinner","SenCit","No",27.5,5,0
+"Dinner","SenCit","Yes",16.16,2.5,0
+"Dinner","Yadult","Yes",21.96,5.04,0
+"Dinner","Yadult","Yes",49.5,10.5,0
+"Dinner","SenCit","Yes",29.94,5,0
+"Dinner","Middle","No",43.89,6.11,0
+"Dinner","Middle","No",23.96,2,0
+"Dinner","SenCit","Yes",57.35,7,0
+"Dinner","Yadult","Yes",35.22,7.78,0
+"Dinner","Middle","No",37.44,8,0
+"Dinner","Middle","Yes",51.86,6,0
+"Dinner","Middle","Yes",37.95,7.05,0
+"Dinner","Yadult","Yes",32.53,4.8,0
+"Dinner","Yadult","No",9.63,1,0
+"Dinner","Yadult","No",12.19,5,0
+"Dinner","Yadult","No",10.16,1.5,0
+"Dinner","Yadult","No",9.63,2,0
+"Dinner","Yadult","No",22.36,3.64,0
+"Dinner","Yadult","No",9.63,1.5,0
+"Dinner","Yadult","No",13.37,3,0
+"Dinner","Yadult","No",9.63,2.37,0
+"Dinner","Middle","Yes",42.16,5,0
+"Dinner","Middle","No",51.74,13.26,0
+"Dinner","Middle","Yes",105.57,20,0
+"Dinner","SenCit","No",46.46,6.58,0
+"Dinner","Middle","Yes",44.05,7.95,0
+"Dinner","Middle","No",32.77,5,1
+"Dinner","Middle","Yes",24.17,4.8,1
+"Dinner","Middle","Yes",29.08,2.42,1
+"Dinner","Middle","No",48.92,5,1
+"Dinner","Middle","No",35.75,5,1
+"Dinner",NA,"No",52.74,7.26,1
+"Dinner","Middle","Yes",36.81,3.44,1
+"Dinner","Middle","Yes",33.99,9.01,1
+"Dinner","Middle","No",29.62,5,1
+"Dinner","Middle","Yes",71.37,5,1
+"Dinner","Middle","No",44.61,8.92,1
+"Dinner","Middle","No",43.95,0,1
+"Dinner","SenCit","No",51.15,9.85,1
+"Dinner","Middle","No",36.69,6.31,1
+"Dinner","Middle","Yes",39.69,6,1
+"Dinner","Yadult","No",26.54,3.01,1
+"Dinner","Yadult","No",35.62,8,1
+"Late Night","Yadult","No",58.22,5.01,1
+"Late Night","Yadult","No",5.77,0.87,1
+"Late Night","Yadult","No",4.82,1,1
+"Late Night","Yadult","No",13.36,3,1
+"Late Night","Yadult","No",3.74,3,1
+"Late Night","Yadult","No",8.56,2.44,1
+"Late Night","Middle","Yes",22.5,5,1
+"Lunch","Middle","Yes",30.78,3,1
+"Lunch","Middle","Yes",50.39,10,1
+"Lunch","Middle","No",21.4,3,1
+"Lunch","SenCit","No",20.01,3,1
+"Lunch","Middle","Yes",48.42,10,1
+"Lunch","Middle","No",25.02,4.98,1
+"Lunch","Middle","No",26.52,3.48,1
+"Lunch","SenCit","No",11.56,2.5,1
+"Lunch","Middle","Yes",8.9,1.1,1
+"Lunch","Middle","No",12.92,3,1
+"Lunch","Yadult","No",50.52,5.48,1
+"Lunch","Middle","No",17.97,2.54,1
+"Lunch","SenCit","No",26.73,6,1
+"Lunch","Middle","No",27.16,5,1
+"Lunch","Middle","No",78.03,15.97,1
+"Dinner","Middle","No",31.1,5.9,1
+"Dinner","SenCit","No",23.1,3.5,1
+"Dinner","Middle","No",39.14,6,1
+"Dinner","Middle","No",55.87,8,1
+"Dinner","Middle","Yes",36.18,6,1
+"Dinner","Middle","Yes",34.55,4,1
+"Dinner","Middle","Yes",35.4,6,1
+"Dinner","Middle","No",42.48,5.5,1
+"Dinner","Middle","Yes",59.57,12,1
+"Dinner","SenCit","No",81.04,11,1
+"Dinner","Middle","No",39.58,3,1
+"Dinner","Yadult","Yes",33.28,7,1
+"Dinner","Middle","Yes",35.07,2.93,1
+"Dinner","Middle","Yes",47.08,5,1
+"Late Night","Middle","No",16.04,3,1
+"Dinner","SenCit","No",38.28,3.72,0
+"Dinner","SenCit","No",36.79,7,0
+"Dinner","Middle","No",42.46,6.28,0
+"Dinner","Middle","Yes",46,7,0
+"Dinner","SenCit","No",23.75,4,0
+"Dinner","Yadult","Yes",56.2,6.8,0
+"Dinner","Middle","Yes",85,10,0
+"Dinner","Middle","No",38.71,6.29,0
+"Dinner","SenCit","Yes",15.6,2.5,0
+"Dinner","Yadult","No",14.21,3,0
+"Dinner","Middle","Yes",65.37,15,0
+"Dinner","Yadult","Yes",57.41,5,0
+"Dinner","SenCit","No",34.99,5,0
+"Dinner","SenCit","No",22.8,3.2,0
+"Dinner","SenCit","Yes",39.34,6,0
+"Dinner","Middle","Yes",58.27,8,0
+"Dinner","Middle","No",24.62,4,0
+"Dinner","Middle","No",32.53,4.47,0
+"Dinner","Yadult","No",29.2,4.8,0
+"Dinner","Yadult","No",12.19,2.81,0
+"Dinner","Middle","No",26.54,4.46,0
+"Dinner","Middle","No",28.45,4.3,0
+"Dinner","SenCit","No",24.82,5.18,0
+"Dinner","Middle","Yes",50.4,7.6,0
+"Dinner","SenCit","No",30.27,5,0
+"Dinner","SenCit","No",44.27,4,0
+"Dinner","Middle","Yes",14.56,4,0
+"Dinner","Middle","No",35.09,3,0
+"Dinner","Middle","Yes",41.1,8,0
+"Dinner","Yadult","No",36.17,6,0
+"Dinner","Middle","No",12.39,1,0
+"Dinner","Middle","No",28.45,4.3,0
+"Dinner","SenCit","Yes",38.81,8,1
+"Dinner","Middle","No",22.49,5,1
+"Dinner","Middle","No",23.56,5,1
+"Dinner","Middle","No",22.9,3,1
+"Dinner","Middle","No",18.07,4.93,1
+"Dinner","Middle","No",18.07,5,1
+"Dinner","Yadult","No",21.42,5,1
+"Dinner","Yadult","No",17.97,2,1
+"Late Night","Middle","No",15.56,2.44,1
+"Late Night","Middle","No",13.8,3,1
+"Late Night","Middle","No",1.7,0.3,1
+"Late Night","Middle","No",8.34,1.66,1
+"Late Night","Middle","No",12.77,2.5,1
+"Late Night","Middle","No",10.7,2.5,1
+"Late Night","Middle","No",4.98,2.02,1
+"Late Night","Middle","No",4.98,2,1
+"Late Night","Middle","No",11.87,1.5,1
+"Late Night","Middle","No",15.56,2.44,1
+"Late Night","Yadult","No",18.13,3.87,1
+"Late Night","Yadult","No",4.82,1,1
+"Late Night","Yadult","No",10.71,3.29,1
+"Late Night","Yadult","No",8.03,1.47,1
+"Late Night","Yadult","Yes",12.38,4.62,1
+"Late Night","Yadult","Yes",11.47,2,1
+"Late Night","Yadult","Yes",7.83,2,1
+"Late Night","Yadult","Yes",13.99,3.01,1
+"Late Night","Yadult","Yes",17.76,4,1
+"Late Night","Yadult","Yes",16.77,3.23,1
+"Late Night","Yadult","No",16.8,1.2,1
+"Late Night","Yadult","Yes",35.7,8,1
+"Dinner","SenCit","No",62.41,12,1
+"Dinner","Middle","Yes",54.4,11,1
+"Dinner","SenCit","Yes",164.13,30,1
+"Dinner","Middle","Yes",33.28,6,1
+"Dinner","Middle","No",36.26,5,1
+"Dinner","Middle","Yes",33.44,6.56,1
+"Dinner","Yadult","No",39.15,3,1
+"Dinner","SenCit","Yes",35.83,5.5,1
+"Dinner","Middle","Yes",41.19,6.81,1
+"Dinner","Middle","No",49,5,1
+"Lunch","SenCit","Yes",26.54,5.46,1
+"Lunch","SenCit","Yes",12.84,3,1
+"Lunch","Middle","No",38.73,6,1
+"Lunch","Middle","No",51.8,7,1
+"Lunch","SenCit","Yes",25.78,3.22,1
+"Lunch","SenCit","No",22.47,4,1
+"Lunch","Middle","No",15.52,3,1
+"Lunch","Middle","No",55.83,11,1
+"Lunch","Middle","No",19.26,4,1
+"Lunch","Yadult","No",27.6,6.4,1
+"Lunch","SenCit","Yes",17.89,3.11,1
+"Lunch","Middle","No",21.42,5,1
+"Lunch","SenCit","No",21.61,3.39,1
+"Lunch","Middle","No",33.48,5,1
+"Lunch","Yadult","No",28.14,4,1
+"Dinner","SenCit","Yes",29.25,3.75,1
+"Dinner","Middle","Yes",34.92,6.08,1
+"Dinner","Middle","Yes",29.29,3.71,1
+"Dinner","Yadult","Yes",47.15,2,1
+"Dinner","Middle","No",83.13,16,1
+"Dinner","Middle","No",32.3,6,1
+"Dinner","SenCit","No",36.07,8.93,1
+"Dinner","SenCit","Yes",66.72,10,1
+"Dinner","Middle","Yes",29.39,4.5,1
+"Dinner","SenCit","Yes",36.65,5,1
+"Dinner","Middle","No",42.41,4.59,0
+"Dinner","Middle","No",14.73,2.27,0
+"Dinner","Middle","Yes",54.44,8,0
+"Dinner","Middle","No",66.59,10,0
+"Dinner","Middle","No",54.55,8,0
+"Dinner","Yadult","No",11.98,2,0
+"Dinner","Yadult","No",5.35,1,0
+"Dinner","Middle","No",23.77,5,0
+"Dinner","Middle","Yes",42.28,6,0
+"Dinner","Yadult","No",37.88,4,0
+"Lunch","Middle","No",19.45,2.55,0
+"Lunch","Middle","No",45.44,7,0
+"Lunch","Middle","No",12.19,1.81,0
+"Lunch","Yadult","No",26.54,3.46,0
+"Lunch","Middle","No",12.19,2.81,0
+"Lunch","Middle","No",12.84,2.16,0
+"Lunch","Middle","No",27.82,4,0
+"Lunch","SenCit","No",13.79,2.21,0
+"Lunch","SenCit","No",28.33,4,0
+"Lunch","Middle","No",21.81,6,0
+"Dinner","Yadult","No",15.62,2,0
+"Dinner","Middle","No",15.5,2,0
+"Dinner","Middle","No",33.8,5.2,0
+"Dinner","Middle","No",23.98,3.02,0
+"Dinner","Yadult","Yes",31.01,5.99,0
+"Dinner","Middle","Yes",31.08,5.97,0
+"Dinner","SenCit","No",60.14,10,0
+"Dinner","Middle","No",31.14,8,0
+"Dinner","Middle","No",56.91,10,0
+"Dinner","SenCit","No",12.31,3,0
+"Dinner","Middle","No",44.84,10,0
+"Dinner","Middle","Yes",65.49,9,0
+"Dinner","Middle","Yes",33.37,5.63,0
+"Dinner","Yadult","Yes",24.12,2,0
+"Dinner","Yadult","No",15.62,2,0
+"Dinner","Middle","Yes",33.19,1.81,0
+"Dinner","SenCit","Yes",31.38,3.62,0
+"Dinner","Middle","No",55.85,9.15,0
+"Dinner","SenCit","No",27.71,6,0
+"Dinner","Yadult","Yes",37.18,4.82,0
+"Dinner","Middle","Yes",43.89,7.11,0
+"Dinner","Middle","No",44.89,5,0
+"Dinner","Middle","No",52.49,12.5,0
+"Dinner","Middle","No",42.14,7,0
+"Dinner","Middle","No",31.24,4.76,0
+"Dinner","Yadult","Yes",48.72,5,0
+"Dinner","Middle","Yes",31.78,5,0
+"Dinner","Middle","No",22.47,3,0
+"Dinner","Middle","No",14.33,5.67,0
+"Dinner","SenCit","No",29.52,4,0
+"Dinner","Middle","Yes",43.9,8,0
+"Dinner","Middle","No",46.02,5.98,1
+"Dinner","Middle","No",64.69,13,1
+"Dinner","Middle","No",42.79,7,1
+"Dinner","SenCit","No",58.54,12,1
+"Dinner","Middle","Yes",44.08,5.92,1
+"Dinner","Middle","Yes",43.21,7,1
+"Dinner","Middle","No",23.33,5,1
+"Dinner","Middle","No",28.24,4,1
+"Dinner","Yadult","No",31.62,4,1
+"Dinner","Middle","No",40.3,9.7,1
+"Dinner","Yadult","No",28.46,3,1
+"Dinner","SenCit","No",13.37,2,1
+"Dinner","SenCit","No",48.14,6.86,1
+"Dinner","Yadult","No",18.2,3.6,1
+"Dinner","Yadult","No",29.95,4,1
+"Dinner","Yadult","Yes",23.22,1.78,1
+"Dinner","Yadult","No",11.24,2.76,1
+"Dinner","Yadult","Yes",28.77,3.33,1
+"Dinner","Yadult","No",24.38,4,1
+"Dinner","SenCit","Yes",40.12,6.88,1
+"Dinner","Middle","No",49.53,10.47,1
+"Dinner","Middle","No",23.98,4.02,1
+"Dinner","Yadult","No",17.01,2.99,1
+"Dinner","Yadult","No",14.23,2,1
+"Dinner","Middle","No",27.18,5,1
+"Dinner","Middle","No",49.21,10,1
+"Dinner","SenCit","No",20.97,5,0
+"Dinner","Middle","No",20.87,4,0
+"Dinner","SenCit","No",34.66,10.34,0
+"Dinner","Middle","No",25.15,4.85,0
+"Dinner","Yadult","No",48.17,5,0
+"Dinner","Middle","No",22.66,4,0
+"Dinner","Middle","No",25.25,5,0
+"Dinner","SenCit","No",9.42,1.58,0
+"Dinner","Middle","Yes",41.56,6.44,0
+"Dinner","Yadult","No",38.15,11,0
+"Dinner","SenCit","No",9.09,1.75,0
+"Dinner","SenCit","No",11.77,2,0
+"Dinner","Middle","No",13.47,2.53,0
+"Dinner","Middle","Yes",18.38,3,0
+"Dinner","Middle","Yes",18.17,5,0
+"Dinner","Middle","No",28.56,6,0
+"Dinner","Middle","No",23.42,4,0
+"Dinner","Middle","Yes",44.91,5.09,0
+"Dinner","Middle","Yes",36.64,5.5,0
+"Dinner","Yadult","Yes",29.14,3,0
+"Late Night","Yadult","No",4.82,0.68,0
+"Late Night","Yadult","No",4.82,0.18,0
+"Late Night","Yadult","No",4.82,1.18,0
+"Late Night","Yadult","No",4.82,0.68,0
+"Late Night","Yadult","No",4.82,0.18,0
+"Late Night","Yadult","No",3.74,1,0
+"Late Night","Yadult","No",4.82,1,0
+"Late Night","Middle","Yes",85.54,19.46,0
+"Late Night","Yadult","No",4.82,1,0
+"Late Night","Yadult","Yes",8.1,1.9,0
+"Late Night","Yadult","Yes",8.13,1.5,0
+"Late Night","SenCit","No",12.24,4,0
+"Late Night","SenCit","No",3.63,2,0
+"Late Night","SenCit","Yes",11.49,1.51,0
+"Late Night","SenCit","Yes",28.33,3.67,0
+"Dinner","Middle","No",26.54,5,0
+"Dinner","Middle","No",42.88,8,0
+"Dinner","Middle","Yes",47.39,5,0
+"Dinner","Middle","No",42.26,5.5,0
+"Dinner","Middle","Yes",69.52,10,0
+"Dinner","SenCit","No",85.93,15,0
+"Lunch","Middle","No",23.98,4,1
+"Lunch","Middle","No",32.09,4,1
+"Lunch","SenCit","No",15.4,3.6,1
+"Lunch","Yadult","No",29.52,4,1
+"Lunch","Middle","No",41.63,6,1
+"Lunch","SenCit","No",21.2,4.09,1
+"Lunch","Yadult","No",32.08,5,1
+"Lunch","Middle","Yes",42.58,7,1
+"Lunch","Middle","No",48.86,8.14,1
+"Lunch","Middle","No",36.46,6.54,1
+"Lunch","Middle","No",33.49,4.51,1
+"Lunch","SenCit","Yes",29.59,6,1
+"Lunch","SenCit","No",21.2,3.09,1
+"Lunch","Middle","No",30.28,2.1,1
+"Lunch","Middle","No",34.02,5.98,1
+"Lunch","Middle","No",83.13,15,1
+"Lunch","Middle","No",32.42,7.58,1
+"Lunch","Yadult","Yes",24.7,5.3,1
+"Dinner","SenCit","Yes",44.39,4,1
+"Dinner","Middle","Yes",54.88,10,1
+"Dinner","Middle","No",68.33,11.67,1
+"Dinner","Yadult","No",23.75,4.25,1
+"Dinner","Middle","No",44.55,8,1
+"Dinner","Middle","Yes",30.9,6,1
+"Dinner","Middle","Yes",34.81,4,1
+"Dinner","SenCit","No",23.98,5.02,1
+"Dinner","Middle","Yes",88.22,16,1
+"Dinner","Middle","Yes",34.8,7.2,1
+"Dinner","Middle","No",34.68,6,1
+"Dinner","Middle","No",13.15,3,0
+"Dinner","Middle","No",22.69,2,0
+"Dinner","SenCit","No",46.87,10,0
+"Dinner","Middle","No",32.4,4,0
+"Dinner","Middle","No",26.54,4,0
+"Dinner","Middle","Yes",19.3,4,0
+"Dinner","Middle","Yes",51.16,8.84,0
+"Dinner","Middle","No",26.54,4.46,0
+"Dinner","Yadult","No",12.08,0,0
+"Dinner","Yadult","No",12.19,1.4,0
+"Dinner","Middle","Yes",45.88,8,0
+"Dinner","Yadult","No",13.1,2.5,0
+"Dinner","Yadult","No",13.11,2.5,0
+"Dinner","SenCit","Yes",26.88,3.12,0
+"Dinner","Middle","No",26.54,5,0
+"Dinner","Middle","Yes",21.61,3,0
+"Dinner","SenCit","No",9.63,2,0
+"Dinner","SenCit","No",68.49,10,0
+"Dinner","Middle","Yes",59.05,6,0
+"Dinner","Middle","No",26.54,5,0
+"Dinner","Yadult","Yes",17.61,5,0
+"Dinner","SenCit","No",19.68,6,0
+"Dinner","SenCit","No",25.36,6.64,0
+"Dinner","Middle","Yes",46.04,5.96,0
+"Dinner","SenCit","Yes",60.58,9,0
+"Dinner","Middle","No",28.46,5.54,0
+"Dinner","Middle","No",24.18,4,0
+"Dinner","SenCit","No",11.56,1.69,0
+"Late Night","Yadult","No",4.98,0.02,0
+"Late Night","Yadult","No",10.98,2,0
+"Late Night","Yadult","No",13.95,0,0
+"Late Night","Yadult","No",2.14,0,0
+"Late Night","Yadult","No",2.13,0.87,0
+"Late Night","Middle","Yes",15.53,4.47,0
+"Late Night","Yadult","No",21.65,0,0
+"Late Night","Middle","Yes",15.66,3,0
+"Late Night","Middle","No",13.49,1.51,0
+"Late Night","Middle","No",14.19,1.81,0
+"Late Night","Middle","Yes",25.4,4,0
+"Late Night","Yadult","No",7.91,2.09,0
+"Late Night","Yadult","No",2.13,0.87,0
+"Late Night","Yadult","No",6.52,3.48,0
+"Late Night","Middle","No",14.61,4,0
+"Late Night","Middle","No",29.18,5,0
+"Late Night","Middle","Yes",23.6,5.4,0
+"Late Night","Middle","No",7.38,0,0
+"Late Night","Middle","No",17.55,2,0
+"Late Night","Middle","No",43.87,6.13,0
+"Dinner","Middle","No",32.57,6,1
+"Dinner","Middle","No",31.71,8.29,1
+"Dinner","Middle","No",23.98,4.02,1
+"Dinner","Middle","No",57.45,9.05,1
+"Dinner","Middle","No",31.45,3,1
+"Dinner","Yadult","No",30.82,5.18,1
+"Dinner","Middle","No",30.82,5,1
+"Dinner","Middle","Yes",63.71,9,1
+"Dinner","Middle","Yes",27.09,4.91,1
+"Dinner","Middle","Yes",28.24,5,1
+"Dinner","Middle","No",28.02,4,1
+"Dinner","Middle","No",32.52,3.48,1
+"Dinner","Middle","Yes",57.86,10,1
+"Dinner","SenCit","No",39.16,7,1
+"Dinner","Middle","Yes",33.44,2.56,1
+"Dinner","Middle","No",30.6,4.5,1
+"Dinner","Middle","No",64.28,10,1
+"Dinner","Yadult","No",27.81,4,1
+"Dinner","Middle","No",50.82,10,1
+"Late Night","Yadult","No",6.95,1.05,1
+"Dinner","Middle","No",52.06,10,1
+"Late Night","Yadult","Yes",24.21,5,1
+"Lunch","Middle","No",25.24,4,1
+"Lunch","SenCit","No",30.38,5,1
+"Lunch","Middle","No",41.48,4,1
+"Lunch","SenCit","No",102.07,15,1
+"Lunch","Middle","Yes",69.56,5,1
+"Lunch","Middle","No",33.81,10,1
+"Lunch","SenCit","No",22.79,3.21,1
+"Lunch","SenCit","No",25.68,4.32,1
+"Lunch","SenCit","No",44.3,8,1
+"Lunch","Middle","Yes",79.66,15,1
+"Lunch","Middle","No",19.77,4,1
+"Lunch","Middle","No",30.16,5,1
+"Lunch","Yadult","No",17.12,0.88,1
+"Lunch","Middle","Yes",34.7,3,1
+"Dinner","SenCit","Yes",35.81,6.19,1
+"Dinner","Yadult","Yes",20.58,5,1
+"Dinner","Middle","No",37.89,5,1
+"Dinner","SenCit","No",43.88,5,1
+"Dinner","Middle","Yes",34.66,4,1
+"Dinner","Middle","No",29.82,4,1
+"Dinner","Middle","No",56.04,5,1
+"Dinner","SenCit","No",30.93,9.07,1
+"Dinner","Yadult","No",21.39,5,1
+"Dinner","Middle","Yes",45.91,4.09,1
+"Dinner","Yadult","No",24.82,5,1
+"Dinner","SenCit","No",61.4,10,1
+"Dinner","Yadult","No",35.08,4.92,1
