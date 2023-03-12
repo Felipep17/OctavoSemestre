@@ -13,5 +13,3 @@ l<-matrix(c(0.2,0.15,1000,0.2,0.15,2000,0.2,0.15,3000,0.2,0.2,1000,0.2,0.2,2000,
 colnames(l)<- c("Rap.Alimentación (plg/min)","Prof.Corte (plg)","Rota.Herramienta (rpm)")
 library(xtable)
 xtable(l)
-
-
