@@ -17,10 +17,11 @@ abline(h=mean(TT),lwd=2,lty=2)
 #Exploraciónd e una serie temporal con diferentes distribuciones asociadadas a cada observación
 X<- c(rbinom(100,10,0.5),rnorm(100,mu,abs(2*mu)),rgamma(100,abs(rnorm(100))+2,2),rpois(100,10),rweibull(100,abs(rnorm(100))+2,5))
 Y<- sample(X,length(X))
-plot.ts(Y,xlab='',ylab='')
+plot.ts(Y,xlab='',ylab='',panel.first=grid())
 abline(h=mean(Y),lwd=2,lty=2)
 ##########
 library(forecast)
 library(timeSeries)
 library(tseries)
 adf.test(X)
+
