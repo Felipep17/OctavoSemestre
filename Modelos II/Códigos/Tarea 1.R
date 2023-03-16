@@ -1,11 +1,58 @@
 #Primer punto
 library(readr)
+library(car)
 X <- read_csv("ChemReact.csv")
 par(mfrow=c(1,2))
 attach(X)
 plot(Yield~Time,pch=19,col='red1',ylab='Rendimiento',xlab='Tiempo')
 plot(Yield~Temp,pch=19,col='aquamarine1',ylab='Rendimiento',xlab='Temperatura')
-model<- lm(Yield~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
+
+X$Temp.c<- Temp-mean(Temp)
+X$Time.c<- Time-mean(Time)
+model<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
+summary(model)
+X1 = seq(32, 38, length.out = 50)
+X2 = seq(335, 365, length= 50)
+
+y <- outer(X= X$Time, Y = X$Temp, FUN = function(x, y) {
+  predict(model, newdata = data.frame(Time.c = x-mean(Time), Temp.c = y-mean(Temp)))
+})
+############################# Curva
+library(scatterplot3d)
+library(plot3D)
+library(plotly)
+library(scatterplot3d)
+library(rgl)
+library(plot3Drgl)
+z<-X$Yield
+y<-X$Temp
+x<-X$Time
+scatter3D(x, y, z, phi = 0, bty = "b",
+          pch = 20, cex = 2, ticktype = "detailed")
+#La variable Z es la variable a predecir
+#Creamos un objeto para realizar las predicciones con elmodelo
+objr<-lm(z ~ x+y+I(x^2)+I(y^2)+y*x)
+summary(objr)
+objr
+#preparamos el modelado 3d
+grid.lines = 42
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+
+
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(objr, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# Marcamos las líneas de iteracción para que busquen la recta de regresión
+fitpoints <- predict(objr)
+#ploteamos la gráfica en 3d con recta de regresión
+scatter3D(x, y, z, pch = 19, cex = 2, 
+          theta = 20, phi = 20, ticktype = "detailed",
+          surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                      facets = NA, fit = fitpoints), main = "")
+#Gráfico dinámico
+plotrgl()
+################################ Model
 ######Validación de supuestos
 #Gráfica de R
 #Evaluación de heterocedasticidad
