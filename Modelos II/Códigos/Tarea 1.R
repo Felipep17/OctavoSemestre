@@ -11,9 +11,15 @@ X$Temp.c<- Temp-mean(Temp)
 X$Time.c<- Time-mean(Time)
 model<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
 summary(model)
+model.in<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2),data=X)
+anova(model,model.in)
+summary(model.in)
+summary(X)
+predict(model.in,newdata=data.frame(Temp.c=(1)),(Time.c=1))
 X1 = seq(32, 38, length.out = 50)
 X2 = seq(335, 365, length= 50)
-
+mean(Temp)
+mean(Time)
 y <- outer(X= X$Time, Y = X$Temp, FUN = function(x, y) {
   predict(model, newdata = data.frame(Time.c = x-mean(Time), Temp.c = y-mean(Temp)))
 })
@@ -25,15 +31,14 @@ library(scatterplot3d)
 library(rgl)
 library(plot3Drgl)
 z<-X$Yield
-y<-X$Temp
-x<-X$Time
+y<-X$Temp.c
+x<-X$Time.c
 scatter3D(x, y, z, phi = 0, bty = "b",
           pch = 20, cex = 2, ticktype = "detailed")
 #La variable Z es la variable a predecir
 #Creamos un objeto para realizar las predicciones con elmodelo
-objr<-lm(z ~ x+y+I(x^2)+I(y^2)+y*x)
+objr<-lm(z ~ x+y+I(x^2)+I(y^2))
 summary(objr)
-objr
 #preparamos el modelado 3d
 grid.lines = 42
 x.pred <- seq(min(x), max(x), length.out = grid.lines)
@@ -49,9 +54,11 @@ fitpoints <- predict(objr)
 scatter3D(x, y, z, pch = 19, cex = 2, 
           theta = 20, phi = 20, ticktype = "detailed",
           surf = list(x = x.pred, y = y.pred, z = z.pred,  
-                      facets = NA, fit = fitpoints), main = "")
+                      facets = NA, fit = fitpoints), main = "",col = c('aquamarine1','aquamarine2','aquamarine3','aquamarine4'))
 #Gráfico dinámico
 plotrgl()
+########### Contorno
+
 ################################ Model
 ######Validación de supuestos
 #Gráfica de R
