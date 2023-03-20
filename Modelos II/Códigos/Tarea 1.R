@@ -242,3 +242,4 @@ plot(studenti[-270],studenti[-1],pch=19,panel.first = grid(),col="turquoise3",xl
 abline(lm(studenti[-1]~studenti[-270]))
 cor(studenti[-270],studenti[-1])
 durbinWatsonTest(model,method='resample',reps=1000)
+
