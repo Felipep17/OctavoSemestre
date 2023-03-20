@@ -129,7 +129,7 @@ summary(X)
 resumen<- function(x){
   X<- matrix(0,9,1)
   resumen<- round(c(mean(x),median(x),min(x),max(x),var(x),sd(x),quantile(x,0.25),quantile(x,0.75),sd(x)/mean(x)),4)
-  for( i  in 1:7){
+  for( i  in 1:9){
     X[i,]<- resumen[i]
   }
   rownames(X)<-c('Media','Mediana','Min','Max','Var','Sd','1st Qu.','3rd Qu','Coef.Var')
