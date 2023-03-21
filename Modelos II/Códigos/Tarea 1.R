@@ -6,7 +6,8 @@ par(mfrow=c(1,2))
 attach(X)
 plot(Yield~Time,pch=19,col='red1',ylab='Rendimiento',xlab='Tiempo')
 plot(Yield~Temp,pch=19,col='aquamarine1',ylab='Rendimiento',xlab='Temperatura')
-
+model.<- lm(Yield~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
+vif(model.)
 X$Temp.c<- Temp-mean(Temp)
 X$Time.c<- Time-mean(Time)
 model<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
@@ -19,9 +20,6 @@ X1 = seq(32, 38, length.out = 50)
 X2 = seq(335, 365, length= 50)
 mean(Temp)
 mean(Time)
-y <- outer(X= X$Time, Y = X$Temp, FUN = function(x, y) {
-  predict(model, newdata = data.frame(Time.c = x-mean(Time), Temp.c = y-mean(Temp)))
-})
 ############################# Curva
 library(scatterplot3d)
 library(plot3D)
@@ -53,11 +51,43 @@ fitpoints <- predict(objr)
 scatter3D(x, y, z, pch = 19, cex = 2, 
           theta = 20, phi = 20, ticktype = "detailed",
           surf = list(x = x.pred, y = y.pred, z = z.pred,  
-                      facets = NA, fit = fitpoints), main = "",col = c('aquamarine1','aquamarine2','aquamarine3','aquamarine4'))
+                      facets = NA, fit = fitpoints), main = "",xlab='Tiempo ',ylab='Temperatura',col = c('red4','red3','red2','red1','orange4','orange3','orange2','orange1','yellow4','yellow3','yellow2','yellow'))
 #Gráfico dinámico
 plotrgl()
-########### Contorno
+############################# Curva
+library(scatterplot3d)
+library(plot3D)
+library(plotly)
+library(scatterplot3d)
+library(rgl)
+library(plot3Drgl)
+z<-X$Yield
+y<-X$Temp
+x<-X$Time
+scatter3D(x, y, z, phi = 0, bty = "b",
+          pch = 20, cex = 2, ticktype = "detailed")
+#La variable Z es la variable a predecir
+#Creamos un objeto para realizar las predicciones con elmodelo
+objr<-lm(z ~ x+y+I(x^2)+I(y^2))
+summary(objr)
+#preparamos el modelado 3d
+grid.lines = 42
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
 
+
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(objr, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# Marcamos las líneas de iteracción para que busquen la recta de regresión
+fitpoints <- predict(objr)
+#ploteamos la gráfica en 3d con recta de regresión
+scatter3D(x, y, z, pch = 19, cex = 2, 
+          theta = 20, phi = 20, ticktype = "detailed",
+          surf = list(x = x.pred, y = y.pred, z = z.pred,  
+                      facets = NA, fit = fitpoints), main = '',ylab='Temperatura ',xlab='Tiempo',col = c('red4','red3','red2','red1','orange4','orange3','orange2','orange1','yellow4','yellow3','yellow2','yellow'))
+#Gráfico dinámico
+plotrgl()
 ################################ Model
 ######Validación de supuestos
 #Gráfica de R
@@ -111,15 +141,15 @@ anova(model.box,model.box2)
 summary(model.box2)
 ################### MCP##################
 #Estimación varianza
-res.mcp<- residuals(model)
-varianza<- lm(abs(res.mcp)~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
+res.mcp<- residuals(model.in)
+varianza<- lm(abs(res.mcp)~Temp+Time+I(Time^2)+I(Temp^2),data=X)
 w = 1/varianza$fitted.values^2
-model.ponderados<- lm(Yield~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,weights = w)
+model.ponderados<- lm(Yield~Temp+Time+I(Time^2)+I(Temp^2),weights = w)
 summary(model.ponderados)
 #Validación Supuestos
 res.ponderados<- residuals(model.ponderados)*sqrt(w)
-qqPlot(res.ponderados)
-
+qqPlot(res.ponderados,pch=19)
+shapiro.test(res.ponderados)
 plot(fitted.values(model.ponderados),res.ponderados,
      xlab='valores ajustados',ylab='residuos ponderados',pch=19,panel.first = grid(),col="aquamarine4")
 lines(lowess(res.ponderados~fitted.values(model.ponderados)),col=2,lty=2,lwd=4)
@@ -238,8 +268,8 @@ qqPlot(mod.segmento,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pc
 par(mfrow=c(1,2))
 plot(studenti,type="b",xlab="Tiempo",ylab="Residuos Estudentizados",main="A")
 length(studenti)
-plot(studenti[-270],studenti[-1],pch=19,panel.first = grid(),col="turquoise3",xlab="Residuos(t-1)",ylab="Residuos(t)",main="B")
-abline(lm(studenti[-1]~studenti[-270]))
+plot(studenti[-1],studenti[-nrow(X)],pch=19,panel.first = grid(),col="turquoise3",xlab="Residuos(t-1)",ylab="Residuos(t)",main="B")
+abline(lm(studenti[-1]~studenti[-nrow(X)]))
 cor(studenti[-270],studenti[-1])
 durbinWatsonTest(model,method='resample',reps=1000)
 
