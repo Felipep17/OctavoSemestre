@@ -88,13 +88,27 @@ scatter3D(x, y, z, pch = 19, cex = 2,
                       facets = NA, fit = fitpoints), main = '',ylab='Temperatura ',xlab='Tiempo',col = c('red4','red3','red2','red1','orange4','orange3','orange2','orange1','yellow4','yellow3','yellow2','yellow'))
 #Gráfico dinámico
 plotrgl()
+X1 = seq(min(X$Time), max(X$Time), length.out = 50)
+X2 = seq(min(X$Temp), max(X$Temp), length= 50)
+
+y <- outer(X= X$Time, Y = X$Temp, FUN = function(x, y) {
+  predict(model.in, newdata = data.frame(Time.c = x-mean(Time), Temp.c = y-mean(Temp)))
+})
+
+contour(X1, X2, y,xlab='',
+        ylab='')
+ggplot(X, aes(x =X$Temp.c , y = X$Time.c)) +
+  geom_density_2d()
+library(xtable)
+
+xtable(anova(model,model.in))
 ################################ Model
 ######Validación de supuestos
 #Gráfica de R
 #Evaluación de heterocedasticidad
 par(mfrow=c(1,1))
 library(MASS)
-studenti<- studres(model)
+studenti<- studres(model.in)
 ajustados<- fitted.values(model)
 plot(ajustados,studenti, ylab='Residuos Estudentizados',
      xlab='Valores Ajustados',pch=19,col="aquamarine4",main="Residuos Estudentizados VS Ajustados")
@@ -135,6 +149,7 @@ bptest(model.box,~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
 par(mfrow=c(1,1))
 qqPlot(residuals(model.box),xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19,main="QQPLOT")
 shapiro.test(residuals(model.box))
+hist(residuals(model.box))
 summary(model.box)
 model.box2<- lm(I(Yield^bc)~Temp+Time+I(Time^2)+I(Temp^2),data=X)
 anova(model.box,model.box2)
