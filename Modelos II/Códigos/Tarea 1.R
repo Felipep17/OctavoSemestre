@@ -1,4 +1,5 @@
 #Primer punto
+setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Modelos II/Bases de datos")
 library(readr)
 library(car)
 X <- read_csv("ChemReact.csv")
@@ -16,10 +17,6 @@ model.in<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2),data=X)
 anova(model,model.in)
 summary(model.in)
 predict(model.in,newdata=data.frame(Temp.c=1,Time.c=1))
-X1 = seq(32, 38, length.out = 50)
-X2 = seq(335, 365, length= 50)
-mean(Temp)
-mean(Time)
 ############################# Curva
 library(scatterplot3d)
 library(plot3D)
@@ -66,6 +63,7 @@ y<-X$Temp
 x<-X$Time
 scatter3D(x, y, z, phi = 0, bty = "b",
           pch = 20, cex = 2, ticktype = "detailed")
+
 #La variable Z es la variable a predecir
 #Creamos un objeto para realizar las predicciones con elmodelo
 objr<-lm(z ~ x+y+I(x^2)+I(y^2))
@@ -87,21 +85,27 @@ scatter3D(x, y, z, pch = 19, cex = 2,
           surf = list(x = x.pred, y = y.pred, z = z.pred,  
                       facets = NA, fit = fitpoints), main = '',ylab='Temperatura ',xlab='Tiempo',col = c('red4','red3','red2','red1','orange4','orange3','orange2','orange1','yellow4','yellow3','yellow2','yellow'))
 #Gráfico dinámico
-plotrgl()
-X1 = seq(min(X$Time), max(X$Time), length.out = 50)
-X2 = seq(min(X$Temp), max(X$Temp), length= 50)
-
-y <- outer(X= X$Time, Y = X$Temp, FUN = function(x, y) {
-  predict(model.in, newdata = data.frame(Time.c = x-mean(Time), Temp.c = y-mean(Temp)))
+X<- as.data.frame(X)
+X[,2]
+X1 = seq(min(X[,2]), max(X[,2]), length.out = 50)
+X2 = seq(min(X[,1]), max(X[,1]), length= 50)
+model.in
+y <- outer(X= X1, Y = X2, FUN = function(x, y) {
+  predict(model.in, newdata = data.frame(Temp.c = x-mean(X[,2]), Time.c = y-mean(X[,1])))
 })
+par(mfrow=c(1,1))
+contour(X1, X2, y,xlab='Temperatura',
+        ylab='Tiempo',col=hcl.colors(10,palette='viridis'))
+library(MASS)
+z <- kde2d(X1, X2, n = 50)
+filled.contour(X1,X2,y,color=topo.colors,xlab='Temperatura',ylab='Tiempo')
+filled.contour(X1,X2,y,xlab='Temperatura',ylab='Tiempo', plot.axes = {
+  axis(1)
+  axis(2)
+  contour(y, add = TRUE, lwd = 2)
+}
+)
 
-contour(X1, X2, y,xlab='',
-        ylab='')
-ggplot(X, aes(x =X$Temp.c , y = X$Time.c)) +
-  geom_density_2d()
-library(xtable)
-
-xtable(anova(model,model.in))
 ################################ Model
 ######Validación de supuestos
 #Gráfica de R
