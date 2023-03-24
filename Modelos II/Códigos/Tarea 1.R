@@ -2,21 +2,79 @@
 setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Modelos II/Bases de datos")
 library(readr)
 library(car)
-X <- read_csv("ChemReact.csv")
+X <- read_csv("ChemReact.csv") #Importo la base de datos
 par(mfrow=c(1,2))
 attach(X)
+#Análisis exploratorio de datos
 plot(Yield~Time,pch=19,col='red1',ylab='Rendimiento',xlab='Tiempo')
 plot(Yield~Temp,pch=19,col='aquamarine1',ylab='Rendimiento',xlab='Temperatura')
+#Modelo de regresión sin las variables centradas
 model.<- lm(Yield~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
-vif(model.)
+vif(model.) #Multicolinealdiad
+#Variables centradas
 X$Temp.c<- Temp-mean(Temp)
 X$Time.c<- Time-mean(Time)
+#Modelo con las variables centradas
 model<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
-summary(model)
+# Validación de supuestos
+#Evaluación de heterocedasticidad
+par(mfrow=c(1,1))
+library(MASS)
+studenti<- studres(model)
+ajustados<- fitted.values(model)
+plot(ajustados,studenti, ylab='Residuos Estudentizados',
+     xlab='Valores Ajustados',pch=19,col="aquamarine4",main="Residuos Estudentizados VS Ajustados")
+abline(h=0,lty=2,lwd=2)
+lines(lowess(studenti~ajustados), col = "red1")
+library(lmtest)
+bptest(model,~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
+#Residuos parciales para evaluar Linealidad y asegurar el supuesto de que la esperanza de los errores es igual a 0
+shapiro.test(studenti)
+qqPlot(model,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19)
+#Transformaciones
+#Correción de normalidad
+#Calculo del lambda más óptimo
+box.cox<- boxcox(model,lambda=seq(-4,4,length.out = 1000),
+                 ylab='Log-verosimilitud')
+#Selección del Lambda
+bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
+#Ajuste del modelo
+model.box<- lm(I(Yield^bc)~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
+#Resumen del modelo
+summary(model.box)
+#Validación de supuestos del modelo con BOX-COX
+library(MASS)
+studenti.box<- studres(model.box)
+ajustados.box<- model.box$fitted.values
+par(mfrow=c(1,2))
+plot(ajustados.box,studenti.box, ylab='Residuos Estudentizados',
+     xlab='Valores Ajustados',pch=19,col="aquamarine4",main="A")
+abline(h=0,lty=2,lwd=2)
+lines(lowess(studenti.box~ajustados.box), col = "red1")
+bptest(model.box,~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
+qqPlot(residuals(model.box),xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19,main="B")
+shapiro.test(residuals(model.box))
+################### MCP##################
+#Estimación varianza
+res.mcp<- residuals(model)
+varianza<- lm(abs(res.mcp)~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
+w = 1/varianza$fitted.values^2
+model.ponderados<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,weights = w,data=X)
+#Validación Supuestos
+par(mfrow=c(1,2))
+res.ponderados<- residuals(model.ponderados)*sqrt(w)
+plot(fitted.values(model.ponderados),res.ponderados,
+     xlab='valores ajustados',ylab='residuos ponderados',pch=19,panel.first = grid(),col="aquamarine4",main='A')
+lines(lowess(res.ponderados~fitted.values(model.ponderados)),col=2,lty=2,lwd=4)
+abline(h=0,lty=2,lwd=2)
+qqPlot(res.ponderados,pch=19,ylab='Residuos Ponderados',xlab='Cuantiles Teóricos',main='B')
+shapiro.test(res.ponderados)
+# Omisión de la variable irrelevante
 model.in<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2),data=X)
-anova(model,model.in)
+anova(model,model.in) #Significativamente
 summary(model.in)
 predict(model.in,newdata=data.frame(Temp.c=1,Time.c=1))
+
 ############################# Curva
 library(scatterplot3d)
 library(plot3D)
@@ -106,78 +164,6 @@ filled.contour(X1,X2,y,xlab='Temperatura',ylab='Tiempo', plot.axes = {
 }
 )
 
-################################ Model
-######Validación de supuestos
-#Gráfica de R
-#Evaluación de heterocedasticidad
-par(mfrow=c(1,1))
-library(MASS)
-studenti<- studres(model.in)
-ajustados<- fitted.values(model)
-plot(ajustados,studenti, ylab='Residuos Estudentizados',
-     xlab='Valores Ajustados',pch=19,col="aquamarine4",main="Residuos Estudentizados VS Ajustados")
-abline(h=0,lty=2,lwd=2)
-lines(lowess(studenti~ajustados), col = "red1")
-library(lmtest)
-bptest(model,~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
-#Gráfica utilizando 
-library(ggfortify)
-par(mfrow=c(1,1))
-#Residuos parciales para evaluar Linealidad y asegurar el supuesto de que la esperanza de los errores es igual a 0
-#Gráfico de normalidad
-#Prueba de normalidad
-res<- residuals(model)
-shapiro.test(res)
-qqPlot(model,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19)
-summary(model)
-#Correción de normalidad
-#Calculo del lambda más óptimo
-box.cox<- boxcox(model,lambda=seq(-4,4,length.out = 1000),
-                 ylab='log-verosimilitud')
-#Selección del Lambda
-bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
-#Ajuste del modelo
-model.box<- lm(I(Yield^bc)~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
-#Resumen del modelo
-summary(model.box)
-#Validación de supuestos del modelo con BOX-COX
-library(MASS)
-studenti.box<- studres(model.box)
-ajustados.box<- model.box$fitted.values
-par(mfrow=c(1,1))
-plot(ajustados.box,studenti.box, ylab='Residuos Estudentizados',
-     xlab='Valores Ajustados',pch=19,col="aquamarine4",main="Residuos Estudentizados VS Ajustados")
-abline(h=0,lty=2,lwd=2)
-lines(lowess(studenti.box~ajustados.box), col = "red1")
-bptest(model.box,~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
-par(mfrow=c(1,1))
-qqPlot(residuals(model.box),xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19,main="QQPLOT")
-shapiro.test(residuals(model.box))
-hist(residuals(model.box))
-summary(model.box)
-model.box2<- lm(I(Yield^bc)~Temp+Time+I(Time^2)+I(Temp^2),data=X)
-anova(model.box,model.box2)
-summary(model.box2)
-################### MCP##################
-#Estimación varianza
-res.mcp<- residuals(model.in)
-varianza<- lm(abs(res.mcp)~Temp+Time+I(Time^2)+I(Temp^2),data=X)
-w = 1/varianza$fitted.values^2
-model.ponderados<- lm(Yield~Temp+Time+I(Time^2)+I(Temp^2),weights = w)
-summary(model.ponderados)
-#Validación Supuestos
-res.ponderados<- residuals(model.ponderados)*sqrt(w)
-qqPlot(res.ponderados,pch=19)
-shapiro.test(res.ponderados)
-plot(fitted.values(model.ponderados),res.ponderados,
-     xlab='valores ajustados',ylab='residuos ponderados',pch=19,panel.first = grid(),col="aquamarine4")
-lines(lowess(res.ponderados~fitted.values(model.ponderados)),col=2,lty=2,lwd=4)
-abline(h=0,lty=2,lwd=2)
-plot(fitted.values(model.ponderados),abs(res.ponderados),
-     xlab='valores ajustados',ylab='| residuos ponderados |',pch=19,panel.first = grid())
-lines(lowess(abs(res.ponderados)~fitted.values(model.ponderados)),col=2,pch=19,lwd=4,lty=2)
-library(car)
-crPlots(model.ponderados)
 #Segundo Punto
 #Importó la librería e inicializó un vector con la información
 library(alr4)
