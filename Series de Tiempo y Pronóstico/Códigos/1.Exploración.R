@@ -1,3 +1,4 @@
+############ Simulación de la primera tarea
 #################### Exploración de una serie temporal estacionaria########
 X<- rnorm(1000) #Vector de 1000 variables independientes e identicamente distribuidas
 #Gráfico de la trayectoría
