@@ -2,6 +2,7 @@
 setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Modelos II/Bases de datos")
 library(readr)
 library(car)
+library(latex2exp)
 X <- read_csv("ChemReact.csv") #Importo la base de datos
 par(mfrow=c(1,2))
 attach(X)
@@ -18,19 +19,19 @@ X$Time.c<- Time-mean(Time)
 model<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
 # Validación de supuestos
 #Evaluación de heterocedasticidad
-par(mfrow=c(1,1))
+par(mfrow=c(1,2))
 library(MASS)
 studenti<- studres(model)
 ajustados<- fitted.values(model)
-plot(ajustados,studenti, ylab='Residuos Estudentizados',
-     xlab='Valores Ajustados',pch=19,col="aquamarine4",main="Residuos Estudentizados VS Ajustados")
+plot(ajustados,studenti, panel.first=grid(),ylab='Residuos Estudentizados',
+     xlab='Valores Ajustados',pch=19,col="aquamarine4",main="A")
 abline(h=0,lty=2,lwd=2)
 lines(lowess(studenti~ajustados), col = "red1")
 library(lmtest)
 bptest(model,~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
 #Residuos parciales para evaluar Linealidad y asegurar el supuesto de que la esperanza de los errores es igual a 0
 shapiro.test(studenti)
-qqPlot(model,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19)
+qqPlot(model,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19,main='B')
 #Transformaciones
 #Correción de normalidad
 #Calculo del lambda más óptimo
@@ -43,7 +44,6 @@ model.box<- lm(I(Yield^bc)~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,d
 #Resumen del modelo
 summary(model.box)
 #Validación de supuestos del modelo con BOX-COX
-library(MASS)
 studenti.box<- studres(model.box)
 ajustados.box<- model.box$fitted.values
 par(mfrow=c(1,2))
@@ -72,6 +72,56 @@ shapiro.test(res.ponderados)
 # Omisión de la variable irrelevante
 model.in<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2),data=X)
 anova(model,model.in) #Significativamente
+############# Supuestos en general###############
+par(mfrow=c(2,3))
+############## Varianza
+#Modelo centrado sin transformaciones
+studenti<- studres(model)
+ajustados<- fitted.values(model)
+plot(ajustados,studenti, panel.first=grid(),ylab='Residuos Estudentizados',
+     xlab='Valores Ajustados',cex=1.5,pch=19,col="aquamarine4",main="Modelo Centrado")
+abline(h=0,lty=2,lwd=2)
+lines(lowess(studenti~ajustados), col = "red1")
+############ BOX-COX
+studenti.box<- studres(model.box)
+ajustados.box<- model.box$fitted.values
+plot(ajustados.box,studenti.box,cex=1.5, panel.first=grid(), ylab='Residuos Estudentizados',
+     xlab='Valores Ajustados',pch=19,col="aquamarine4",main=TeX("$(Modelo Box-Cox)  \\lambda=1.333$"))
+abline(h=0,lty=2,lwd=2)
+abline(h=0,lty=2,lwd=2)
+lines(lowess(studenti.box~ajustados.box), col = "red1")
+# Model Ponderados
+plot(fitted.values(model.ponderados),cex=1.5,res.ponderados,
+     xlab='valores ajustados',ylab='residuos ponderados',pch=19,panel.first = grid(),col="aquamarine4",main='Minimos Cuadrados Ponderados')
+lines(lowess(res.ponderados~fitted.values(model.ponderados)),lty=1,lwd=1,col='red1')
+abline(h=0)
+##################################### NORMALIDAD
+#Centrado
+qqPlot(model,xlab="Cuantiles Teóricos",cex=1.5,ylab="Residuos Estudentizados",pch=19,main='')
+# Box-Cox
+qqPlot(residuals(model.box),cex=1.5,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19,main="")
+#Ponderados
+qqPlot(res.ponderados,pch=19,ylab='Residuos Ponderados',xlab='Cuantiles Teóricos',main='',cex=1.5)
+#Tabla de resumen de estadísticos
+shapiro.test(studenti)
+shapiro.test(studenti.box)
+shapiro.test(res.ponderados)
+bptest(model.box,~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
+bptest(model,~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
+Hipo<-matrix(0,4,3)
+Hipo[,1]<- c('Modelo/Valores P','Modelo Centrado','Modelo Box-Cox', 'Modelo MCP')
+
+Hipo[,2]<- c('Shapiro Wilk(p-value)',0.006628,0.005993,0.0002527)
+Hipo[,3]<- c('Breusch Pagan(p-value)',0.558,0.6521,'No Aplica')
+Hipo<-as.data.frame(Hipo)
+colnames(Hipo)<- Hipo[1,]
+rownames(Hipo)<- Hipo[,1]
+Hipo<- Hipo[,-1]
+Hipo<- Hipo[-1,]
+Hipo
+#Residuos parciales para evaluar Linealidad y asegurar el supuesto de que la esperanza de los errores es igual a 0
+shapiro.test(studenti)
+qqPlot(model,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19,main='B')
 # No se logra evidenciar cambios con las trasnformaciones por lo cuál
 # Trabajaremos con el modelo sin la interacción y en general
 summary(model.in)
@@ -188,7 +238,7 @@ lines(x.nuevo$Duration,pred.nuev.obs[,2],lty=3,lwd=3)
 lines(x.nuevo$Duration,pred.nuev.obs[,3],lty=3,lwd=3)
 #Caja de enunciados
 legend(x = "bottomright",legend=c("Modelo","Intervalo de confianza 95%","Intervalo de predicción 95%"),
-       lty = c(1, 2,3),pt.cex=2,
+       lty = c(1, 2,3),pt.cex=1.5,
        box.lwd=0.6,text.font =15,cex=1)
 #Gráfica del modelo
 abline(model,lwd=2)
@@ -240,7 +290,7 @@ lines(seq(180,330,length.out=100),pred.nuev.obs[,2],lty=3,lwd=3)
 lines(seq(180,330,length.out=100),pred.nuev.obs[,3],lty=3,lwd=3)
 #Caja de enunciados
 legend(x = "bottomright",legend=c("Modelo","Intervalo de confianza 95%","Intervalo de predicción 95%"),
-       lty = c(1, 2,3),pt.cex=2,
+       lty = c(1, 2,3),pt.cex=1.5,
        box.lwd=0.6,text.font =15,cex=1)
 #Gráfica de R
 #Evaluación de heterocedasticidad

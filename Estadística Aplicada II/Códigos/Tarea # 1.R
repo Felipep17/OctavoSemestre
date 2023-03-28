@@ -12,6 +12,12 @@ library(zoom)
 library(ggfortify)
 library(psych)
 library(car)
+library(lmtest)
+library(MASS)
+library(xtable)
+library(latex2exp)
+library(orcutt)
+library(nlme)
 ###### Funciones creadas por el estudiante
 # Estadística Descriptivas
 resumen<- function(x){
@@ -23,6 +29,47 @@ resumen<- function(x){
   rownames(X)<-c('Media','Mediana','Min','Max','Var','Sd','1st Qu.','3rd Qu','Coef.Var')
   colnames(X)<- (paste(colnames(x)))
   return(X)
+}
+########Validación de supuestos
+validaciongrafica<- function(model,cor=F){
+  par(mfrow=c(1,2))
+  plot(fitted.values(model),studres(model),panel.first=grid(),pch=19,ylab='Residuos Estudentizados',xlab='Valores ajustados',main='A',col='aquamarine4')
+  lines(lowess(studres(model)~fitted.values(model)), col = "red1")
+  abline(h=c(-2,0,2),lty=2)
+  qqPlot(model,pch=19,ylab='Residuos Estudentizados',xlab='Cuantiles Teóricos',col=carPalette()[1],col.lines=carPalette()[3],main='B')
+  print('Shapiro Test')
+  print(shapiro.test(studres(model)))
+  print('Breusch Pagan Test')
+  print(bptest(model))
+  if(cor==T){
+  par(mfrow=c(1,2))
+  plot(studres(model),type="b",xlab="Tiempo",ylab="Residuos Estudentizados",main="A",pch=19,panel.first=grid())
+  plot(studres(model)[-length(fitted.values(model))],studres(model)[-1],pch=19,panel.first = grid(),col="turquoise3",xlab=TeX("$Residuos_{t-1}$"),ylab=TeX("$Residuos_{t}$"),main="B")
+  abline(lm(studres(model)[-1]~studres(model)[-length(fitted.values(model))]))
+  print('Durbin Watson Test')
+  print(durbinWatsonTest(model,method='resample',reps=10000))
+  }
+}
+#Cálculo del lambda óptimo para el boxcox
+lambda<- function(model,a,b){
+print(boxcox(model,lambda=seq(a,b,length.out = 1000),
+         ylab='log-verosimilitud'))
+box.cox<- boxcox(model,lambda=seq(-a,b,length.out = 1000),
+                 ylab='log-verosimilitud')
+####### Validación supuestos MCP
+validacionmcp<- function(model){
+  par(mfrow=c(1,2))
+  res.ponderados<- residuals(model)*sqrt(weights(model))
+  print(plot(fitted.values(model),res.ponderados,
+             xlab='valores ajustados',main='A',ylab='residuos ponderados',pch=19,panel.first = grid(),col="aquamarine4"))
+  lines(lowess(res.ponderados~fitted.values(model)),col=2,lty=2,lwd=4)
+  abline(h=0,lty=2,lwd=2)
+  print(qqPlot(res.ponderados,pch=19,xlab='Cuantiles Teóricos',ylab='Residuos Ponderados',col=carPalette()[1],col.lines=carPalette()[3],main='B'))
+  print(shapiro.test(res.ponderados))
+}
+#Selección del Lambda
+bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
+return(bc)
 }
 ################################ Importación de los datos
 data <- read_excel("data.xlsx")
@@ -64,18 +111,26 @@ psych::pairs.panels(X[21:31],
                     ellipses = TRUE # show correlation ellipses
 )
 #Visualización de los datos
-set.seed(1)
+set.seed(11)
 #Variable aleatoria para crear la gráfica
 sample(1:30,1)
 #Creación del panel de fondo
-plot(seq(min(X[,25]),max(X[,25]),length.out=30),seq(min(X[,31]),max(X[,31]),length.out=30),type='n',xlab='',ylab='')
+par(mfrow=c(1,1))
+plot(seq(min(X[,26]),max(X[,26]),length.out=30),seq(min(X[,31]),max(X[,31]),length.out=30),type='n',xlab='',ylab='')
 grid(10,10,col=c('aquamarine3','blue4'))
 par(new=T)
-plot(X[,31]~X[,25],ylab='Densidad',xlab=' NIR 25',pch=19)
-model<- lm(density~`NIR 25`,data=X)
+plot(X[,31]~X[,26],ylab='Densidad',xlab=' NIR 25',pch=19)
+model<- lm(density~NIR26,data=X)
 abline(model,lwd=2)
-summary(model)
-qqPlot(model)
+#Validación de supuestos gráfica
+validaciongrafica(model,cor=T)
+###########
+#Estimación varianza
+res.mcp<- residuals(model)
+varianza<- lm(abs(res.mcp)~NIR26,data=X)
+w = 1/(fitted.values(varianza)^2)
+model.ponderados<- lm(density~NIR26,data=X,weights = w)
+validacionmcp(model.ponderados)
 ### Tabla ANOVA
 anova(model)
 ########### Análisis exploratorio de datos atípicos e influyentes
@@ -148,3 +203,12 @@ text(`NIR 25`[outliers],density[outliers],labels=rownames(X)[outliers],pos=3)
 
 zm()
 med(Y,method="Spatial")
+################
+summary(gls(density~NIR25,data=X))
+ñ<- gls(density~NIR25)
+shapiro.test(residuals(ñ))
+mcor<-lm(density~NIR25,data=X)
+mcor1<-cochrane.orcutt(mcor)
+summary(mcor1)
+qqPlot(residuals(mcor1))
+coefficients(mcor1)
