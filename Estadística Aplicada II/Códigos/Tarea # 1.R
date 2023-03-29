@@ -52,10 +52,13 @@ validaciongrafica<- function(model,cor=F){
 }
 #Cálculo del lambda óptimo para el boxcox
 lambda<- function(model,a,b){
-print(boxcox(model,lambda=seq(a,b,length.out = 1000),
-         ylab='log-verosimilitud'))
-box.cox<- boxcox(model,lambda=seq(-a,b,length.out = 1000),
-                 ylab='log-verosimilitud')
+  par(mfrow=c(1,1))
+  box.cox<-boxcox(model,lambda=seq(a,b,length.out = 1000),
+         ylab='log-verosimilitud')
+print(box.cox)
+  bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
+  print(bc)
+}
 ####### Validación supuestos MCP
 validacionmcp<- function(model){
   par(mfrow=c(1,2))
@@ -66,10 +69,6 @@ validacionmcp<- function(model){
   abline(h=0,lty=2,lwd=2)
   print(qqPlot(res.ponderados,pch=19,xlab='Cuantiles Teóricos',ylab='Residuos Ponderados',col=carPalette()[1],col.lines=carPalette()[3],main='B'))
   print(shapiro.test(res.ponderados))
-}
-#Selección del Lambda
-bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
-return(bc)
 }
 ################################ Importación de los datos
 data <- read_excel("data.xlsx")
@@ -86,6 +85,7 @@ summary<- matrix(0,p,9)
 for(i in 1:p){
   summary[i,]<- t(resumen(X[,i]))
 }
+View(X)
 rownames(summary)<-colnames(X)
 colnames(summary)<-c('Media','Mediana','Min','Max','Var','Sd','1st Qu.','3rd Qu','Coef.Var %')
 summary
@@ -119,11 +119,11 @@ par(mfrow=c(1,1))
 plot(seq(min(X[,26]),max(X[,26]),length.out=30),seq(min(X[,31]),max(X[,31]),length.out=30),type='n',xlab='',ylab='')
 grid(10,10,col=c('aquamarine3','blue4'))
 par(new=T)
-plot(X[,31]~X[,26],ylab='Densidad',xlab=' NIR 25',pch=19)
-model<- lm(density~NIR26,data=X)
+plot(X[,31]~X[,26],ylab='Densidad',xlab=' NIR 26',pch=19)
+model<- lm(density+0.001~NIR26,data=X)
 abline(model,lwd=2)
 #Validación de supuestos gráfica
-validaciongrafica(model,cor=T)
+validaciongrafica(model,cor=F)
 ###########
 #Estimación varianza
 res.mcp<- residuals(model)
@@ -131,10 +131,16 @@ varianza<- lm(abs(res.mcp)~NIR26,data=X)
 w = 1/(fitted.values(varianza)^2)
 model.ponderados<- lm(density~NIR26,data=X,weights = w)
 validacionmcp(model.ponderados)
-anova(model)
+######## 
+lambda(model,-3,3)
+model.box<- lm(log(density+0.0001)~NIR26,data=X)
+validaciongrafica(model.box)
+
+##############
+lambda(model,-2,2)
 ########### Análisis exploratorio de datos atípicos e influyentes
 attach(X)
-Y<- cbind(`NIR 25`,density)
+Y<- cbind(NIR26,density)
 clcov<- cov(Y)
 clcenter<- as.vector(colMeans(Y))
 model<- lm(density~`NIR 25`,data=X)
