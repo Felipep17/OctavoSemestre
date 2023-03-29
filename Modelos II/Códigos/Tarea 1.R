@@ -3,20 +3,29 @@ setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Modelos
 library(readr)
 library(car)
 library(latex2exp)
+library(xtable)
 X <- read_csv("ChemReact.csv") #Importo la base de datos
 par(mfrow=c(1,2))
 attach(X)
+vif(model.)
 #Análisis exploratorio de datos
 plot(Yield~Time,pch=19,col='red1',ylab='Rendimiento',xlab='Tiempo')
 plot(Yield~Temp,pch=19,col='aquamarine1',ylab='Rendimiento',xlab='Temperatura')
 #Modelo de regresión sin las variables centradas
 model.<- lm(Yield~Temp+Time+I(Time^2)+I(Temp^2)+Time*Temp,data=X)
+summary(model)
 vif(model.) #Multicolinealdiad
 #Variables centradas
 X$Temp.c<- Temp-mean(Temp)
 X$Time.c<- Time-mean(Time)
 #Modelo con las variables centradas
 model<- lm(Yield~Temp.c+Time.c+I(Time.c^2)+I(Temp.c^2)+Time.c*Temp.c,data=X)
+y<- vif(model.)
+l<-vif(model)
+viff<-as.data.frame(rbind(as.numeric(y),as.numeric(l)))
+colnames(viff) <- colnames(X)
+rownames(viff)<- c('Sin Centrar','Centrado')
+xtable(viff)
 # Validación de supuestos
 #Evaluación de heterocedasticidad
 par(mfrow=c(1,2))
@@ -79,29 +88,50 @@ par(mfrow=c(2,3))
 studenti<- studres(model)
 ajustados<- fitted.values(model)
 plot(ajustados,studenti, panel.first=grid(),ylab='Residuos Estudentizados',
-     xlab='Valores Ajustados',cex=1.5,pch=19,col="aquamarine4",main="Modelo Centrado")
+     xlab='Valores Ajustados',cex=1.5,pch=19,col="aquamarine4",main="Modelo Centrado",cex.main = 2,   # Tamaño del título
+     cex.sub = 1.5,  # Tamaño del subtítulo
+     cex.lab = 1.5,    # Tamaño de las etiquetas de los ejes X e Y
+     cex.axis = 1.5)
 abline(h=0,lty=2,lwd=2)
 lines(lowess(studenti~ajustados), col = "red1")
 ############ BOX-COX
 studenti.box<- studres(model.box)
 ajustados.box<- model.box$fitted.values
 plot(ajustados.box,studenti.box,cex=1.5, panel.first=grid(), ylab='Residuos Estudentizados',
-     xlab='Valores Ajustados',pch=19,col="aquamarine4",main=TeX("$(Modelo Box-Cox)  \\lambda=1.333$"))
+     xlab='Valores Ajustados',pch=19,col="aquamarine4",main=TeX("$(Modelo Box-Cox)  \\lambda=1.333$"),cex.main = 2,   # Tamaño del título
+     cex.sub = 2,  # Tamaño del subtítulo
+     cex.lab = 2,    # Tamaño de las etiquetas de los ejes X e Y
+     cex.axis = 1.5)
 abline(h=0,lty=2,lwd=2)
 abline(h=0,lty=2,lwd=2)
 lines(lowess(studenti.box~ajustados.box), col = "red1")
 # Model Ponderados
-plot(fitted.values(model.ponderados),cex=1.5,res.ponderados,
-     xlab='valores ajustados',ylab='residuos ponderados',pch=19,panel.first = grid(),col="aquamarine4",main='Minimos Cuadrados Ponderados')
+plot(fitted.values(model.ponderados),cex.main = 2,cex=1.5,res.ponderados,
+     xlab='valores ajustados',   # Tamaño del título
+     cex.sub = 1.5,  # Tamaño del subtítulo
+     cex.lab = 1.5,    # Tamaño de las etiquetas de los ejes X e Y
+     cex.axis = 1.5,ylab='residuos ponderados',pch=19,panel.first = grid(),col="aquamarine4",main='Minimos Cuadrados Ponderados')
 lines(lowess(res.ponderados~fitted.values(model.ponderados)),lty=1,lwd=1,col='red1')
 abline(h=0)
 ##################################### NORMALIDAD
 #Centrado
-qqPlot(model,xlab="Cuantiles Teóricos",cex=1.5,ylab="Residuos Estudentizados",pch=19,main='')
+qqnorm(residuals(model),panel.firs=grid(),xlab="Cuantiles Teóricos",cex.main = 2,   # Tamaño del título
+       cex.sub = 1.5,  # Tamaño del subtítulo
+       cex.lab = 1.5,    # Tamaño de las etiquetas de los ejes X e Y
+       cex.axis = 1.5,cex=1.5,ylab="Residuos Estudentizados",pch=19,main='')
+qqline(residuals(model))
 # Box-Cox
-qqPlot(residuals(model.box),cex=1.5,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19,main="")
+qqnorm(residuals(model.box),cex.main = 2, panel.firs=grid(),  # Tamaño del título
+       cex.sub = 1.5,  # Tamaño del subtítulo
+       cex.lab = 1.5,    # Tamaño de las etiquetas de los ejes X e Y
+       cex.axis = 1.5,cex=1.5,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19,main="")
+qqline(residuals(model.box))
 #Ponderados
-qqPlot(res.ponderados,pch=19,ylab='Residuos Ponderados',xlab='Cuantiles Teóricos',main='',cex=1.5)
+qqnorm(res.ponderados,panel.first=grid()  , # Tamaño del título
+       cex.sub = 1.5,  # Tamaño del subtítulo
+       cex.lab = 1.5,    # Tamaño de las etiquetas de los ejes X e Y
+       cex.axis = 1.5,pch=19,ylab='Residuos Ponderados',xlab='Cuantiles Teóricos',main='',cex=1.5)
+qqline(res.ponderados)
 #Tabla de resumen de estadísticos
 shapiro.test(studenti)
 shapiro.test(studenti.box)
@@ -119,13 +149,14 @@ rownames(Hipo)<- Hipo[,1]
 Hipo<- Hipo[,-1]
 Hipo<- Hipo[-1,]
 Hipo
+xtable(Hipo)
 #Residuos parciales para evaluar Linealidad y asegurar el supuesto de que la esperanza de los errores es igual a 0
 shapiro.test(studenti)
 qqPlot(model,xlab="Cuantiles Teóricos",ylab="Residuos Estudentizados",pch=19,main='B')
 # No se logra evidenciar cambios con las trasnformaciones por lo cuál
 # Trabajaremos con el modelo sin la interacción y en general
 summary(model.in)
-predict(model.in,newdata=data.frame(Temp.c=1,Time.c=1)) # Valor que maximiza
+predict(model.in,newdata=data.frame(Temp.c=1.54,Time.c=1.78),interval='confidence') # Valor que maximiza
 summary(model.in)
 ############################# Curva modelo centrado
 library(scatterplot3d)
@@ -141,7 +172,7 @@ scatter3D(x, y, z, phi = 0, bty = "b",
           pch = 20, cex = 2, ticktype = "detailed")
 #La variable Z es la variable a predecir
 #Creamos un objeto para realizar las predicciones con elmodelo
-objr<-lm(z ~ x+y+I(x^2)+I(y^2))
+objr<-lm(z ~ x+y+I(x^2)+I(y^2)+x*y)
 summary(objr)
 #preparamos el modelado 3d
 grid.lines = 42
@@ -159,6 +190,7 @@ scatter3D(x, y, z, pch = 19, cex = 2,
           theta = 20, phi = 20, ticktype = "detailed",
           surf = list(x = x.pred, y = y.pred, z = z.pred,  
                       facets = NA, fit = fitpoints), main = "",xlab='Tiempo ',ylab='Temperatura',col = c('red4','red3','red2','red1','orange4','orange3','orange2','orange1','yellow4','yellow3','yellow2','yellow'))
+summary(model.in)
 #Gráfico dinámico
 plotrgl()
 ############################# Curva modelo sin centrar
@@ -215,11 +247,11 @@ filled.contour(X1,X2,y,xlab='Temperatura',ylab='Tiempo', plot.axes = {
 library(alr4)
 X<- oldfaith
 #Evaluó el tipo de relación entre las variables:
-par(mfrow=c(1,1))
+par(mfrow=c(1,2))
 #Estimo el modelo
-plot(X$Duration,X$Interval,pch=19,col="turquoise3",panel.first=grid(),xlab="Duración en segundos",ylab="Intervalo en minutos",
-     main='')
-points(X$Duration[X>180],X$Interval[X$Duration>180],col='red1',pch=19)
+plot(X$Duration,X$Interval,pch=19,col="#FF8C00",panel.first=grid(),xlab="Duración en segundos",ylab="Intervalo en minutos",
+     main='',cex.lab=2,cex.axis=1.5,cex=1.5)
+points(X$Duration[X>180],X$Interval[X$Duration>180],col='#8B4500',pch=19,cex=1.5)
 #####Gráfica para el intervalo de confianza y predicción##
 #Estimación del modelo
 model<- lm(Interval~Duration,data=X)
@@ -237,9 +269,11 @@ lines(x.nuevo$Duration,pred.media[,3],lty=2,lwd=3)
 lines(x.nuevo$Duration,pred.nuev.obs[,2],lty=3,lwd=3)
 lines(x.nuevo$Duration,pred.nuev.obs[,3],lty=3,lwd=3)
 #Caja de enunciados
+#Caja de enunciados
 legend(x = "bottomright",legend=c("Modelo","Intervalo de confianza 95%","Intervalo de predicción 95%"),
        lty = c(1, 2,3),pt.cex=1.5,
-       box.lwd=0.6,text.font =15,cex=1)
+       box.lwd=0.6,text.font =15,cex=0.8)
+#Gráfica de R
 #Gráfica del modelo
 abline(model,lwd=2)
 #####################
@@ -247,15 +281,18 @@ X$Duration.x = X$Duration - 180
 X$Duration.x[X$Duration < 180] = 0
 mod.segmento = lm(Interval~.,data=X)
 summary(mod.segmento)
-anova(model,mod.segmento)
+xtable(mod.segmento)
+xtable(anova(model,mod.segmento))
+AIC(model)
+AIC(mod.segmento)
 ############
 #Estimo el modelo
 b.lotes<- coefficients(mod.segmento)
 #
 
-plot(X$Duration,X$Interval,pch=19,col="turquoise3",panel.first=grid(),xlab="Duración en segundos",ylab="Intervalo en minutos",
-     main='')
-points(X$Duration[X>180],X$Interval[X$Duration>180],col='red1',pch=19)
+plot(X$Duration,X$Interval,pch=19,col="#FF8C00",panel.first=grid(),xlab="Duración en segundos",ylab="Intervalo en minutos",
+     main='',cex.lab=2,cex.axis=1.5,cex=1.5)
+points(X$Duration[X>180],X$Interval[X$Duration>180],col='#8B4500',pch=19,cex=2)
 x = c(80,180)
 lines(x,b.lotes[1]+x*b.lotes[2],lwd=2)
 x = c(180,350)
@@ -274,7 +311,7 @@ lines(x.nuevo$Duration,pred.media[,2],lty=2,lwd=3)
 lines(x.nuevo$Duration,pred.media[,3],lty=2,lwd=3)
 lines(x.nuevo$Duration,pred.nuev.obs[,2],lty=3,lwd=3)
 lines(x.nuevo$Duration,pred.nuev.obs[,3],lty=3,lwd=3)
-
+X[,1][X>180]
 #############
 predict(mod.segmento,data.frame(Duration=180,Duration.x=0))
 #Creación del data.frame con los valores para el modelo
@@ -291,7 +328,7 @@ lines(seq(180,330,length.out=100),pred.nuev.obs[,3],lty=3,lwd=3)
 #Caja de enunciados
 legend(x = "bottomright",legend=c("Modelo","Intervalo de confianza 95%","Intervalo de predicción 95%"),
        lty = c(1, 2,3),pt.cex=1.5,
-       box.lwd=0.6,text.font =15,cex=1)
+       box.lwd=0.6,text.font =15,cex=0.8)
 #Gráfica de R
 #Evaluación de heterocedasticidad
 par(mfrow=c(1,1))
@@ -303,6 +340,8 @@ plot(ajustados,studenti, ylab='Residuos Estudentizados',
 abline(h=0,lty=2,lwd=2)
 lines(lowess(studenti~ajustados), col = "red1")
 library(lmtest)
+BIC(model)
+BIC(mod.segmento)
 bptest(model,~Duration+I(Duration^2)+I(Duration.x^2),data=X)
 #Gráfica utilizando 
 library(ggfortify)
