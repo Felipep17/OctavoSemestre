@@ -131,7 +131,6 @@ varianza<- lm(abs(res.mcp)~NIR26,data=X)
 w = 1/(fitted.values(varianza)^2)
 model.ponderados<- lm(density~NIR26,data=X,weights = w)
 validacionmcp(model.ponderados)
-### Tabla ANOVA
 anova(model)
 ########### Análisis exploratorio de datos atípicos e influyentes
 attach(X)
