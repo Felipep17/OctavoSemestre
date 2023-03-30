@@ -178,13 +178,15 @@ threshold <- sqrt(qchisq(p = 0.975, df = ncol(Y)))
 # df = no of columns # find outliers 
 outliers <- which(robust_dist >= threshold) 
 # gives the row numbers of outli
-points(`NIR 25`[outliers],density[outliers],pch=19,col="purple")
-text(`NIR 25`[outliers],density[outliers],labels=rownames(X)[outliers],pos=3)
+points(NIR26[outliers],density[outliers],pch=19,col="purple")
+text(NIR26[outliers],density[outliers],labels=rownames(X)[outliers],pos=3)
 
 zm()
 med(Y,method="Spatial")
-################
-summary(gls(density~NIR25,data=X))
+################ REGRESIÓN CON Correlación
+######## ALTERNATIVA no nesaria pero que no esta de más tener no para este caso
+# Sino para un futuro
+summary(gls(density~NIR26,data=X))
 ñ<- gls(density~NIR25)
 shapiro.test(residuals(ñ))
 mcor<-lm(density~NIR25,data=X)
