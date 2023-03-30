@@ -1,4 +1,5 @@
 ##############################
+library(easypackages)
 setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estadística Aplicada II/Base de datos")
 lib_req<-c('psych','car','lmtest','MASS','xtable','latex2exp','orcutt','nlme',
            'mixtools',"alr4","depth","readr","ddalpha","robustbase","rrcov","zoom",'ggfortify','readxl','zm')# Listado de librerias requeridas por el script
