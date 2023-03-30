@@ -1,23 +1,9 @@
 ##############################
 setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estadística Aplicada II/Base de datos")
-library(mixtools)
-library(alr4)
-library(depth)
-library(readr)
-library(readxl)
-library(ddalpha)
-library(robustbase)
-require(rrcov) 
-library(zoom)
-library(ggfortify)
-library(psych)
-library(car)
-library(lmtest)
-library(MASS)
-library(xtable)
-library(latex2exp)
-library(orcutt)
-library(nlme)
+lib_req<-c('psych','car','lmtest','MASS','xtable','latex2exp','orcutt','nlme',
+           'mixtools',"alr4","depth","readr","ddalpha","robustbase","rrcov","zoom",'ggfortify','readxl','zm')# Listado de librerias requeridas por el script
+easypackages::packages(lib_req)    
+options(scipen=999)
 ###### Funciones creadas por el estudiante
 # Estadística Descriptivas
 resumen<- function(x){
@@ -30,8 +16,18 @@ resumen<- function(x){
   colnames(X)<- (paste(colnames(x)))
   return(X)
 }
+# Análisis exploratorio visual
+exploratorio<- function(X){
+  psych::pairs.panels(X, 
+                      method = "pearson", # correlation method
+                      hist.col = "aquamarine1",
+                      density = TRUE,  # show density plots
+                      ellipses = TRUE # show correlation ellipses
+  )
+}
 ########Validación de supuestos
 validaciongrafica<- function(model,cor=F){
+  crPlots(model,main='Residuos Parciales')
   par(mfrow=c(1,2))
   plot(fitted.values(model),studres(model),panel.first=grid(),pch=19,ylab='Residuos Estudentizados',xlab='Valores ajustados',main='A',col='aquamarine4')
   lines(lowess(studres(model)~fitted.values(model)), col = "red1")
@@ -85,31 +81,16 @@ summary<- matrix(0,p,9)
 for(i in 1:p){
   summary[i,]<- t(resumen(X[,i]))
 }
-View(X)
 rownames(summary)<-colnames(X)
 colnames(summary)<-c('Media','Mediana','Min','Max','Var','Sd','1st Qu.','3rd Qu','Coef.Var %')
-summary
+View(summary)
 #Pasar de R a Latéx
 xtable(summary)
 # Matriz de correlación
-psych::pairs.panels(X[,1:10], 
-             method = "pearson", # correlation method
-             hist.col = "aquamarine1",
-             density = TRUE,  # show density plots
-             ellipses = TRUE # show correlation ellipses
-)
-psych::pairs.panels(X[11:20], 
-                    method = "pearson", # correlation method
-                    hist.col = "aquamarine1",
-                    density = TRUE,  # show density plots
-                    ellipses = TRUE # show correlation ellipses
-)
-psych::pairs.panels(X[21:31], 
-                    method = "pearson", # correlation method
-                    hist.col = "aquamarine1",
-                    density = TRUE,  # show density plots
-                    ellipses = TRUE # show correlation ellipses
-)
+
+exploratorio(X[,1:10])
+exploratorio(X[,11:20])
+exploratorio(X[,21:31])
 #Visualización de los datos
 set.seed(11)
 #Variable aleatoria para crear la gráfica
@@ -124,56 +105,50 @@ model<- lm(density+0.001~NIR26,data=X)
 abline(model,lwd=2)
 #Validación de supuestos gráfica
 validaciongrafica(model,cor=F)
+##############
+Z<- as.data.frame(cbind(X[,31],X[,26]))
+colnames(Z)<-c('Density','NIR26')
+set.seed(100)
+ind<-sample(1:nrow(Z),nrow(Z))
+Z<- as.data.frame(Z[ind,])
+modelprueba<- lm(Density~NIR26,data=Z)
+validaciongrafica(modelprueba,cor=T)
 ###########
-#Estimación varianza
-res.mcp<- residuals(model)
-varianza<- lm(abs(res.mcp)~NIR26,data=X)
-w = 1/(fitted.values(varianza)^2)
-model.ponderados<- lm(density~NIR26,data=X,weights = w)
-validacionmcp(model.ponderados)
+par(mfrow=c(1,2))
+acf(MASS::studres(model))
+acf(MASS::studres(model),type='partial')
+par(mfrow=c(1,1))
+plot(studres(modelprueba)[-length(studres(model))],studres(modelprueba)[-1])
 ######## 
 lambda(model,-3,3)
 model.box<- lm(log(density+0.0001)~NIR26,data=X)
 validaciongrafica(model.box)
-
-##############
-lambda(model,-2,2)
 ########### Análisis exploratorio de datos atípicos e influyentes
 attach(X)
 Y<- cbind(NIR26,density)
 clcov<- cov(Y)
 clcenter<- as.vector(colMeans(Y))
-model<- lm(density~`NIR 25`,data=X)
+model<- lm(density~NIR26,data=X)
 ##########################
-
 depth.y<-depth.halfspace(Y,Y,num.directions=10000,seed=1)
 sort.depth.Y<-sort(depth.y,decreasin=TRUE,index.return=TRUE)
 depth.Y.sort<-sort.depth.Y$x
 depth.Y.sort.index<-sort.depth.Y$ix
 median=sort.depth.Y$ix[1]
 #Gráfica de profundidad tukey general
+par(mfrow=c(1,1))
 plot(seq(min(X[,25]),max(X[,25]),length.out=30),seq(min(X[,31]),max(X[,31]),length.out=30),type='n',xlab='',ylab='')
 grid(10,10,col=c('aquamarine3','blue4'))
 par(new=T)
 plot(X[,31]~X[,25],ylab='Densidad',xlab=' NIR 25',pch=19)
-points(`NIR 25`[median],density[median],pch=19,lwd=2,cex=1,col="aquamarine")
+points(NIR26[median],density[median],pch=19,lwd=2,cex=1,col="aquamarine")
 mixtools::ellipse(mu=clcenter,sigma=clcov,alpha=0.1,lty=2,lwd=3)
 mixtools::ellipse(mu=clcenter,sigma=clcov,alpha=0.25,lty=3,lwd=3)
 mixtools::ellipse(mu=clcenter,sigma=clcov,alpha=0.5,lty=3,lwd=3)
-hii<-hatvalues(model)
-#Para usar la distancia de cook
-p<- length(coefficients(model))
-n<- nrow(X)
-hii.c<- 2*(p/n)
-
-indices<- (1:nrow(X))[hii>hii.c]
-points(`NIR 25`[indices],density[indices],col="red",pch=19)
-text(`NIR 25`[indices],density[indices],labels=rownames(X)[indices],pos=3)
-plot(hii,type="h")
-abline(h=hii.c,lty=2)
+mixtools::ellipse(mu=clcenter,sigma=clcov,alpha=0.01,lty=3,lwd=3)
 ###############################
 #MCD estimators
-
+zm()
 res=covMcd(Y)
 
 mcd <- rrcov::CovMcd(Y) # use only first three columns 
