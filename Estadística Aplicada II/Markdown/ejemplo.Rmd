@@ -1,0 +1,180 @@
+---
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+--
+title: "Estadística Aplicada II- Taller # 1"
+author: "David Rojas y Felipe Palomino"
+date: "31/03/2023"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+  
+<div class=text-justify>  
+  
+
+</div>
+
+<div class=text-center>
+### Capítulo 0. Recordando conceptos básicos  
+
+</div>  
+  
+    
+##### Ejercicio 3.  
+
+<div class=text-justify>    
+Un fabricante de sistemas de aspersión utilizados en la prevención de incendios, afirma que el valor medio de activación del sistema es de 130ºF. Una prueba sobre 20 de estos sistemas produce los siguientes resultados:
+
+131.67, 134.61, 137.35, 138.66, 130.52, 137.42, 132.83, 138.55, 133.02, 132.92,130.45, 140.39, 130.79, 134.06, 133.29, 133.83, 132.82, 131.32, 132.82, 143.09
+
+Los datos respaldan la afirmación del productor?
+</div>
+
+```{r}
+Ta = c(131.67, 134.61, 137.35, 138.66, 130.52, 137.42, 132.83, 138.55, 133.02, 132.92, 130.45, 140.39, 130.79, 134.06,133.29, 133.83, 132.82, 131.32, 132.82, 143.09) 
+
+# Algunas medidas resumen.
+resumen=c(mean(Ta),sd(Ta),sd(Ta)/mean(Ta))
+names(resumen)=c("Promedio","Desviación","Coef.Var")
+round(resumen,2)
+```
+
+<div class=text-justify> 
+A pesar de que el promedio muestral observado es ligeramente mayor al valor hipotético ($\mu_0 = 130^? F$), esta diferencia puede ser solo un resultado debido al azar y no puede ser considerada una evidencia, hasta no verificar su significancía estadística. Para ello planteamos el siguiente test de hipótesis paramétrico.
+</div>
+
+$$H_0: \mu = 130\qquad vs \qquad H_1: \mu = 130$$
+
+Dado que la varianza de los datos es desconocida, procedemos a realizar el test T para la media de una población.
+
+```{r}
+# Un Test de Hipotesis Paramétrico
+t.test(Ta,mu=130,alternative="two.sided")
+```
+
+<div class=text-justify>    
+De acuerdo con el $Valor-p < \alpha$, la diferencia es significativa, lo cual sugiere que la temperatura de activación media es superior a  $130^? F$.
+
+Nota: Recordemos que el test-T se soporta en el supuesto de normalidad en los datos.
+
+Para verificar la normalidad de los datos, inicialmente realizaremos una exploración gráfica.
+</div>
+
+```{r}
+windows(height=8, width=10)               # Nueva ventana gráfica, con dimensiones preestablecidas
+par(mfrow=c(2,2))                         # particón dela ventana gráfica
+
+hist(Ta, freq=F,main="",xlab="Temp Activación")
+lines(density(Ta), col="blue",lty=2)
+legend("topright","Densidad estimada",lty=2, col="blue",bg='lightblue')
+boxplot(Ta,col="Blue", ylab="Temp Activación")
+qqnorm(Ta); qqline(Ta)
+```
+
+<div class=text-justify>    
+La forma asimétrica del histograma y del boxplot, ademas de la distancia de los puntos a la linea recta en el *qqplot*, sugieren que los datos no provienen de una distribución *Normal*. Este resultados son corroborados por el *test de Shapiro-Wilk*.
+</div>
+
+
+```{r}
+# Un Test formal de Normalidad
+shapiro.test(Ta)
+```
+
+##### Ejercicio 4.  
+
+<div class=text-justify>    
+Al seleccionar un concreto azufrado para la construcción de carreteras en regiones que experimentan congelamiento intenso, es importante que el concreto tenga baja conductividad térmica, a fin de reducir el da?o posterior debido a temperaturas cambiantes. Se ha pensado que la adición de agregados graduados a las mezcla de concreto puede disminuir su conductividad media. Para ello se ha diseñado un experimento que consiste en generar especímenes de prueba bajo las dos condiciones, (con agregados, sin agregados). Los resultados son lo siguientes:
+
+***Con agregados***  
+
+0.166, 0.296, 0.249, 0.366, 0.415, 0.388, 0.273, 0.324, 0.413, 0.280, 0.247, 0.130,	
+0.279, 0.364, 0.402, 0.202, 0.255, 0.315, 0.375, 0.316  
+
+***Sin agregados***  
+
+0.426, 0.461, 0.476, 0.467, 0.436, 0.509, 0.428, 0.508, 0.457, 0.513, 0.448, 0.523, 
+0.431, 0.439, 0.395, 0.443, 0.361, 0.480, 0.467, 0.436, 0.471, 0.487, 0.498, 0.538, 0.500  
+
+De acuerdo con los datos, incorporar agregados disminuye la conductividad térmica del material?
+
+</div>
+
+```{r}
+
+#Ingresando los datos en el formato variable - indicador
+rt = c(0.166, 0.296, 0.249, 0.366, 0.415, 0.388, 0.273, 0.324, 0.413, 0.280, 0.247, 0.130,	
+       0.279, 0.364, 0.402, 0.202, 0.255, 0.315, 0.375, 0.316,
+       0.426, 0.461, 0.476, 0.467, 0.436, 0.509, 0.428, 0.508, 0.457, 0.513, 0.448, 0.523, 
+       0.431, 0.439, 0.395, 0.443, 0.361, 0.480, 0.467, 0.436, 0.471, 0.487, 0.498, 0.538, 0.500)
+Ag = factor(c(rep("Con Agregado",20), rep("Sin Agregado",25)))
+```     
+
+Inicialmente realizaremos un análisis exploratorio, que incluye el calculo de algunos indicadores descriptivos y la representación gráfica de los datos.
+
+```{r}
+
+# Algunas medidas resumen.
+promedios = tapply(rt,Ag,mean)
+desviacion = tapply(rt,Ag,sd)
+C_var = desviacion/promedios
+resumen =round(cbind(promedios, desviacion, C_var),2)
+colnames(resumen)= c("Promedio","Desviación","Coef.Var")
+resumen
+
+#Cambiando los datos al formato de columnas
+rt_ca=rt[Ag =="Con Agregado"]                #resistencia térmica con agregado
+rt_sa=rt[Ag =="Sin Agregado"]                #resistencia térmica sin agregado
+
+#Preparando la ventana gráfica
+M = matrix(c(1,2,3,3,4,5),ncol=3,byrow = F)  # matriz con la ubicación de 5 gráficos  
+windows(height=20, width=15)                 # Nueva ventana gráfica  
+layout(M)                                    # partición dela ventana gráfica según M
+
+# Histogramas de frecuencia con densidad estimada - igualado el rango en el eje X.
+
+hist(rt_ca, freq=F,main="",xlab="Resistencia Térmica",xlim=range(rt))
+lines(density(rt_ca), col="blue",lty=2)
+hist(rt_sa, freq=F,main="",xlab="Resistencia Térmica",xlim=range(rt))
+lines(density(rt_sa), col="blue",lty=2)
+boxplot(rt~Ag,col="Blue", ylab="Resistencia Térmica")
+qqnorm(rt_ca); qqline(rt_ca)
+qqnorm(rt_sa); qqline(rt_sa)
+```
+
+
+<div class=text-justify>
+Los resultados muestran que la muestra obtenida con la adición de agregados tiene una menor conductividad eléctrica que aquella muestra que no incorporó estos agregados. La representación gráfica también sugiere que la distribución de la variable, en ambos casos, es simétrica y no se aleja mucho de la distribución normal. Lo anterior se corroboró con el test *Shapiro-Wilk* para ambas muestras.
+</div>
+
+```{r}
+# Un Test de Normalidad
+shapiro.test(rt_ca)
+shapiro.test(rt_sa)
+```
+
+<div class=text-justify> 
+Verificado el supuesto de normalidad para ambas poblaciones, procedemos a desarrollar el test de hipotésis:
+</div>
+
+$$H_0: \mu_{CA} = \mu_{SA} \qquad vs \qquad H_1: \mu_{CA} < \mu_{SA}$$
+<div class=text-justify> 
+
+los resultados del test son los siguientes:
+</div>
+
+```{r}
+# Un Test de Hipotesis Paramétrico
+t.test(rt_ca,rt_sa,alternative = "less")   
+```
+
+<div class=text-justify> 
+De acuerdo con el $valor-p$ si existe una reducción en la conductividad térmica del concreto cuando se adicionan los agregados en la mezcla
+</div>
