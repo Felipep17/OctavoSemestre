@@ -1,4 +1,6 @@
 ##############################
+options(scipen=999)
+#
 library(easypackages)
 setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estadística Aplicada II/Base de datos")
 lib_req<-c('psych','car','lmtest','MASS','xtable','latex2exp','orcutt','nlme',
@@ -104,20 +106,23 @@ par(new=T)
 plot(X[,31]~X[,18],ylab='Densidad',xlab=' NIR 18',pch=19,axes=F)
 model<- lm(density+0.00001~NIR18,data=X)
 abline(model,lwd=2)
+summary(model)
 #Validación de supuestos gráfica
-validaciongrafica(model,cor=T)
+validaciongrafica(model,cor=F)
 #####
 summary(model)
 #Intervalos de confianza
 confint(model)
 ##############
+anova(model)
+#
 Z<- as.data.frame(cbind(X[,31],X[,18]))
 colnames(Z)<-c('Density','NIR18')
 set.seed(100)
 ind<-sample(1:nrow(Z),nrow(Z))
 Z<- as.data.frame(Z[ind,])
 modelprueba<- lm(Density~NIR18,data=Z)
-validaciongrafica(modelprueba,cor=T)
+validaciongrafica(modelprueba,cor=F)
 ###########
 par(mfrow=c(1,2))
 acf(MASS::studres(model))
@@ -134,6 +139,7 @@ varianza<- lm(abs(res.mcp)~NIR18,data=X)
 w = 1/(fitted.values(varianza)^2)
 model.ponderados<- lm(density~NIR18,data=X,weights = w)
 validacionmcp(model.ponderados)
+summary(model.ponderados)
 ########### Análisis exploratorio de datos atípicos e influyentes
 attach(X)
 Y<- cbind(NIR18,density)
@@ -208,6 +214,8 @@ text(NIR18[outliers],density[outliers],labels=rownames(X)[outliers],pos=3)
 
 zm()
 ################################## IDENTIFICACIÓN PUNTOS ATÍPICOS
+influence.measures(model.ponderados)
+######
 # E influyentes
 influencePlot(model.ponderados)
 ##########
