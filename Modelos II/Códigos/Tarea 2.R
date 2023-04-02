@@ -147,15 +147,14 @@ resumen<- cbind(round(beta.CP1,4),round(sqrt(diag(vbb)),4),round(t.value,4),roun
 rownames(resumen)<- names(X)[-1]
 colnames(resumen)<- c('Estimate','Std.Error','t value',' Pr(> |t|)')
 resumen
+# R cuadrado de 0.488
 summary(ridgesalary)
-######################
+summary(model.box)
+###################### Rectificación del procedimiento
 sigma2.pc = sum(pcrsalary$residuals^2)/(nrow(X)-8)
 Var.b = sigma2.pc*vectors%*%diag(c(1/lambdas[1:5],0,0,0))%*%t(vectors)
 Var.b
 vbb
-validationplot(fit,val.type = 'R2')
-u<-fit$validation
-u$adj
 
 ###############
 escalar <- function(x) {(x-mean(x)) / sqrt(sum((x-mean(x))^2))}
