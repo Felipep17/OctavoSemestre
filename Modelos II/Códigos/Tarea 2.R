@@ -53,7 +53,6 @@ lambda<- function(model,a,b){
   par(mfrow=c(1,1))
   box.cox<-boxcox(model,lambda=seq(a,b,length.out = 1000),
                   ylab='log-verosimilitud')
-  print(box.cox)
   bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
   print(bc)
 }
@@ -78,8 +77,9 @@ X<- X[,ind]
 names(X)
 model<- lm(Salary~.,data=X)
 summary(model)
+vif(model)
 # Validación de supuestos
-validaciongrafica(model)
+validaciongrafica(model,cor=F)
 lambda(model,-3,3)
 model.box<- lm(log(Salary)~.,data=X)
 #Validación box-cox
@@ -115,6 +115,8 @@ lambda
 ridgesalary<-lmridge(log(Salary)~., data=X,K=lambda[1],scaling='sc')
 summary(ridgesalary)
 summary(model.box)   
+BIC(model.box)
+AIC(model.box)
 ##### Regresión componentes principales
 fit<- pcr(log(Salary)~.,data=X,scale=T,validation='CV')
 summary(fit)
@@ -160,11 +162,8 @@ vbb
 escalar <- function(x) {(x-mean(x)) / sqrt(sum((x-mean(x))^2))}
 y.e = escalar(log(X$Salary))
 Z. = apply(X[,-1],2,escalar)
-head(Z)
-head(Z.)
 T.mat = eigen(t(Z)%*%Z)$vectors
 lambda = eigen(t(Z)%*%Z)$values
-lambda
 P = Z%*%T.mat[,-(6:8)]
 PCR.salary = lm(y.e~P-1)
 summary(PCR.salary)
@@ -176,4 +175,16 @@ summary(model.box)
 head(predict(model,X))
 head(exp(predict(model.box,X)))
 head(exp(predict(ridgesalary,X)))
-head(exp(predict(fit,X,ncomp=6)))
+head(exp(predict(fit,X,ncomp=5)))
+#
+X<- na.omit(ISLR::Hitters)
+names(X)
+ind<- c(19,2,9,4,11,3,10,5,12)
+plot(X[,ind],col='aquamarine4')
+X<- X[,ind]
+X<- rbind(X,0)
+X$Salary.[1]<-NA
+X$Salary.[2:nrow(X)]<- X$Salary
+X<-X[-(nrow(X)),]
+head(X)
+tail(X)

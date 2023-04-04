@@ -22,61 +22,98 @@ knitr::opts_chunk$set(echo = TRUE)
 </div>
 
 <div class=text-center>
-### Capítulo 0. Recordando conceptos básicos  
+\textbf{Tarea 1}
 
-</div>  
-  
-    
-##### Ejercicio 3.  
-
+</div>
 <div class=text-justify>    
-Un fabricante de sistemas de aspersión utilizados en la prevención de incendios, afirma que el valor medio de activación del sistema es de 130ºF. Una prueba sobre 20 de estos sistemas produce los siguientes resultados:
+\textbf{A}) Describa las variables e individuos del subgrupo asignado en la base Yarn. Realice el gráfico de dispersión entre las variables y=densidad y la variable x=$NIR_{j}$ que presentan la mayor correlación.\\
+\textbf{Estadísticas descriptivas:} Para el cálculo de estas estadística realizamos una función que agrupaba diferentes descriptivas en una sola tabla, añadiendo a su vez, histogramas, junto con las correlaciones lineales de pearson entre las covariables.
+</div>
 
-131.67, 134.61, 137.35, 138.66, 130.52, 137.42, 132.83, 138.55, 133.02, 132.92,130.45, 140.39, 130.79, 134.06, 133.29, 133.83, 132.82, 131.32, 132.82, 143.09
+```{r,echo=TRUE,message=FALSE,warning=FALSE}
+#Importamos la base de datos
+##############################
+options(scipen=999) # Realizamos este cambio en options para trabajar sin notación científica
+#
+library(easypackages) #Librería para la carga de base de datos
+lib_req<-c('psych','car','lmtest','MASS','xtable','latex2exp',
+           'orcutt','nlme',
+           'mixtools',"alr4","depth","readr",
+           "ddalpha","robustbase","rrcov","zoom",
+           'ggfortify','readxl')# Listado de librerias requeridas por el script
+easypackages::packages(lib_req) 
+data <- read_excel("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estadística Aplicada II/Base de datos/data.xlsx")
+#Función creada para las estadística descriptivas
+resumen<- function(x){
+  X<- matrix(0,7,1)
+  resumen<- round(c(mean(x),median(x),min(x),max(x)
+                  ,sd(x),quantile(x,0.25),
+                    quantile(x,0.75)),4)
+  for( i  in 1:7){
+    X[i,]<- resumen[i]
+  }
+  rownames(X)<-c('Media','Mediana','Min','Max','Sd','1st Qu.','3rd Qu')
+  colnames(X)<- (paste(colnames(x)))
+  return(X)
+}
+X<- data
+################ Selección de las variables dadas por el docente
+X<- cbind(X[,1:30],X[,colnames(X)=='density'])
+# EstadC-stica descriptivas
+summary<- matrix(0,31,7)
+for(i in 1:31){
+  summary[i,]<- t(resumen(X[,i]))
+}
+rownames(summary)<-colnames(X)
+colnames(summary)<-c('Media','Mediana','Min','Max','Sd','1st Qu.','3rd Qu')
+print(summary)
+#Selección de variables con mayor correlación lineal de pearson positiva o negativa
+Y<-cor(X)
+Y[31,]
+Y<-Y[,-31]
+cor<-c(max(Y[31,]),min(Y[31,]))
+which(Y[31,]==cor[1])
+which(Y[31,]==cor[2])
+windows(height=10, width=10)  
+#Creación del panel de fondo
+par(mfrow=c(1,1))
+plot(seq(min(X[,29]),max(X[,29]),length.out=30),seq(min(X[,31]),max(X[,31]),length.out=30),type='n',xlab='',ylab='')
+grid(10,10,col=c('aquamarine3','blue4'))
+par(new=T)
+plot(X[,31]~X[,29],ylab='Densidad',xlab=' NIR 29',pch=19,axes=F)
+model<- lm(density~NIR29,data=X)
+abline(model,lwd=2)
+summary(model)
+```
+<div class=text-justify> 
 
-Los datos respaldan la afirmación del productor?
 </div>
 
 ```{r}
-Ta = c(131.67, 134.61, 137.35, 138.66, 130.52, 137.42, 132.83, 138.55, 133.02, 132.92, 130.45, 140.39, 130.79, 134.06,133.29, 133.83, 132.82, 131.32, 132.82, 143.09) 
 
-# Algunas medidas resumen.
-resumen=c(mean(Ta),sd(Ta),sd(Ta)/mean(Ta))
-names(resumen)=c("Promedio","Desviación","Coef.Var")
-round(resumen,2)
+
 ```
 
 <div class=text-justify> 
-A pesar de que el promedio muestral observado es ligeramente mayor al valor hipotético ($\mu_0 = 130^? F$), esta diferencia puede ser solo un resultado debido al azar y no puede ser considerada una evidencia, hasta no verificar su significancía estadística. Para ello planteamos el siguiente test de hipótesis paramétrico.
+
 </div>
 
 $$H_0: \mu = 130\qquad vs \qquad H_1: \mu = 130$$
 
-Dado que la varianza de los datos es desconocida, procedemos a realizar el test T para la media de una población.
 
-```{r}
-# Un Test de Hipotesis Paramétrico
-t.test(Ta,mu=130,alternative="two.sided")
-```
-
-<div class=text-justify>    
-De acuerdo con el $Valor-p < \alpha$, la diferencia es significativa, lo cual sugiere que la temperatura de activación media es superior a  $130^? F$.
-
-Nota: Recordemos que el test-T se soporta en el supuesto de normalidad en los datos.
-
-Para verificar la normalidad de los datos, inicialmente realizaremos una exploración gráfica.
 </div>
-
+<< echo=TRUE,warning=FALSE, message=FALSE>>=
 ```{r}
 windows(height=8, width=10)               # Nueva ventana gráfica, con dimensiones preestablecidas
 par(mfrow=c(2,2))                         # particón dela ventana gráfica
 
-hist(Ta, freq=F,main="",xlab="Temp Activación")
-lines(density(Ta), col="blue",lty=2)
+hist(X[,1], freq=F,main="",xlab="Temp Activación")
+lines(density(X[,1]), col="blue",lty=2)
 legend("topright","Densidad estimada",lty=2, col="blue",bg='lightblue')
-boxplot(Ta,col="Blue", ylab="Temp Activación")
-qqnorm(Ta); qqline(Ta)
+boxplot(X[,1],col="Blue", ylab="Temp Activación")
+qqnorm(X[,1]); qqline(X[,1])
 ```
+@
 
 <div class=text-justify>    
 La forma asimétrica del histograma y del boxplot, ademas de la distancia de los puntos a la linea recta en el *qqplot*, sugieren que los datos no provienen de una distribución *Normal*. Este resultados son corroborados por el *test de Shapiro-Wilk*.
@@ -85,7 +122,7 @@ La forma asimétrica del histograma y del boxplot, ademas de la distancia de los
 
 ```{r}
 # Un Test formal de Normalidad
-shapiro.test(Ta)
+shapiro.test(X[,1])
 ```
 
 ##### Ejercicio 4.  

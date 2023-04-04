@@ -2,12 +2,12 @@
 options(scipen=999)
 #
 library(easypackages)
-setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estadística Aplicada II/Base de datos")
+setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estad??stica Aplicada II/Base de datos")
 lib_req<-c('psych','car','lmtest','MASS','xtable','latex2exp','orcutt','nlme',
            'mixtools',"alr4","depth","readr","ddalpha","robustbase","rrcov","zoom",'ggfortify','readxl')# Listado de librerias requeridas por el script
 easypackages::packages(lib_req)    
 ###### Funciones creadas por el estudiante
-# Estadística Descriptivas
+# EstadC-stica Descriptivas
 resumen<- function(x){
   X<- matrix(0,9,1)
   resumen<- round(c(mean(x),median(x),min(x),max(x),var(x),sd(x),quantile(x,0.25),quantile(x,0.75),100*(sd(x)/mean(x))),9)
@@ -18,7 +18,7 @@ resumen<- function(x){
   colnames(X)<- (paste(colnames(x)))
   return(X)
 }
-# Análisis exploratorio visual
+# AnC!lisis exploratorio visual
 exploratorio<- function(X){
   psych::pairs.panels(X, 
                       method = "pearson", # correlation method
@@ -27,14 +27,14 @@ exploratorio<- function(X){
                       ellipses = TRUE # show correlation ellipses
   )
 }
-########Validación de supuestos
+########ValidaciC3n de supuestos
 validaciongrafica<- function(model,cor=F){
   crPlots(model,main='Residuos Parciales')
   par(mfrow=c(1,2))
   plot(fitted.values(model),studres(model),panel.first=grid(),pch=19,ylab='Residuos Estudentizados',xlab='Valores ajustados',main='A',col='aquamarine4')
   lines(lowess(studres(model)~fitted.values(model)), col = "red1")
   abline(h=c(-2,0,2),lty=2)
-  qqPlot(model,pch=19,ylab='Residuos Estudentizados',xlab='Cuantiles Teóricos',col=carPalette()[1],col.lines=carPalette()[3],main='B')
+  qqPlot(model,pch=19,ylab='Residuos Estudentizados',xlab='Cuantiles TeC3ricos',col=carPalette()[1],col.lines=carPalette()[3],main='B')
   print('Shapiro Test')
   print(shapiro.test(studres(model)))
   print('Breusch Pagan Test')
@@ -48,7 +48,7 @@ validaciongrafica<- function(model,cor=F){
   print(durbinWatsonTest(model,method='resample',reps=10000))
   }
 }
-#Cálculo del lambda óptimo para el boxcox
+#CC!lculo del lambda C3ptimo para el boxcox
 lambda<- function(model,a,b){
   par(mfrow=c(1,1))
   box.cox<-boxcox(model,lambda=seq(a,b,length.out = 1000),
@@ -57,7 +57,7 @@ print(box.cox)
   bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
   print(bc)
 }
-####### Validación supuestos MCP
+####### ValidaciC3n supuestos MCP
 validacionmcp<- function(model){
   crPlots(model)
   par(mfrow=c(1,2))
@@ -66,39 +66,44 @@ validacionmcp<- function(model){
              xlab='valores ajustados',main='A',ylab='residuos ponderados',pch=19,panel.first = grid(),col="aquamarine4"))
   lines(lowess(res.ponderados~fitted.values(model)),col=2,lty=2,lwd=4)
   abline(h=0,lty=2,lwd=2)
-  print(qqPlot(res.ponderados,pch=19,xlab='Cuantiles Teóricos',ylab='Residuos Ponderados',col=carPalette()[1],col.lines=carPalette()[3],main='B'))
+  print(qqPlot(res.ponderados,pch=19,xlab='Cuantiles TeC3ricos',ylab='Residuos Ponderados',col=carPalette()[1],col.lines=carPalette()[3],main='B'))
   print(shapiro.test(res.ponderados))
 }
-################################ Importación de los datos
+################################ ImportaciC3n de los datos
 data <- read_excel("data.xlsx")
 X<-data
-################ Selección de las variables dadas por el docente
+################ SelecciC3n de las variables dadas por el docente
 X<- cbind(X[,1:30],X[,colnames(X)=='density'])
-#Dimensión del dataframe
+Y<-cor(X)
+Y<-Y[,-31]
+cor<-c(max(Y[31,]),min(Y[31,]))
+which(Y[31,]==cor[1])
+which(Y[31,]==cor[2])
+#DimensiC3n del dataframe
 p<-dim(X)[2]
 n<- dim(X)[1]
 ##############
 head(X)
-# Estadística descriptivas
-summary<- matrix(0,p,9)
+# EstadC-stica descriptivas
+summary<- matrix(0,31,9)
 for(i in 1:p){
   summary[i,]<- t(resumen(X[,i]))
 }
 rownames(summary)<-colnames(X)
 colnames(summary)<-c('Media','Mediana','Min','Max','Var','Sd','1st Qu.','3rd Qu','Coef.Var %')
-View(summary)
-#Pasar de R a Latéx
+summary
+#Pasar de R a LatC)x
 xtable(summary)
-# Matriz de correlación
+# Matriz de correlaciC3n
 
 exploratorio(X[,1:10])
 exploratorio(X[,11:20])
 exploratorio(X[,21:31])
-#Visualización de los datos
+#VisualizaciC3n de los datos
 set.seed(17)
-#Variable aleatoria para crear la gráfica
+#Variable aleatoria para crear la grC!fica
 sample(1:30,1)
-#Creación del panel de fondo
+#CreaciC3n del panel de fondo
 par(mfrow=c(1,1))
 plot(seq(min(X[,18]),max(X[,18]),length.out=30),seq(min(X[,31]),max(X[,31]),length.out=30),type='n',xlab='',ylab='')
 grid(10,10,col=c('aquamarine3','blue4'))
@@ -107,7 +112,7 @@ plot(X[,31]~X[,18],ylab='Densidad',xlab=' NIR 18',pch=19,axes=F)
 model<- lm(density+0.00001~NIR18,data=X)
 abline(model,lwd=2)
 summary(model)
-#Validación de supuestos gráfica
+#ValidaciC3n de supuestos grC!fica
 validaciongrafica(model,cor=F)
 #####
 summary(model)
@@ -140,7 +145,7 @@ w = 1/(fitted.values(varianza)^2)
 model.ponderados<- lm(density~NIR18,data=X,weights = w)
 validacionmcp(model.ponderados)
 summary(model.ponderados)
-########### Análisis exploratorio de datos atípicos e influyentes
+########### AnC!lisis exploratorio de datos atC-picos e influyentes
 attach(X)
 Y<- cbind(NIR18,density)
 clcov<- cov(Y)
@@ -152,7 +157,7 @@ sort.depth.Y<-sort(depth.y,decreasin=TRUE,index.return=TRUE)
 depth.Y.sort<-sort.depth.Y$x
 depth.Y.sort.index<-sort.depth.Y$ix
 median=sort.depth.Y$ix[1]
-#Gráfica de profundidad tukey general
+#GrC!fica de profundidad tukey general
 par(mfrow=c(1,1))
 plot(seq(min(X[,18]),max(X[,18]),length.out=30),seq(min(X[,31]),max(X[,31]),length.out=30),type='n',xlab='',ylab='')
 grid(10,10,col=c('aquamarine3','blue4'))
@@ -213,14 +218,15 @@ points(NIR18[outliers],density[outliers],pch=19,col="purple")
 text(NIR18[outliers],density[outliers],labels=rownames(X)[outliers],pos=3)
 
 zm()
-################################## IDENTIFICACIÓN PUNTOS ATÍPICOS
+################################## IDENTIFICACICN PUNTOS ATC
+PICOS
 influence.measures(model.ponderados)
 ######
 # E influyentes
 influencePlot(model.ponderados)
 ##########
-#################### Identificación de puntos atípicos,balanceo e influyentes
-#Puntos de Balanceo, Influyentes y Atípicos
+#################### IdentificaciC3n de puntos atC-picos,balanceo e influyentes
+#Puntos de Balanceo, Influyentes y AtC-picos
 
 res.ponderados<- residuals(model.ponderados)*weights(model.ponderados)
 par(mfrow=c(1,1))
@@ -230,7 +236,7 @@ hii.c<- 2*p/n
 influencePlot(model.ponderados,panel.first=grid())
 hii<- hatvalues(model.ponderados)
 hii.ind<- hii[hii>hii.c]
-plot(hii,ylab="Valores diagonal de la matriz Hat",pch=19,xlab="Indíces",ylim=c(0,0.3),panel.first=grid())
+plot(hii,ylab="Valores diagonal de la matriz Hat",pch=19,xlab="IndC-ces",ylim=c(0,0.3),panel.first=grid())
 points((1:nrow(X))[hii>hii.c],hii.ind,col="red",pch=19)
 text((1:nrow(X))[hii>hii.c],hii.ind,labels=rownames(X)[(1:nrow(X))[hii>hii.c]],pos=c(1,2,3,3,3,1,3,3,1),cex=0.8)
 abline(h=2*p/n,lty=2)
@@ -249,9 +255,9 @@ points(hii[indices.2],res.ponderados[indices.2],col="red",pch=19)
 text(hii[indices.2],res.ponderados[indices.2],labels=rownames(X)[indices.2],pos=4)
 points(hii[indices.1],res.ponderados[indices.1],col="aquamarine",pch=19)
 text(hii[indices.1],res.ponderados[indices.1],labels=rownames(X)[indices.1],pos=c(1,3,4))
-legend(x = "topright",legend=c("Influyente","Balanceo","Atípico"),
+legend(x = "topright",legend=c("Influyente","Balanceo","AtC-pico"),
        col = c("red","yellow","aquamarine"),pch=c(19,19,19),pt.cex=2,
-       box.lwd=0.6,title="Identificación de puntos",text.font =15,cex=0.6)
+       box.lwd=0.6,title="IdentificaciC3n de puntos",text.font =15,cex=0.6)
 indices.6<-which(X$salary>3200 & X$salary<3500)
 summary(model.ponderados)
 ############## Distancia de Cook
@@ -269,7 +275,7 @@ influencePlot(model.ponderados)
 par(mfrow=c(1,1))
 DFBETAS = dfbetas(model.ponderados)
 DFBETAS
-plot(DFBETAS[,2],ylab=quote('DFBETA'~(beta[1])),xlab="Indíce",pch=19,ylim=c(-0.4,0.5),xlim=c(0,150),panel.first=grid())
+plot(DFBETAS[,2],ylab=quote('DFBETA'~(beta[1])),xlab="IndC-ce",pch=19,ylim=c(-0.4,0.5),xlim=c(0,150),panel.first=grid())
 ind = (1:nrow(X))[abs(DFBETAS[,2]) > 2/sqrt(nrow(X))]
 dfb = DFBETAS[abs(DFBETAS[,2]) > 2/sqrt(nrow(X)) ,2]
 abline(h=c(1,-1)*2/sqrt(nrow(X)))
@@ -281,7 +287,7 @@ head(DFBETAS)
 ################ Dffits
 par(mfrow=c(1,1))
 DFFITS = dffits(model.ponderados)
-plot(DFFITS,xlab="Indíces",pch=19,ylim=c(-1,1),panel.first=grid())
+plot(DFFITS,xlab="IndC-ces",pch=19,ylim=c(-1,1),panel.first=grid())
 abline(h=c(-1,1)*2*sqrt(p/n))
 ind = (1:nrow(X))[abs(DFFITS) > 2*sqrt(p/n)]
 dfb = DFFITS[abs(DFFITS) > 2*sqrt(p/n)]
@@ -289,14 +295,14 @@ text(ind,dfb,rownames(X)[abs(DFFITS) > 2*sqrt(p/n)],pos=2)
 points(ind,dfb,col="purple4",pch=19)
 ################ CovRatio
 COVR = covratio(model.ponderados)
-plot(COVR,pch=19,ylab="Covratio",xlab="Indíce",panel.first=grid())
+plot(COVR,pch=19,ylab="Covratio",xlab="IndC-ce",panel.first=grid())
 abline(h=1+c(-1,1)*3*(p/n))
 covr = COVR[COVR > 1 +3*(p/n) | COVR < 1 -3*(p/n) ]
 ind = (1:nrow(X))[COVR > 1 +3*(p/n) | COVR < 1 -3*(p/n) ]
 text(ind,covr,rownames(X)[COVR > 1 +3*(p/n) | COVR < 1 -3*(p/n)],pos=4)
 points(ind,covr,col="purple4",pch=19)
-################ REGRESIÓN CON Correlación
-######## ALTERNATIVA no nesaria pero que no esta de más tener no para este caso
+################ REGRESICN CON CorrelaciC3n
+######## ALTERNATIVA no nesaria pero que no esta de mC!s tener no para este caso
 #Modelo estandarizado
 W<- as.data.frame(scale(Y)*1/(sqrt(nrow(Y)-1)))
 model.scale<- lm(density~NIR18,data=W)
@@ -308,8 +314,8 @@ summary(model.scale)
 #######################
 ###########
 summary(gls(density~NIR26,data=X))
-ñ<- gls(density~NIR25)
-shapiro.test(residuals(ñ))
+C1<- gls(density~NIR25)
+shapiro.test(residuals(C1))
 mcor<-lm(density~NIR25,data=X)
 mcor1<-cochrane.orcutt(mcor)
 summary(mcor1)
