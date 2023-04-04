@@ -112,7 +112,7 @@ plot(X[,31]~X[,18],ylab='Densidad',xlab=' NIR 18',pch=19,axes=F)
 model<- lm(density+0.00001~NIR18,data=X)
 abline(model,lwd=2)
 summary(model)
-#ValidaciC3n de supuestos grC!fica
+#ValidaciC3n de supuestos gráfica
 validaciongrafica(model,cor=F)
 #####
 summary(model)
