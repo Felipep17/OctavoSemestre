@@ -68,6 +68,55 @@ validacionmcp<- function(model){
   print(qqPlot(res.ponderados,pch=19,xlab='Cuantiles Teóricos',ylab='Residuos Ponderados',col=carPalette()[1],col.lines=carPalette()[3],main='B'))
   print(shapiro.test(res.ponderados))
 }
+# Variabilidad explicada por componentes principales
+varcomp<-function(X){
+  lambdas<-eigen(cor(X))$values
+  vectors<- eigen(cor(X))$vectors
+  prop.var <- lambdas / sum(lambdas) # Proporcion de variabilidad
+  prop.var.accum <- cumsum(lambdas) / sum(lambdas) # Proporcion de variabilidad acumulada
+  par(mfrow=c(1,1))
+  plot(1:length(lambdas),prop.var,type='l',panel.first=grid(),ylim=c(0,1),xlab='Componente principal',ylab='Porcentaje variabilidad explicada')
+  text(1:length(lambdas),prop.var,labels=as.character(paste(round(prop.var.accum*100,2),'%')),cex=0.8,pos=c(4,4,1,3,3,3,3,3))
+  points(1:length(lambdas),prop.var,pch=19,col=c('aquamarine4'))
+}
+######## Regresión por componentes principales
+PCR<- function(Z,y,ncomp){
+  if(ncomp<=(ncol(Z)-1)){
+    S<- Z%*%eigen(cor(Z))$vectors
+    pcr<-lm(y~S-1)
+    R2<-summary(lm(y~S[,-((ncomp+1):ncol(Z))]))$r.squared
+    valphas<- vcov(pcr)
+    alphas<- coefficients(pcr)
+    alphas[((ncomp+1):ncol(Z))]<-0
+    beta.CP1 =eigen(cor(Z))$vectors%*%alphas
+    valphas[((ncomp+1):ncol(Z)),]<-0
+    valphas[,((ncomp+1):ncol(Z))]<-0
+    vbb<- eigen(cor(Z))$vectors%*%valphas%*%t(eigen(cor(Z))$vectors)
+    t.value<- beta.CP1/diag(vbb)
+    p.value<- (1-pt(abs(t.value),nrow(Z)-ncol(Z)))*2
+    resumen<- cbind(round(beta.CP1,4),round(sqrt(diag(vbb)),4),round(t.value,4),round(p.value,4))
+    rownames(resumen)<- colnames(Z)
+    colnames(resumen)<- c('Estimate','Std.Error','t value',' Pr(> |t|)')
+    print(resumen)
+    cat('Multiple R-Squared',round(R2,4))
+  }
+  if(ncomp==ncol(Z)){
+    S<- Z%*%eigen(cor(Z))$vectors
+    pcr<-lm(y~S-1)
+    R2<-summary(lm(y~S-1))$r.squared
+    valphas<- vcov(pcr)
+    alphas<- coefficients(pcr)
+    beta.CP1 =eigen(cor(Z))$vectors%*%alphas
+    vbb<- eigen(cor(Z))$vectors%*%valphas%*%t(eigen(cor(Z))$vectors)
+    t.value<- beta.CP1/diag(vbb)
+    p.value<- (1-pt(abs(t.value),nrow(Z)-ncol(Z)))*2
+    resumen<- cbind(round(beta.CP1,4),round(sqrt(diag(vbb)),4),round(t.value,4),round(p.value,4))
+    rownames(resumen)<- colnames(Z)
+    colnames(resumen)<- c('Estimate','Std.Error','t value',' Pr(> |t|)')
+    print(resumen)
+    cat('Multiple R-Squared',round(R2,4))
+  }
+}
 #Importación de la base de datos
 X<- na.omit(ISLR::Hitters)
 names(X)
@@ -119,44 +168,18 @@ BIC(model.box)
 AIC(model.box)
 ##### Regresión componentes principales
 fit<- pcr(log(Salary)~.,data=X,scale=T,validation='CV')
-summary(fit)
-lambdas<-eigen(cor(X[,-1]))$values
-vectors<- eigen(cor(X[,-1]))$vectors
-prop.var <- lambdas / sum(lambdas) # Proporcion de variabilidad
-prop.var.accum <- cumsum(lambdas) / sum(lambdas) # Proporcion de variabilidad acumulada
-par(mfrow=c(1,1))
-plot(1:8,prop.var,type='l',panel.first=grid(),ylim=c(0,0.7),xlab='Componente principal',ylab='Porcentaje variabilidad explicada')
-points(1:8,prop.var,pch=19,col=c('aquamarine4','aquamarine4','aquamarine4','aquamarine4','orange','red1','red1','red1'))
-text(1:8,prop.var,labels=as.character(paste(round(prop.var.accum*100,2),'%')),cex=0.8,pos=c(4,4,4,3,3,3,3,3))
+varcomp(X[,-1])
 ############### Regresión por componentes principales
-Z<- scale(X[,-1])*(1/sqrt(nrow(X)-1))
-y<- scale(log(X[,1]))*(1/sqrt(nrow(X)-1))
-S<- Z%*%vectors
-pcrsalary<-lm(y~S-1)
-summary(pcrsalary)
-valphas<- vcov(pcrsalary)
-alphas<- coefficients(pcrsalary)
-alphas[6:8]<-0
-beta.CP1 =vectors%*%alphas
-beta.CP1
-valphas[6:8,]<-0
-valphas[,6:8]<-0
-vbb<- vectors%*%valphas%*%t(vectors)
-t.value<- beta.CP1/diag(vbb)
-p.value<- (1-pt(abs(t.value),nrow(X)-8))*2
-resumen<- cbind(round(beta.CP1,4),round(sqrt(diag(vbb)),4),round(t.value,4),round(p.value,4))
-
-rownames(resumen)<- names(X)[-1]
-colnames(resumen)<- c('Estimate','Std.Error','t value',' Pr(> |t|)')
-resumen
+Z<- scale(X[,-1])*(1/sqrt(nrow(X)-1)) #Matriz escalonada de covariables
+y<- scale(log(X[,1]))*(1/sqrt(nrow(X)-1)) # Variable regresora escalonada
+PCR(Z,y,5)
 # R cuadrado de 0.488
 summary(ridgesalary)
 summary(model.box)
 ###################### Rectificación del procedimiento
-sigma2.pc = sum(pcrsalary$residuals^2)/(nrow(X)-8)
-Var.b = sigma2.pc*vectors%*%diag(c(1/lambdas[1:5],0,0,0))%*%t(vectors)
+sigma2.pc = sum(PCR.salary$residuals^2)/(nrow(X)-8)
+Var.b = sigma2.pc*eigen(cor(Z))$vectors%*%diag(c(1/eigen(cor(Z))$values[1:5],0,0,0))%*%t(eigen(cor(Z))$vectors)
 Var.b
-vbb
 
 ###############
 escalar <- function(x) {(x-mean(x)) / sqrt(sum((x-mean(x))^2))}
@@ -169,22 +192,10 @@ PCR.salary = lm(y.e~P-1)
 summary(PCR.salary)
 beta.CP =T.mat%*%c(PCR.salary$coefficients,0,0,0)
 beta.CP
-beta.CP1
 summary(ridgesalary)
 summary(model.box)
 head(predict(model,X))
 head(exp(predict(model.box,X)))
 head(exp(predict(ridgesalary,X)))
 head(exp(predict(fit,X,ncomp=5)))
-#
-X<- na.omit(ISLR::Hitters)
-names(X)
-ind<- c(19,2,9,4,11,3,10,5,12)
-plot(X[,ind],col='aquamarine4')
-X<- X[,ind]
-X<- rbind(X,0)
-X$Salary.[1]<-NA
-X$Salary.[2:nrow(X)]<- X$Salary
-X<-X[-(nrow(X)),]
-head(X)
-tail(X)
+########################
