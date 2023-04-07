@@ -80,8 +80,11 @@ varcomp<-function(X){
   points(1:length(lambdas),prop.var,pch=19,col=c('aquamarine4'))
 }
 ######## Regresión por componentes principales
-PCR<- function(Z,y,ncomp){
-  if(ncomp<=(ncol(Z)-1)){
+PCR<- function(X,y,ncomp){
+  Z<- scale(X)*(1/sqrt(nrow(X)-1))
+  y.e<- y
+  y<- scale(y)*(1/sqrt(nrow(X)-1))
+  if(ncomp<=(ncol(Z)-1)&& ncomp>0){
     S<- Z%*%eigen(cor(Z))$vectors
     pcr<-lm(y~S-1)
     R2<-summary(lm(y~S[,-((ncomp+1):ncol(Z))]))$r.squared
@@ -99,6 +102,7 @@ PCR<- function(Z,y,ncomp){
     colnames(resumen)<- c('Estimate','Std.Error','t value',' Pr(> |t|)')
     print(resumen)
     cat('Multiple R-Squared',round(R2,4))
+    return( list(R2=R2,betas=beta.CP1,summary=resumen,var=vbb,t.value=t.value,p.value=p.value))
   }
   if(ncomp==ncol(Z)){
     S<- Z%*%eigen(cor(Z))$vectors
@@ -115,13 +119,18 @@ PCR<- function(Z,y,ncomp){
     colnames(resumen)<- c('Estimate','Std.Error','t value',' Pr(> |t|)')
     print(resumen)
     cat('Multiple R-Squared',round(R2,4))
+    return( list(R2=R2,betas=beta.CP1,summary=resumen,var=vbb,t.value=t.value,p.value=p.value))
+  }
+  else{
+    cat('Warning')
   }
 }
 #Importación de la base de datos
 X<- na.omit(ISLR::Hitters)
 names(X)
 ind<- c(19,2,9,4,11,3,10,5,12)
-plot(X[,ind],col='aquamarine4')
+plot(X[,ind],panel.first=grid(),col='aquamarine4')
+exploratorio(X[,ind])
 X<- X[,ind]
 names(X)
 model<- lm(Salary~.,data=X)
@@ -148,7 +157,6 @@ K = seq(from=0,to=1,length.out = 100)
 ridgesalary = lmridge(log(Salary)~., data=X,K=K,scaling='sc')
 #####
 criterios<- kest(ridgesalary)
-criterios
 par(mfrow=c(1,2))
 plot(K,criterios$GCV,panel.first=grid(),type='l',xlab='K',ylab='validación cruzada',main='GCV')
 points(K[criterios$GCV==min(criterios$GCV)],criterios$GCV[criterios$GCV==min(criterios$GCV)],pch=19,col='red1')
@@ -170,17 +178,13 @@ AIC(model.box)
 fit<- pcr(log(Salary)~.,data=X,scale=T,validation='CV')
 varcomp(X[,-1])
 ############### Regresión por componentes principales
-Z<- scale(X[,-1])*(1/sqrt(nrow(X)-1)) #Matriz escalonada de covariables
-y<- scale(log(X[,1]))*(1/sqrt(nrow(X)-1)) # Variable regresora escalonada
-PCR(Z,y,5)
+X. <- X[,-1] #Matriz de covariables
+y<- X[,1] # Variable regresora escalonada
+L<-PCR(X.,log(y),5)
 # R cuadrado de 0.488
 summary(ridgesalary)
 summary(model.box)
-###################### Rectificación del procedimiento
-sigma2.pc = sum(PCR.salary$residuals^2)/(nrow(X)-8)
-Var.b = sigma2.pc*eigen(cor(Z))$vectors%*%diag(c(1/eigen(cor(Z))$values[1:5],0,0,0))%*%t(eigen(cor(Z))$vectors)
-Var.b
-
+#Comprobación
 ###############
 escalar <- function(x) {(x-mean(x)) / sqrt(sum((x-mean(x))^2))}
 y.e = escalar(log(X$Salary))
@@ -189,13 +193,15 @@ T.mat = eigen(t(Z)%*%Z)$vectors
 lambda = eigen(t(Z)%*%Z)$values
 P = Z%*%T.mat[,-(6:8)]
 PCR.salary = lm(y.e~P-1)
+###################### Rectificación del procedimiento
+sigma2.pc = sum(PCR.salary$residuals^2)/(nrow(X)-8)
+Var.b = sigma2.pc*eigen(cor(Z))$vectors%*%diag(c(1/eigen(cor(Z))$values[1:5],0,0,0))%*%t(eigen(cor(Z))$vectors)
 summary(PCR.salary)
 beta.CP =T.mat%*%c(PCR.salary$coefficients,0,0,0)
-beta.CP
 summary(ridgesalary)
 summary(model.box)
 head(predict(model,X))
-head(exp(predict(model.box,X)))
-head(exp(predict(ridgesalary,X)))
-head(exp(predict(fit,X,ncomp=5)))
+head(exp(predict(model.box,X,interval='confidence')))
+head(exp(predict(ridgesalary,X,interval='confidence')))
+head(exp(predict(fit,X,ncomp=5,interval='confidence')))
 ########################

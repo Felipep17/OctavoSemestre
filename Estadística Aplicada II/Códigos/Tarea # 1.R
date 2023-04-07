@@ -2,7 +2,7 @@
 options(scipen=999)
 #
 library(easypackages)
-setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estad??stica Aplicada II/Base de datos")
+setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estadística Aplicada II/Base de datos")
 lib_req<-c('psych','car','lmtest','MASS','xtable','latex2exp','orcutt','nlme',
            'mixtools',"alr4","depth","readr","ddalpha","robustbase","rrcov","zoom",'ggfortify','readxl')# Listado de librerias requeridas por el script
 easypackages::packages(lib_req)    
@@ -218,8 +218,7 @@ points(NIR18[outliers],density[outliers],pch=19,col="purple")
 text(NIR18[outliers],density[outliers],labels=rownames(X)[outliers],pos=3)
 
 zm()
-################################## IDENTIFICACICN PUNTOS ATC
-PICOS
+################################## IDENTIFICACICN PUNTOS ATCPICOS
 influence.measures(model.ponderados)
 ######
 # E influyentes
