@@ -79,6 +79,7 @@ varcomp<-function(X){
   text(1:length(lambdas),prop.var,labels=as.character(paste(round(prop.var.accum*100,2),'%')),cex=0.8,pos=c(4,4,1,3,3,3,3,3))
   points(1:length(lambdas),prop.var,pch=19,col=c('aquamarine4'))
 }
+
 ######## Regresión por componentes principales
 PCR<- function(X,y,ncomp){
   Z<- scale(X)*(1/sqrt(nrow(X)-1))
@@ -135,14 +136,40 @@ X<- X[,ind]
 names(X)
 model<- lm(Salary~.,data=X)
 summary(model)
-vif(model)
+vif<-as.data.frame(t(as.numeric(car::vif(model.box))))
+names(X)
+colnames(vif)<- colnames(X[,-1])
+xtable(vif)
 # Validación de supuestos
 validaciongrafica(model,cor=F)
 lambda(model,-3,3)
 model.box<- lm(log(Salary)~.,data=X)
 #Validación box-cox
 validaciongrafica(model.box)
+###################
+Hipo<-matrix(0,3,3)
+Hipo[,1]<- c('Modelo/Valores P','Modelo','Modelo Box-Cox')
+
+Hipo[,2]<- c('Shapiro Wilk(p-value)',0.00000000000005608,0.00002591)
+Hipo[,3]<- c('Breusch Pagan(p-value)',0.0459,0.4471)
+Hipo<-as.data.frame(Hipo)
+colnames(Hipo)<- Hipo[1,]
+rownames(Hipo)<- Hipo[,1]
+Hipo<- Hipo[,-1]
+Hipo<- Hipo[-1,]
+Hipo
+xtable(Hipo)
+xtable(model.box)
 # Ponderados
+par(mfrow=c(2,2))
+plot(fitted.values(model),studres(model),panel.first=grid(),pch=19,ylab='Residuos Estudentizados',xlab='Valores ajustados',main='A',col='aquamarine4')
+lines(lowess(studres(model)~fitted.values(model)), col = "red1")
+abline(h=c(-2,0,2),lty=2)
+qqPlot(model,pch=19,ylab='Residuos Estudentizados',xlab='Cuantiles Teóricos',col=carPalette()[1],col.lines=carPalette()[3],main='B')
+plot(fitted.values(model.box),studres(model.box),panel.first=grid(),pch=19,ylab='Residuos Estudentizados',xlab='Valores ajustados',main='C',col='aquamarine4')
+lines(lowess(studres(model)~fitted.values(model.box)), col = "red1")
+abline(h=c(-2,0,2),lty=2)
+qqPlot(model.box,pch=19,ylab='Residuos Estudentizados',xlab='Cuantiles Teóricos',col=carPalette()[1],col.lines=carPalette()[3],main='D')
 ###### Minimos cuadrados ponderados
 res.mcp<- residuals(model)
 varianza<- lm(abs(res.mcp)~.,data=X)
@@ -150,6 +177,7 @@ w = 1/(fitted.values(varianza)^2)
 model.ponderados<- lm(Salary~.,data=X,weights = w)
 validacionmcp(model.ponderados)
 summary(model.ponderados)
+summary(model.box)
 # Trabajar con el modelo con box-cox
 #Multicolinealidad
 car::vif(model.box)
