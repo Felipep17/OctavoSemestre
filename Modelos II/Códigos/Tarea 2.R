@@ -75,9 +75,11 @@ varcomp<-function(X){
   prop.var <- lambdas / sum(lambdas) # Proporcion de variabilidad
   prop.var.accum <- cumsum(lambdas) / sum(lambdas) # Proporcion de variabilidad acumulada
   par(mfrow=c(1,1))
-  plot(1:length(lambdas),prop.var,type='l',panel.first=grid(),ylim=c(0,1),xlab='Componente principal',ylab='Porcentaje variabilidad explicada')
+  plot(1:length(lambdas),prop.var,type='l',panel.first=grid(),ylim=c(0,1),xlab='Componente principal',ylab='Porcentaje acumulado variabilidad explicada')
   text(1:length(lambdas),prop.var,labels=as.character(paste(round(prop.var.accum*100,2),'%')),cex=0.8,pos=c(4,4,1,3,3,3,3,3))
   points(1:length(lambdas),prop.var,pch=19,col=c('aquamarine4'))
+  lambdas<- t(as.data.frame(lambdas))
+  return(lambdas)
 }
 
 ######## Regresión por componentes principales
@@ -199,16 +201,19 @@ lambda
 ######
 ridgesalary<-lmridge(log(Salary)~., data=X,K=lambda[1],scaling='sc')
 summary(ridgesalary)
+ridgesalary$K
 summary(model.box)   
 BIC(model.box)
 AIC(model.box)
 ##### Regresión componentes principales
 fit<- pcr(log(Salary)~.,data=X,scale=T,validation='CV')
-varcomp(X[,-1])
+xtable(varcomp(X[,-1]))
+
 ############### Regresión por componentes principales
 X. <- X[,-1] #Matriz de covariables
 y<- X[,1] # Variable regresora escalonada
-L<-PCR(X.,log(y),5)
+L<-PCR(X.,log(y),8)
+xtable(L$summary)
 # R cuadrado de 0.488
 summary(ridgesalary)
 summary(model.box)
