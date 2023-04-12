@@ -98,7 +98,7 @@ PCR<- function(X,y,ncomp){
     valphas[((ncomp+1):ncol(Z)),]<-0
     valphas[,((ncomp+1):ncol(Z))]<-0
     vbb<- eigen(cor(Z))$vectors%*%valphas%*%t(eigen(cor(Z))$vectors)
-    t.value<- beta.CP1/diag(vbb)
+    t.value<- beta.CP1/sqrt(diag(vbb))
     p.value<- (1-pt(abs(t.value),nrow(Z)-ncol(Z)))*2
     resumen<- cbind(round(beta.CP1,4),round(sqrt(diag(vbb)),4),round(t.value,4),round(p.value,4))
     rownames(resumen)<- colnames(Z)
@@ -207,12 +207,14 @@ BIC(model.box)
 AIC(model.box)
 ##### Regresión componentes principales
 fit<- pcr(log(Salary)~.,data=X,scale=T,validation='CV')
+summary(fit)
 xtable(varcomp(X[,-1]))
 
 ############### Regresión por componentes principales
 X. <- X[,-1] #Matriz de covariables
 y<- X[,1] # Variable regresora escalonada
 L<-PCR(X.,log(y),8)
+fit$coefficients
 xtable(L$summary)
 # R cuadrado de 0.488
 summary(ridgesalary)
