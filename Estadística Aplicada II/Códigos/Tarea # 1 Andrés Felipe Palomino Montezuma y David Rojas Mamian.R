@@ -293,3 +293,18 @@ lines(spline(X[,29],fitted.values(model.)),lty=2,lwd=3)
 legend(x = "topright",legend=c("Modelo polinómico df=2"),
        lty = c(2),lwd=2,pt.cex=1.5,
        box.lwd=0.6,text.font =15,cex=0.8) #Caja de enunciados
+#supuestos
+studenti.z<- studres(model.)
+ajustados.z<- fitted.values(model.)
+<<fsada, fig.height=4, echo=T>>=
+  par(mfrow=c(1,2))
+plot(ajustados.z,studenti.z, ylab='Residuos Ponderados',
+     xlab='Valores Ajustados',pch=19,col="aquamarine4",
+     main="A")
+abline(h=0,lty=2,lwd=2)
+lines(lowess(studenti.z~ajustados.z), col = "red1")
+qqPlot(studenti.z,main="B", ylab="Residuos Ponderados",
+       xlab="Cuantiles Teóricos",id=F,pch=19)
+shapiro.test(studenti.z)
+bptest(model.,~NIR29+I(NIR29^2),data=Z)
+
