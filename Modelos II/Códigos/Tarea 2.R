@@ -115,7 +115,7 @@ PCR<- function(X,y,ncomp){
     alphas<- coefficients(pcr)
     beta.CP1 =eigen(cor(Z))$vectors%*%alphas
     vbb<- eigen(cor(Z))$vectors%*%valphas%*%t(eigen(cor(Z))$vectors)
-    t.value<- beta.CP1/diag(vbb)
+    t.value<- beta.CP1/sqrt(diag(vbb))
     p.value<- (1-pt(abs(t.value),nrow(Z)-ncol(Z)))*2
     resumen<- cbind(round(beta.CP1,4),round(sqrt(diag(vbb)),4),round(t.value,4),round(p.value,4))
     rownames(resumen)<- colnames(Z)
@@ -132,20 +132,21 @@ PCR<- function(X,y,ncomp){
 X<- na.omit(ISLR::Hitters)
 names(X)
 ind<- c(19,2,9,4,11,3,10,5,12)
-plot(X[,ind],panel.first=grid(),col='aquamarine4')
 exploratorio(X[,ind])
 X<- X[,ind]
+plot(X,panel.first=grid(),col='aquamarine4')
 names(X)
 model<- lm(Salary~.,data=X)
 summary(model)
-vif<-as.data.frame(t(as.numeric(car::vif(model.box))))
-names(X)
-colnames(vif)<- colnames(X[,-1])
-xtable(vif)
+
 # Validación de supuestos
 validaciongrafica(model,cor=F)
 lambda(model,-3,3)
 model.box<- lm(log(Salary)~.,data=X)
+vif<-as.data.frame(t(as.numeric(car::vif(model.box))))
+names(X)
+colnames(vif)<- colnames(X[,-1])
+xtable(vif)
 #Validación box-cox
 validaciongrafica(model.box)
 ###################
@@ -213,7 +214,7 @@ xtable(varcomp(X[,-1]))
 ############### Regresión por componentes principales
 X. <- X[,-1] #Matriz de covariables
 y<- X[,1] # Variable regresora escalonada
-L<-PCR(X.,log(y),8)
+L<-PCR(X.,log(y),5)
 fit$coefficients
 xtable(L$summary)
 # R cuadrado de 0.488
@@ -224,13 +225,13 @@ summary(model.box)
 escalar <- function(x) {(x-mean(x)) / sqrt(sum((x-mean(x))^2))}
 y.e = escalar(log(X$Salary))
 Z. = apply(X[,-1],2,escalar)
-T.mat = eigen(t(Z)%*%Z)$vectors
-lambda = eigen(t(Z)%*%Z)$values
-P = Z%*%T.mat[,-(6:8)]
+T.mat = eigen(t(Z.)%*%Z.)$vectors
+lambda = eigen(t(Z.)%*%Z.)$values
+P = Z.%*%T.mat[,-(6:8)]
 PCR.salary = lm(y.e~P-1)
 ###################### Rectificación del procedimiento
 sigma2.pc = sum(PCR.salary$residuals^2)/(nrow(X)-8)
-Var.b = sigma2.pc*eigen(cor(Z))$vectors%*%diag(c(1/eigen(cor(Z))$values[1:5],0,0,0))%*%t(eigen(cor(Z))$vectors)
+Var.b = sigma2.pc*eigen(cor(Z.))$vectors%*%diag(c(1/eigen(cor(Z.))$values[1:5],0,0,0))%*%t(eigen(cor(Z.))$vectors)
 summary(PCR.salary)
 beta.CP =T.mat%*%c(PCR.salary$coefficients,0,0,0)
 summary(ridgesalary)
