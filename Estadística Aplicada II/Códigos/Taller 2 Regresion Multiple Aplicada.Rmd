@@ -2,9 +2,9 @@
 title: "Taller 2 Regresión lineal Multiple"
 author: "Andrés Felipe Palomino - David Stiven Rojas"
 date: "2023-04-21"
-output: pdf_document 
-
-
+output: 
+  pdf_document: 
+    number_sections: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo =TRUE)
 La base de datos $"yarn"$ obtenida de la librería (PLS) contiene información sobre espectros NIR y mediciones de densidad de hilos de PET, consta de 28 individuos (hilos de PET), 268 variables predictoras (NIRS) y una variable de respuesta (densidad). Se ajustará un modelo lineal múltiple para estimar la densidad del hilo PET, mediante mediciones NIR
 
 
-```{r, echo = T, results = 'asis', message= FALSE}
+```{r, echo = T, results = 'asis', message= FALSE, warning= FALSE}
 #Importación de librerías necesarias
 library(car)
 library(MASS)
