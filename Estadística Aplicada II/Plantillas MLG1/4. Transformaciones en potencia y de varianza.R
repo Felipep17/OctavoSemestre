@@ -40,8 +40,13 @@ box.cox<- boxcox(model,lambda=seq(-20,20,length.out = 1000),
 bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
 #Ajuste del modelo
 model.box<- lm(I(Price^bc)~Size+Baths+Beds,data=X)
+autoplot(model.box)
 #Resumen del modelo
 summary(model.box)
+summary(X)
+x.nuevo<- data.frame(Size=1516 ,Beds=3,Baths=1)
+predict(model,x.nuevo,interval = 'confidence')
+predict(model.box,x.nuevo,interval = 'confidence')^(1/bc)
 #Validación de supuestos del modelo con BOX-COX
 library(MASS)
 studenti.box<- studres(model.box)

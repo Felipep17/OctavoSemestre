@@ -51,7 +51,7 @@ validaciongrafica<- function(model,cor=F){
 #CC!lculo del lambda C3ptimo para el boxcox
 lambda<- function(model,a,b){
   par(mfrow=c(1,1))
-  box.cox<-boxcox(model,lambda=seq(a,b,length.out = 1000),
+  box.cox<-boxcox(model,lambda=seq(a,b,length.out = 10000),
                   ylab='log-verosimilitud')
   print(box.cox)
   bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
@@ -84,21 +84,19 @@ p<-dim(X)[2]
 n<- dim(X)[1]
 ##############
 head(X)
-# EstadC-stica descriptivas
-#Pasar de R a Latéx
-xtable(summary)
 # Matriz de correlaciC3n
 Sd <- apply(X[,c(4,29,31)],2,sd)
 RESU <- rbind(apply(X[,c(4,29,31)],2,summary),Sd)
 RESU
 #
-model<- lm(density~NIR4+NIR29,data=X)
+model<- lm(density+0.0001~NIR4+NIR29,data=X)
 vif(model)
 summary(model)
 plot(X[,c(4,29,31)],pch=19,panel.first=grid())
 z<-X[,31];y<-X[,4];x<-X[,29];
-scatter3D(x, y, z, phi = 0, bty = "b2",
+scatter3D(x, y, z, phi = 0, bty = "b2",col = c('aquamarine','aquamarine2','aquamarine3','dodgerblue','dodgerblue2','dodgerblue3','dodgerblue4'),
           pch = 20, cex = 2, ticktype = "detailed")
+plotrgl()
 #La variable Z es la variable a predecir
 #Creamos un objeto para realizar las predicciones con elmodelo
 objr<-lm(z ~ x+y)
@@ -118,56 +116,30 @@ fitpoints <- predict(objr)
 scatter3D(x, y, z, pch = 19, cex = 2, 
           theta = 20, phi = 20, ticktype = "detailed",
           surf = list(x = x.pred, y = y.pred, z = z.pred,  
-                      facets = NA, fit = fitpoints), main = "",xlab='NIR29 ',zlab="Density",ylab='NIR4',col = c('red4','red3','red2','red1','orange4','orange3','orange2','orange1','yellow4','yellow3','yellow2','yellow'))
-summary(model.in)
+                      facets = NA, fit = fitpoints), main = "",xlab='NIR29 ',zlab="Density",ylab='NIR4', col = c('aquamarine','aquamarine2','aquamarine3','dodgerblue','dodgerblue2','dodgerblue3','dodgerblue4'))
 #Gráfico dinámico
 plotrgl()
-influence.measures(objr)
+influence.measures(model)
 #ValidaciC3n de supuestos gráfica
-validaciongrafica(model,cor=T)
+validaciongrafica(model,cor=F)
 #####
 summary(model)
 #Intervalos de confianza
 confint(model)
 ##############
 anova(model)
-#
-Z<- as.data.frame(cbind(X[,31],X[,29]))
-colnames(Z)<-c('Density','NIR29')
-set.seed(100)
-ind<-sample(1:nrow(Z),nrow(Z))
-Z<- as.data.frame(Z[ind,])
-modelprueba<- lm(Density~NIR29,data=Z)
-validaciongrafica(modelprueba,cor=F)
 ###########
-par(mfrow=c(1,2))
-acf(MASS::studres(model))
-acf(MASS::studres(model),type='partial')
-par(mfrow=c(1,1))
-plot(studres(modelprueba)[-length(studres(model))],studres(modelprueba)[-1])
 ########  BOX-COX
-lambda(model,-3,3)
-model.box<- lm(log(density+0.0001)~NIR26,data=X)
+lambda(model,-5,10)
+model.box<- lm((density^0.65)~NIR29+NIR4,data=X)
 validaciongrafica(model.box)
 ###### Minimos cuadrados ponderados
 res.mcp<- residuals(model)
-varianza<- lm(abs(res.mcp)~NIR29,data=X)
+varianza<- lm(abs(res.mcp)~NIR29+NIR4,data=X)
 w = 1/(fitted.values(varianza)^2)
-model.ponderados<- lm(density~NIR29,data=X,weights = w)
+model.ponderados<- lm(density~NIR29+NIR24,data=X,weights = w)
 validacionmcp(model.ponderados)
 summary(model.ponderados)
-x.nuevo = data.frame(NIR29=seq(min(X[,29]),max(X[,]),length.out=nrow(X)))
-pred.media = predict(model.ponderados,x.nuevo,interval = 'confidence')
-pred.nuev.obs= predict(model.ponderados,x.nuevo,interval = 'prediction')
-abline(model.ponderados)
-lines(x.nuevo[,1],pred.media[,2],lty=2,col="purple",lwd=2)
-lines(x.nuevo[,1],pred.media[,3],lty=2,col="purple",lwd=2)
-lines(x.nuevo[,1],pred.nuev.obs[,2],lty=3,col="red",lwd=2)
-lines(x.nuevo[,1],pred.nuev.obs[,3],lty=3,col="red",lwd=2)
-legend(x = "bottomright",legend=c("Modelo","Intervalo de confianza 95%","Intervalo de predicción 95%"),
-       col = c("black","orange","red"),lty = c(1, 2,3),pt.cex=1,
-       box.lwd=0.6,text.font =15,cex=0.3)
-
 ########### AnC!lisis exploratorio de datos atC-picos e influyentes
 attach(X)
 Y<- cbind(NIR18,density)
