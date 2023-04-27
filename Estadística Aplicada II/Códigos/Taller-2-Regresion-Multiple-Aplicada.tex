@@ -1,0 +1,241 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Taller 2 Regresión lineal Multiple},
+  pdfauthor={Andrés Felipe Palomino - David Stiven Rojas},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Taller 2 Regresión lineal Multiple}
+\author{Andrés Felipe Palomino - David Stiven Rojas}
+\date{2023-04-21}
+
+\begin{document}
+\maketitle
+
+\hypertarget{introducciuxf3n}{%
+\section{Introducción}\label{introducciuxf3n}}
+
+La base de datos \("yarn"\) obtenida de la librería (PLS) contiene
+información sobre espectros NIR y mediciones de densidad de hilos de
+PET, consta de 28 individuos (hilos de PET), 268 variables predictoras
+(NIRS) y una variable de respuesta (densidad). Se ajustará un modelo
+lineal múltiple para estimar la densidad del hilo PET, mediante
+mediciones NIR
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Importación de librerías necesarias}
+\FunctionTok{library}\NormalTok{(car)}
+\FunctionTok{library}\NormalTok{(MASS)}
+\FunctionTok{library}\NormalTok{(xtable)}
+\FunctionTok{library}\NormalTok{(lmtest)}
+\FunctionTok{library}\NormalTok{(readxl)}
+\FunctionTok{library}\NormalTok{(lmridge)}
+\FunctionTok{library}\NormalTok{(pls)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{base-de-datos}{%
+\subsection{Base de datos}\label{base-de-datos}}
+
+En la siguiente tabla se encuentra un encabezado de la base de datos que
+se trabajara, esta consta de 30 covariables predictoras, las cuales
+estarán desde NIR1 hasta NIR30. De primera mano se observa que los
+valores de los NIR disminuyen a medida que la covariable aumenta
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(readxl)}
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}\StringTok{"C:/Users/david/OneDrive/Escritorio/Octavo semestre github/OctavoSemestre/Estadística Aplicada II/Base de datos/data.xlsx"}\NormalTok{)}
+\NormalTok{X }\OtherTok{\textless{}{-}}\NormalTok{ data}
+\NormalTok{X}\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(X[,}\DecValTok{1}\SpecialCharTok{:}\DecValTok{30}\NormalTok{],X[,}\FunctionTok{colnames}\NormalTok{(X)}\SpecialCharTok{==}\StringTok{\textquotesingle{}density\textquotesingle{}}\NormalTok{])}
+\FunctionTok{xtable}\NormalTok{(}\FunctionTok{head}\NormalTok{(X[,}\DecValTok{1}\SpecialCharTok{:}\DecValTok{11}\NormalTok{]))}
+\end{Highlighting}
+\end{Shaded}
+
+\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Wed Apr
+26 23:55:22 2023
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrrrr}
+  \hline
+ & NIR1 & NIR2 & NIR3 & NIR4 & NIR5 & NIR6 & NIR7 & NIR8 & NIR9 & NIR10 & NIR11 \\ 
+  \hline
+1 & 3.07 & 3.09 & 3.11 & 3.10 & 3.00 & 2.83 & 2.62 & 2.40 & 2.19 & 2.01 & 1.84 \\ 
+  2 & 3.07 & 3.09 & 3.10 & 3.07 & 2.98 & 2.84 & 2.68 & 2.51 & 2.35 & 2.22 & 2.12 \\ 
+  3 & 3.08 & 3.10 & 3.09 & 3.03 & 2.88 & 2.69 & 2.48 & 2.27 & 2.08 & 1.92 & 1.77 \\ 
+  4 & 3.08 & 3.10 & 3.10 & 3.07 & 2.99 & 2.87 & 2.74 & 2.61 & 2.50 & 2.42 & 2.38 \\ 
+  5 & 3.10 & 3.10 & 3.08 & 3.02 & 2.89 & 2.72 & 2.54 & 2.38 & 2.24 & 2.13 & 2.05 \\ 
+  6 & 3.08 & 3.08 & 3.05 & 2.93 & 2.73 & 2.51 & 2.29 & 2.10 & 1.93 & 1.79 & 1.67 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{xtable}\NormalTok{(}\FunctionTok{head}\NormalTok{(X[,}\DecValTok{12}\SpecialCharTok{:}\DecValTok{21}\NormalTok{]))}
+\end{Highlighting}
+\end{Shaded}
+
+\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Wed Apr
+26 23:55:22 2023
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrrr}
+  \hline
+ & NIR12 & NIR13 & NIR14 & NIR15 & NIR16 & NIR17 & NIR18 & NIR19 & NIR20 & NIR21 \\ 
+  \hline
+1 & 1.69 & 1.58 & 1.50 & 1.44 & 1.34 & 1.22 & 1.14 & 1.12 & 1.13 & 1.16 \\ 
+  2 & 2.04 & 1.98 & 1.96 & 1.94 & 1.89 & 1.82 & 1.75 & 1.71 & 1.68 & 1.65 \\ 
+  3 & 1.65 & 1.55 & 1.49 & 1.44 & 1.35 & 1.26 & 1.20 & 1.18 & 1.19 & 1.21 \\ 
+  4 & 2.35 & 2.35 & 2.37 & 2.40 & 2.40 & 2.38 & 2.33 & 2.28 & 2.21 & 2.11 \\ 
+  5 & 1.99 & 1.95 & 1.94 & 1.93 & 1.90 & 1.85 & 1.80 & 1.76 & 1.73 & 1.68 \\ 
+  6 & 1.56 & 1.48 & 1.43 & 1.39 & 1.32 & 1.25 & 1.20 & 1.19 & 1.19 & 1.19 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{xtable}\NormalTok{(}\FunctionTok{head}\NormalTok{(X[,}\DecValTok{22}\SpecialCharTok{:}\DecValTok{31}\NormalTok{]))}
+\end{Highlighting}
+\end{Shaded}
+
+\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Wed Apr
+26 23:55:22 2023
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrrr}
+  \hline
+ & NIR22 & NIR23 & NIR24 & NIR25 & NIR26 & NIR27 & NIR28 & NIR29 & NIR30 & density \\ 
+  \hline
+1 & 1.16 & 1.15 & 1.15 & 1.13 & 1.07 & 1.02 & 1.01 & 1.03 & 1.08 & 100.00 \\ 
+  2 & 1.58 & 1.51 & 1.45 & 1.38 & 1.29 & 1.20 & 1.15 & 1.13 & 1.14 & 80.22 \\ 
+  3 & 1.20 & 1.18 & 1.17 & 1.15 & 1.10 & 1.07 & 1.06 & 1.08 & 1.12 & 79.49 \\ 
+  4 & 1.98 & 1.85 & 1.75 & 1.63 & 1.51 & 1.40 & 1.30 & 1.23 & 1.20 & 60.80 \\ 
+  5 & 1.60 & 1.52 & 1.46 & 1.39 & 1.31 & 1.24 & 1.19 & 1.16 & 1.17 & 59.97 \\ 
+  6 & 1.18 & 1.15 & 1.14 & 1.12 & 1.09 & 1.06 & 1.06 & 1.07 & 1.11 & 60.48 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{2}\SpecialCharTok{\^{}}\DecValTok{30}
+\end{Highlighting}
+\end{Shaded}
+
+{[}1{]} 1073741824
+
+\hypertarget{selecciuxf3n-de-variables}{%
+\subsection{Selección de variables}\label{selecciuxf3n-de-variables}}
+
+En el proceso de selección de variables se procede a ajustar todos los
+posibles modelos \(2^{30}\), del cual se observa el \(R^2_{adj}\), el
+AIC y el BIC. Además se realizan los algoritmos de selección (forward
+selection, backward selection, stepwise selection) y Regresion de LASSO.
+Luego se ajustara el modelo con las variables que tengan buenos
+indicadores y ademas que permita corregir supuestos.
+
+\end{document}
