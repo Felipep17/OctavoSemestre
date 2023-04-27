@@ -42,14 +42,29 @@ X<- cbind(X[,1:30],X[,colnames(X)=='density'])
 xtable(head(X[,1:11]))
 xtable(head(X[,12:21]))
 xtable(head(X[,22:31]))
-2^30
+
 
 ```
 
 ## Selección de variables
 
-En el proceso de selección de variables se procede a ajustar todos los posibles modelos $2^{30}$, del cual se observa el $R^2_{adj}$, el AIC y el BIC. Además se realizan los algoritmos de selección (forward selection, backward selection, stepwise selection) y Regresion de LASSO. Luego se ajustara el modelo con las variables que tengan buenos indicadores y ademas que permita corregir supuestos. 
+En el proceso de selección de variables se procede a ajustar todos los posibles modelos $2^{27}$, del cual se observa el $R^2_{adj}$, el AIC y el BIC. Además se realizan los algoritmos de selección (forward selection, backward selection, stepwise selection) y Regresion de LASSO. Luego se ajustara el modelo con las variables que tengan buenos indicadores y ademas que permita corregir supuestos.
 
+# Todos los posibles modelos
+
+Con la funcion ols_step_all_possible() de la librería olsrr es posible ajustar todos los posibles modelos y determinar el mejor bajo diferentes criterios. Para ajustar todos los posibles modelos es necesario tener los suficientes grados de libertad para calcular las estimaciones. Por ende no se tomaran las 30 variables, sino que se tomaran las 27 que tengan mejor correlación con la variables density. 
+
+
+
+```{r, echo = T, results = 'asis', message= FALSE}
+library(olsrr)
+model <- lm(density ~., data=X)
+
+
+
+
+
+```
 
 
 

@@ -151,8 +151,8 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \end{Highlighting}
 \end{Shaded}
 
-\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Wed Apr
-26 23:55:22 2023
+\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Thu Apr
+27 11:56:22 2023
 
 \begin{table}[ht]
 \centering
@@ -176,8 +176,8 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \end{Highlighting}
 \end{Shaded}
 
-\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Wed Apr
-26 23:55:22 2023
+\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Thu Apr
+27 11:56:22 2023
 
 \begin{table}[ht]
 \centering
@@ -201,8 +201,8 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \end{Highlighting}
 \end{Shaded}
 
-\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Wed Apr
-26 23:55:22 2023
+\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Thu Apr
+27 11:56:22 2023
 
 \begin{table}[ht]
 \centering
@@ -220,22 +220,52 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \end{tabular}
 \end{table}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\DecValTok{2}\SpecialCharTok{\^{}}\DecValTok{30}
-\end{Highlighting}
-\end{Shaded}
-
-{[}1{]} 1073741824
-
 \hypertarget{selecciuxf3n-de-variables}{%
 \subsection{Selección de variables}\label{selecciuxf3n-de-variables}}
 
 En el proceso de selección de variables se procede a ajustar todos los
-posibles modelos \(2^{30}\), del cual se observa el \(R^2_{adj}\), el
+posibles modelos \(2^{27}\), del cual se observa el \(R^2_{adj}\), el
 AIC y el BIC. Además se realizan los algoritmos de selección (forward
 selection, backward selection, stepwise selection) y Regresion de LASSO.
 Luego se ajustara el modelo con las variables que tengan buenos
 indicadores y ademas que permita corregir supuestos.
+
+\hypertarget{todos-los-posibles-modelos}{%
+\section{Todos los posibles modelos}\label{todos-los-posibles-modelos}}
+
+Con la funcion ols\_step\_all\_possible() de la librería olsrr es
+posible ajustar todos los posibles modelos y determinar el mejor bajo
+diferentes criterios. Para ajustar todos los posibles modelos es
+necesario tener los suficientes grados de libertad para calcular las
+estimaciones. Por ende no se tomaran las 30 variables
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(olsrr)}
+\NormalTok{model }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(density }\SpecialCharTok{\textasciitilde{}}\NormalTok{., }\AttributeTok{data=}\NormalTok{X)}
+\FunctionTok{summary}\NormalTok{(model)}
+\end{Highlighting}
+\end{Shaded}
+
+Call: lm(formula = density \textasciitilde{} ., data = X)
+
+Residuals: ALL 28 residuals are 0: no residual degrees of freedom!
+
+Coefficients: (3 not defined because of singularities) Estimate Std.
+Error t value Pr(\textgreater\textbar t\textbar) (Intercept) -859.7 NaN
+NaN NaN NIR1 -634.7 NaN NaN NaN NIR2 1823.8 NaN NaN NaN NIR3 -1934.0 NaN
+NaN NaN NIR4 2943.4 NaN NaN NaN NIR5 -6923.8 NaN NaN NaN NIR6 15592.6
+NaN NaN NaN NIR7 -19517.0 NaN NaN NaN NIR8 7601.3 NaN NaN NaN NIR9
+-1279.5 NaN NaN NaN NIR10 1685.3 NaN NaN NaN NIR11 5057.9 NaN NaN NaN
+NIR12 -7777.7 NaN NaN NaN NIR13 22522.6 NaN NaN NaN NIR14 -12342.9 NaN
+NaN NaN NIR15 -4469.0 NaN NaN NaN NIR16 -2338.2 NaN NaN NaN NIR17 4153.6
+NaN NaN NaN NIR18 -17982.1 NaN NaN NaN NIR19 35565.4 NaN NaN NaN NIR20
+-22850.4 NaN NaN NaN NIR21 5711.8 NaN NaN NaN NIR22 -2781.1 NaN NaN NaN
+NIR23 -22323.0 NaN NaN NaN NIR24 54050.3 NaN NaN NaN NIR25 -50489.5 NaN
+NaN NaN NIR26 23668.7 NaN NaN NaN NIR27 -6842.9 NaN NaN NaN NIR28 NA NA
+NA NA NIR29 NA NA NA NA NIR30 NA NA NA NA
+
+Residual standard error: NaN on 0 degrees of freedom Multiple R-squared:
+1, Adjusted R-squared: NaN F-statistic: NaN on 27 and 0 DF, p-value: NA
 
 \end{document}
