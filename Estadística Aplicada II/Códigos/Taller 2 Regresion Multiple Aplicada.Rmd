@@ -48,17 +48,17 @@ xtable(head(X[,22:31]))
 
 ## Selección de variables
 
-En el proceso de selección de variables se procede a ajustar todos los posibles modelos $2^{27}$, del cual se observa el $R^2_{adj}$, el AIC y el BIC y ademas se realiza la Regresion de LASSO para identificar las posibles variables que tengan un aporte poco relevante. Luego se ajustara el modelo con las variables que tengan buenos indicadores y ademas que permita corregir supuestos y multicolinealidad
+En el proceso de selección de variables se procede a ajustar todos los posibles modelos $2^{26}$, del cual se observa el $R^2_{adj}$, el AIC y el BIC y ademas se realiza la Regresion de LASSO para identificar las posibles variables que tengan un aporte poco relevante. Luego se ajustara el modelo con las variables que tengan buenos indicadores y ademas que permita corregir supuestos y multicolinealidad
 
 # Todos los posibles modelos
 
-Con la funcion ols_step_all_possible() de la librería olsrr es posible ajustar todos los posibles modelos y determinar el mejor bajo diferentes criterios. Para ajustar todos los posibles modelos es necesario tener los suficientes grados de libertad para calcular las estimaciones. Por ende no se tomaran las 30 variables, sino que se tomaran las 27 que tengan mejor correlación con la variables density. 
+Con la funcion ols_step_all_possible() de la librería olsrr es posible ajustar todos los posibles modelos y determinar el mejor bajo diferentes criterios. Para ajustar todos los posibles modelos es necesario tener los suficientes grados de libertad para calcular las estimaciones. Por ende no se tomaran las 30 variables, sino que se tomaran las 26 que tengan mejor correlación con la variables density. 
 
 
 
 ```{r, echo = T, results = 'asis', message= FALSE}
 library(olsrr)
-model <- lm(density ~., data=X)
+model <- lm(density ~.-NIR1-NIR8-NIR9-NIR10, data=X)
 
 
 
