@@ -83,11 +83,11 @@ lambda<- function(model,a,b){
 
 ```
 
-## Selección de variables
+# Selección de variables
 
 En el proceso de selección de variables se procede a realizar la Regresion de LASSO para identificar las posibles variables que tengan un aporte poco relevante, Por ultimo se ajustara el modelo cuyas variables tengan buenos indicadores y se pueda realizar corrección de supuestos
 
-# Regresión de LASSO
+## Regresión de LASSO
 
 Este es un método de regularización que se implementa cuando se tiene muchas covariables disponibles y se cree que pocas tienen un aporte relevante.
 
@@ -95,11 +95,20 @@ Se asume el modelo de regresión usual, donde :
 
 ```{=tex}
 \begin{center}
-E(y|x)=x´$\beta$, y V(y|x)=$\sigma^2$
+E(y|x)=$x^T\beta$, y V(y|x)=$\sigma^2$
+\end{center}
+```
+Donde se asume que algunos $\beta$ son cero. El objetivo del estimador es seleccionar los coeficientes que tienen valores diferentes de cero. El cual se obtiene minimizando la siguiente expresión:
+
+```{=tex}
+\begin{center}
+$S_{lasso}(\beta)=\sum_{i=1}^{n}({y_{i}-x^
+T}\beta)^2+\lambda\sum_{j=1}^{p-1}|\beta_{j}|$
 \end{center}
 ```
 
-Donde se asume que algunos $\beta$ son cero.
+Esta es la suma de cuadrados del estimador por MCO más una penalización ($\lambda$), a la suma del valor absoluto de los coeficientes. A medida que $\lambda$ aumenta la penalización tendrá mas peso sobre la estimación de los coeficientes, es decir que si la penalización es muy grande, todas las estimaciones seran cero. No hay solución analitica para $\hat{\beta}_{lasso}$ por lo que se usan algoritmos para la estimación, como lo es la funcion de glmnet de la libreria glmnet.
+
 
 
 ```{r, echo = T, results = 'asis', message= FALSE}
