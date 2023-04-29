@@ -95,9 +95,13 @@ Se asume el modelo de regresión usual, donde :
 
 ```{=tex}
 \begin{center}
-E(y|x)=x´
+E(y|x)=x´$\beta$, y V(y|x)=$\sigma^2$
 \end{center}
 ```
+
+Donde se asume que algunos $\beta$ son cero.
+
+
 ```{r, echo = T, results = 'asis', message= FALSE}
 model.box <- lm(I(density^0.96) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
 
