@@ -37,7 +37,7 @@ En la siguiente tabla se encuentra un encabezado de la base de datos que se trab
 ```{r, echo = T, results = 'asis', message= FALSE}
 
 X <- data.frame(matrix(c(yarn$NIR[,1:30],yarn$density),nrow =28, ncol= 31))
-colnames(X) <- c(paste("NIR",1:30),"density")
+colnames(X) <- c(paste("NIR",1:30,sep=""),"density")
 
 xtable(head(X[,1:11]))
 xtable(head(X[,12:21]))
@@ -58,7 +58,7 @@ Con la funcion ols_step_all_possible() de la librería olsrr es posible ajustar 
 
 ```{r, echo = T, results = 'asis', message= FALSE}
 library(olsrr)
-
+model <- lm(density ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 
 
 
