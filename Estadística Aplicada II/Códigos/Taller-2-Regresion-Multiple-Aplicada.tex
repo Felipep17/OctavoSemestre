@@ -143,22 +143,21 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(readxl)}
-\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}\StringTok{"C:/Users/david/OneDrive/Escritorio/Octavo semestre github/OctavoSemestre/Estadística Aplicada II/Base de datos/data.xlsx"}\NormalTok{)}
-\NormalTok{X }\OtherTok{\textless{}{-}}\NormalTok{ data}
-\NormalTok{X}\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(X[,}\DecValTok{1}\SpecialCharTok{:}\DecValTok{30}\NormalTok{],X[,}\FunctionTok{colnames}\NormalTok{(X)}\SpecialCharTok{==}\StringTok{\textquotesingle{}density\textquotesingle{}}\NormalTok{])}
+\NormalTok{X }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(yarn}\SpecialCharTok{$}\NormalTok{NIR[,}\DecValTok{1}\SpecialCharTok{:}\DecValTok{30}\NormalTok{],yarn}\SpecialCharTok{$}\NormalTok{density),}\AttributeTok{nrow =}\DecValTok{28}\NormalTok{, }\AttributeTok{ncol=} \DecValTok{31}\NormalTok{))}
+\FunctionTok{colnames}\NormalTok{(X) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"NIR"}\NormalTok{,}\DecValTok{1}\SpecialCharTok{:}\DecValTok{30}\NormalTok{),}\StringTok{"density"}\NormalTok{)}
+
 \FunctionTok{xtable}\NormalTok{(}\FunctionTok{head}\NormalTok{(X[,}\DecValTok{1}\SpecialCharTok{:}\DecValTok{11}\NormalTok{]))}
 \end{Highlighting}
 \end{Shaded}
 
-\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Thu Apr
-27 11:56:22 2023
+\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Sat Apr
+29 13:29:44 2023
 
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrrrrr}
   \hline
- & NIR1 & NIR2 & NIR3 & NIR4 & NIR5 & NIR6 & NIR7 & NIR8 & NIR9 & NIR10 & NIR11 \\ 
+ & NIR 1 & NIR 2 & NIR 3 & NIR 4 & NIR 5 & NIR 6 & NIR 7 & NIR 8 & NIR 9 & NIR 10 & NIR 11 \\ 
   \hline
 1 & 3.07 & 3.09 & 3.11 & 3.10 & 3.00 & 2.83 & 2.62 & 2.40 & 2.19 & 2.01 & 1.84 \\ 
   2 & 3.07 & 3.09 & 3.10 & 3.07 & 2.98 & 2.84 & 2.68 & 2.51 & 2.35 & 2.22 & 2.12 \\ 
@@ -176,14 +175,14 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \end{Highlighting}
 \end{Shaded}
 
-\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Thu Apr
-27 11:56:22 2023
+\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Sat Apr
+29 13:29:44 2023
 
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrrrr}
   \hline
- & NIR12 & NIR13 & NIR14 & NIR15 & NIR16 & NIR17 & NIR18 & NIR19 & NIR20 & NIR21 \\ 
+ & NIR 12 & NIR 13 & NIR 14 & NIR 15 & NIR 16 & NIR 17 & NIR 18 & NIR 19 & NIR 20 & NIR 21 \\ 
   \hline
 1 & 1.69 & 1.58 & 1.50 & 1.44 & 1.34 & 1.22 & 1.14 & 1.12 & 1.13 & 1.16 \\ 
   2 & 2.04 & 1.98 & 1.96 & 1.94 & 1.89 & 1.82 & 1.75 & 1.71 & 1.68 & 1.65 \\ 
@@ -201,14 +200,14 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \end{Highlighting}
 \end{Shaded}
 
-\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Thu Apr
-27 11:56:22 2023
+\% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Sat Apr
+29 13:29:44 2023
 
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrrrrrrrr}
   \hline
- & NIR22 & NIR23 & NIR24 & NIR25 & NIR26 & NIR27 & NIR28 & NIR29 & NIR30 & density \\ 
+ & NIR 22 & NIR 23 & NIR 24 & NIR 25 & NIR 26 & NIR 27 & NIR 28 & NIR 29 & NIR 30 & density \\ 
   \hline
 1 & 1.16 & 1.15 & 1.15 & 1.13 & 1.07 & 1.02 & 1.01 & 1.03 & 1.08 & 100.00 \\ 
   2 & 1.58 & 1.51 & 1.45 & 1.38 & 1.29 & 1.20 & 1.15 & 1.13 & 1.14 & 80.22 \\ 
@@ -224,11 +223,11 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \subsection{Selección de variables}\label{selecciuxf3n-de-variables}}
 
 En el proceso de selección de variables se procede a ajustar todos los
-posibles modelos \(2^{27}\), del cual se observa el \(R^2_{adj}\), el
-AIC y el BIC. Además se realizan los algoritmos de selección (forward
-selection, backward selection, stepwise selection) y Regresion de LASSO.
-Luego se ajustara el modelo con las variables que tengan buenos
-indicadores y ademas que permita corregir supuestos.
+posibles modelos \(2^{26}\), del cual se observa el \(R^2_{adj}\), el
+AIC y el BIC y ademas se realiza la Regresion de LASSO para identificar
+las posibles variables que tengan un aporte poco relevante. Luego se
+ajustara el modelo con las variables que tengan buenos indicadores y
+ademas que permita corregir supuestos y multicolinealidad
 
 \hypertarget{todos-los-posibles-modelos}{%
 \section{Todos los posibles modelos}\label{todos-los-posibles-modelos}}
@@ -237,35 +236,14 @@ Con la funcion ols\_step\_all\_possible() de la librería olsrr es
 posible ajustar todos los posibles modelos y determinar el mejor bajo
 diferentes criterios. Para ajustar todos los posibles modelos es
 necesario tener los suficientes grados de libertad para calcular las
-estimaciones. Por ende no se tomaran las 30 variables
+estimaciones. Por ende no se tomaran las 30 variables, sino que se
+tomaran las 26 que tengan mejor correlación con la variables density.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(olsrr)}
-\NormalTok{model }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(density }\SpecialCharTok{\textasciitilde{}}\NormalTok{., }\AttributeTok{data=}\NormalTok{X)}
-\FunctionTok{summary}\NormalTok{(model)}
 \end{Highlighting}
 \end{Shaded}
 
-Call: lm(formula = density \textasciitilde{} ., data = X)
-
-Residuals: ALL 28 residuals are 0: no residual degrees of freedom!
-
-Coefficients: (3 not defined because of singularities) Estimate Std.
-Error t value Pr(\textgreater\textbar t\textbar) (Intercept) -859.7 NaN
-NaN NaN NIR1 -634.7 NaN NaN NaN NIR2 1823.8 NaN NaN NaN NIR3 -1934.0 NaN
-NaN NaN NIR4 2943.4 NaN NaN NaN NIR5 -6923.8 NaN NaN NaN NIR6 15592.6
-NaN NaN NaN NIR7 -19517.0 NaN NaN NaN NIR8 7601.3 NaN NaN NaN NIR9
--1279.5 NaN NaN NaN NIR10 1685.3 NaN NaN NaN NIR11 5057.9 NaN NaN NaN
-NIR12 -7777.7 NaN NaN NaN NIR13 22522.6 NaN NaN NaN NIR14 -12342.9 NaN
-NaN NaN NIR15 -4469.0 NaN NaN NaN NIR16 -2338.2 NaN NaN NaN NIR17 4153.6
-NaN NaN NaN NIR18 -17982.1 NaN NaN NaN NIR19 35565.4 NaN NaN NaN NIR20
--22850.4 NaN NaN NaN NIR21 5711.8 NaN NaN NaN NIR22 -2781.1 NaN NaN NaN
-NIR23 -22323.0 NaN NaN NaN NIR24 54050.3 NaN NaN NaN NIR25 -50489.5 NaN
-NaN NaN NIR26 23668.7 NaN NaN NaN NIR27 -6842.9 NaN NaN NaN NIR28 NA NA
-NA NA NIR29 NA NA NA NA NIR30 NA NA NA NA
-
-Residual standard error: NaN on 0 degrees of freedom Multiple R-squared:
-1, Adjusted R-squared: NaN F-statistic: NaN on 27 and 0 DF, p-value: NA
 
 \end{document}
