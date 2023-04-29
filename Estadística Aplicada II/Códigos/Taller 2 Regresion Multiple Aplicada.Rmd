@@ -125,6 +125,7 @@ validaciongrafica(model)
 ```
 
 Como no se cumple el supuesto de normalidad se procede a corregir mediante el metodo de BoxCox y se verifica el cumplimiento de los mismos.
+
 ```{r, echo = T, results = 'asis', message= FALSE}
 model <- lm(density+0.0000001 ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 lambda(model,-3,3)
