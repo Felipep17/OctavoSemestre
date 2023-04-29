@@ -1,9 +1,11 @@
 ##############################
 options(scipen=999)
 #
+library(lmridge)
 library(easypackages)
+library(glmnet)
 setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estadística Aplicada II/Base de datos")
-lib_req<-c("scatterplot3d","plot3D","plotly","rgl","plot3Drgl",'effects','psych','car','lmtest','MASS','xtable','latex2exp','orcutt','nlme',
+lib_req<-c("glmnet","lmridge","scatterplot3d","plot3D","plotly","rgl","plot3Drgl",'effects','psych','car','lmtest','MASS','xtable','latex2exp','orcutt','nlme',
            'mixtools',"alr4","depth","readr","ddalpha","robustbase","rrcov","zoom",'ggfortify','readxl')# Listado de librerias requeridas por el script
 easypackages::packages(lib_req)    
 ###### Funciones creadas por el estudiante
@@ -140,197 +142,84 @@ w = 1/(fitted.values(varianza)^2)
 model.ponderados<- lm(density~NIR29+NIR24,data=X,weights = w)
 validacionmcp(model.ponderados)
 summary(model.ponderados)
-########### AnC!lisis exploratorio de datos atC-picos e influyentes
+summary(model.box)
+#Selección de variables
 attach(X)
-Y<- cbind(NIR18,density)
-clcov<- cov(Y)
-clcenter<- as.vector(colMeans(Y))
-model<- lm(density~NIR18,data=X)
-##########################
-depth.y<-depth.halfspace(Y,Y,num.directions=10000,seed=1)
-sort.depth.Y<-sort(depth.y,decreasin=TRUE,index.return=TRUE)
-depth.Y.sort<-sort.depth.Y$x
-depth.Y.sort.index<-sort.depth.Y$ix
-median=sort.depth.Y$ix[1]
-#GrC!fica de profundidad tukey general
-par(mfrow=c(1,1))
-plot(seq(min(X[,18]),max(X[,18]),length.out=30),seq(min(X[,31]),max(X[,31]),length.out=30),type='n',xlab='',ylab='')
-grid(10,10,col=c('aquamarine3','blue4'))
-par(new=T)
-plot(X[,31]~X[,18],ylab='Densidad',xlab=' NIR 18',pch=19)
-points(NIR18[median],density[median],pch=19,lwd=2,cex=1,col="aquamarine")
-mixtools::ellipse(mu=clcenter,sigma=clcov,alpha=0.1,lty=2,lwd=3)
-mixtools::ellipse(mu=clcenter,sigma=clcov,alpha=0.25,lty=3,lwd=3)
-mixtools::ellipse(mu=clcenter,sigma=clcov,alpha=0.5,lty=3,lwd=3)
-mixtools::ellipse(mu=clcenter,sigma=clcov,alpha=0.01,lty=3,lwd=3)
-########Puntos fuera de la elipse
-# get inverse of scatter 
-cov_ <- solve(clcov) 
-# compute distances 
-# compute the robust distance 
-robust_dist <- apply(Y, 1, function(x){
-  x <- (x - clcenter) 
-  dist <- sqrt((t(x) %*% cov_ %*% x)) 
-  return(dist) 
-}) 
-# set cutoff using chi square distribution 
-threshold. <- sqrt(qchisq(p = 0.975, df = ncol(Y))) 
-# df = no of columns # find outliers 
-outliers. <- which(robust_dist >= threshold) 
-###############################
-#MCD estimators
-zm()
-res=covMcd(Y)
-
-mcd <- rrcov::CovMcd(Y) # use only first three columns 
-
-mcdcenter=res$center
-mcdcov=res$cov
-# get mcd estimate of location 
-mean_mcd <- mcd$raw.center
-# get mcd estimate scatter 
-cov_mcd <- mcd$raw.cov
-
-#Ellipse 97.5% with robust MCD estimators
-mixtools::ellipse(mu = mean_mcd, sigma = cov_mcd, alpha = 0.025,col = "red", lty = 2,lwd=2)
-#########
-
-# get inverse of scatter 
-cov_mcd_inv <- solve(cov_mcd) 
-# compute distances 
-# compute the robust distance 
-robust_dist <- apply(Y, 1, function(x){
-  x <- (x - mean_mcd) 
-  dist <- sqrt((t(x) %*% cov_mcd_inv %*% x)) 
-  return(dist) 
-}) 
-# set cutoff using chi square distribution 
-threshold <- sqrt(qchisq(p = 0.975, df = ncol(Y))) 
-# df = no of columns # find outliers 
-outliers <- which(robust_dist >= threshold) 
-# gives the row numbers of outli
-points(NIR18[outliers],density[outliers],pch=19,col="purple")
-text(NIR18[outliers],density[outliers],labels=rownames(X)[outliers],pos=3)
-
-zm()
-################################## IDENTIFICACICN PUNTOS ATCPICOS
-influence.measures(model.ponderados)
-######
-# E influyentes
-influencePlot(model.ponderados)
+X.<-model.matrix(lm(density~.,data=X))[,-1]
+lasso.mod <- glmnet(X., Y., alpha = 1,nlambda = 100)
+lasso.mod$beta
+plot(lasso.mod,xvar='lambda',label=T,lwd=2,ylab='coeficientes de regresión')
+abline(h=0,lty=2)
+lasso.cv <-cv.glmnet(X., Y., nfolds = 4, alpha = 1,nlambda = 100)
+plot(lasso.cv)
+est = glmnet(X., Y., alpha = 1,lambda = lasso.cv$lambda.1se)
+est$beta
+model.lasso<- lm(density~NIR1+NIR6+NIR18+NIR28+NIR29,data=X)
+model.lasso1<- lm(density~NIR1+NIR6+NIR18+NIR28,data=X)
+validaciongrafica(model.lasso1)
+anova(model.lasso,model.lasso1)
+summary(model.lasso1)
+car::vif(model.lasso1)
+# Regresión ridge
+K = seq(from=0,to=1,length.out = 100000)
+ridgesalary = lmridge(density~NIR1+NIR6+NIR18+NIR28,data=X,K=K,scaling='sc')
+#####
+criterios<- kest(ridgesalary)
+par(mfrow=c(1,2))
+plot(K,criterios$GCV,panel.first=grid(),type='l',xlab='K',ylab='validación cruzada',main='GCV')
+points(K[criterios$GCV==min(criterios$GCV)],criterios$GCV[criterios$GCV==min(criterios$GCV)],pch=19,col='red1')
+text(K[criterios$GCV==min(criterios$GCV)],criterios$GCV[criterios$GCV==min(criterios$GCV)],labels=paste(K[1]),pos=3)
 ##########
-#################### IdentificaciC3n de puntos atC-picos,balanceo e influyentes
-#Puntos de Balanceo, Influyentes y AtC-picos
-
-res.ponderados<- residuals(model.ponderados)*weights(model.ponderados)
-par(mfrow=c(1,1))
-p<- length(coefficients(model.ponderados))
-n<- nrow(X)
-hii.c<- 2*p/n
-influencePlot(model.ponderados,panel.first=grid())
-hii<- hatvalues(model.ponderados)
-hii.ind<- hii[hii>hii.c]
-plot(hii,ylab="Valores diagonal de la matriz Hat",pch=19,xlab="IndC-ces",ylim=c(0,0.3),panel.first=grid())
-points((1:nrow(X))[hii>hii.c],hii.ind,col="red",pch=19)
-text((1:nrow(X))[hii>hii.c],hii.ind,labels=rownames(X)[(1:nrow(X))[hii>hii.c]],pos=c(1,2,3,3,3,1,3,3,1),cex=0.8)
-abline(h=2*p/n,lty=2)
-n<- length(residuals(model.ponderados))
-p<- length(coefficients(model.ponderados))
-hii.c<-2*(p/n)
-abline(h=hii.c,lty=2,lwd=2)
-indices.1<-(1:nrow(X))[hii<hii.c & abs(res.ponderados)>2]
-indices.2<-(1:nrow(X))[hii>hii.c & abs(res.ponderados)> 2]
-indices.3<- (1:nrow(X))[hii>hii.c& abs(res.ponderados)< 2]
-plot(hii,res.ponderados,pch=19,xlab="Valores de la diagonal de la matriz hat", ylab=" Residuos Ponderados",ylim=c(-2,2),xlim=c(0,0.25),panel.first=grid())
-abline(h=c(1,0,-1)*2,lty=2,v=hii.c)
-points(hii[indices.3],res.ponderados[indices.3],col="yellow",pch=19)
-text(hii[indices.3],res.ponderados[indices.3],labels=rownames(X)[indices.3],pos=3)
-points(hii[indices.2],res.ponderados[indices.2],col="red",pch=19)
-text(hii[indices.2],res.ponderados[indices.2],labels=rownames(X)[indices.2],pos=4)
-points(hii[indices.1],res.ponderados[indices.1],col="aquamarine",pch=19)
-text(hii[indices.1],res.ponderados[indices.1],labels=rownames(X)[indices.1],pos=c(1,3,4))
-legend(x = "topright",legend=c("Influyente","Balanceo","AtC-pico"),
-       col = c("red","yellow","aquamarine"),pch=c(19,19,19),pt.cex=2,
-       box.lwd=0.6,title="IdentificaciC3n de puntos",text.font =15,cex=0.6)
-indices.6<-which(X$salary>3200 & X$salary<3500)
-summary(model.ponderados)
-############## Distancia de Cook
-ck<- cooks.distance(model.ponderados)
-plot(ck,ylab="Distancia de Coock",pch=19,ylim=c(min(ck),max(ck)+0.1),panel.first=grid())
-ck.c<- 4/n
-abline(h=ck.c,lty=2)
-indices<- (1:nrow(X))[ck>ck.c]
-ck<- ck[ck>ck.c]
-points(indices,ck,col="red",pch=19)
-text(indices,ck,labels=rownames(X)[indices],pos=3,cex=0.6)
-influencePlot(model.ponderados)
-########### DfBetas
-#Beta 1
-par(mfrow=c(1,1))
-DFBETAS = dfbetas(model.ponderados)
-DFBETAS
-plot(DFBETAS[,2],ylab=quote('DFBETA'~(beta[1])),xlab="IndC-ce",pch=19,ylim=c(-0.4,0.5),xlim=c(0,150),panel.first=grid())
-ind = (1:nrow(X))[abs(DFBETAS[,2]) > 2/sqrt(nrow(X))]
-dfb = DFBETAS[abs(DFBETAS[,2]) > 2/sqrt(nrow(X)) ,2]
-abline(h=c(1,-1)*2/sqrt(nrow(X)))
-text(ind,dfb,rownames(X)[abs(DFBETAS[,2]) > 2/sqrt(nrow(X))],pos=c(1,3,1,4,3,2,1,4,3,4),
-     cex=0.8)
-points(ind,dfb,col="red",pch=19)
-head(DFBETAS)
-################
-################ Dffits
-par(mfrow=c(1,1))
-DFFITS = dffits(model.ponderados)
-plot(DFFITS,xlab="IndC-ces",pch=19,ylim=c(-1,1),panel.first=grid())
-abline(h=c(-1,1)*2*sqrt(p/n))
-ind = (1:nrow(X))[abs(DFFITS) > 2*sqrt(p/n)]
-dfb = DFFITS[abs(DFFITS) > 2*sqrt(p/n)]
-text(ind,dfb,rownames(X)[abs(DFFITS) > 2*sqrt(p/n)],pos=2)
-points(ind,dfb,col="purple4",pch=19)
-################ CovRatio
-COVR = covratio(model.ponderados)
-plot(COVR,pch=19,ylab="Covratio",xlab="IndC-ce",panel.first=grid())
-abline(h=1+c(-1,1)*3*(p/n))
-covr = COVR[COVR > 1 +3*(p/n) | COVR < 1 -3*(p/n) ]
-ind = (1:nrow(X))[COVR > 1 +3*(p/n) | COVR < 1 -3*(p/n) ]
-text(ind,covr,rownames(X)[COVR > 1 +3*(p/n) | COVR < 1 -3*(p/n)],pos=4)
-points(ind,covr,col="purple4",pch=19)
-################ REGRESICN CON CorrelaciC3n
-######## ALTERNATIVA no nesaria pero que no esta de ms tener no para este caso
-#Modelo estandarizado
-W<- as.data.frame(scale(Y)*1/(sqrt(nrow(Y)-1)))
-model.scale<- lm(density~NIR18,data=W)
-validaciongrafica(model.scale)
-validaciongrafica(model)
-summary(model)
-summary(model.scale)
-# Sino para un futuro#####################
-#######################
+plot(K,criterios$CV,panel.first=grid(),type='l',xlab='K',ylab='validación cruzada',main='CV')
+points(K[criterios$CV==min(criterios$CV)],criterios$CV[criterios$CV==min(criterios$CV)],pch=19,col='red1')
+text(K[criterios$CV==min(criterios$CV)],criterios$CV[criterios$CV==min(criterios$CV)],labels=paste(K[2]),pos=3)
 ###########
-summary(gls(density~NIR26,data=X))
-C1<- gls(density~NIR25)
-shapiro.test(residuals(C1))
-mcor<-lm(density~NIR25,data=X)
-mcor1<-cochrane.orcutt(mcor)
-summary(mcor1)
-qqPlot(residuals(mcor1))
-coefficients(mcor1)
-influence.measures(model.ponderados)
-####################
-model.<- lm(density~NIR29+I(NIR29^2),data=X)
-summary(model.)
-plot(X[,29],X[,31],pch=19,col="#FF8C00",panel.first=grid(),xlab="NIR29",
-     ylab="densidad del hilo PET",main='Densidad Vs NIR29')
-#Gráficas de las lineas
-splines(X[,29],fitted.values(model.),lty=2,lwd=3)
-lines(spline(X[,29],fitted.values(model.)),lwd=2)
-abline(model.ponderados,lwd=2,lty=2)
-autoplot(model.)
-validaciongrafica(model.)
-###### Minimos cuadrados ponderados
-res.mcp<- residuals(model.)
-varianza<- lm(abs(res.mcp)~NIR29+I(NIR29^2),data=X)
-w = 1/(fitted.values(varianza)^2)
-model.ponderados<- lm(density~NIR29+I(NIR29^2),data=X,weights = w)
-validacionmcp(model.ponderados)
-summary(model.ponderados)
+lambda<-c(K[criterios$GCV==min(criterios$GCV)],K[criterios$CV==min(criterios$CV)])
+lambda
+######
+ridgesalary<-lmridge(I(density^0.65)~NIR1+NIR6+NIR18+NIR28, data=X,K=0.01,scaling='sc')
+summary(ridgesalary)
+vif.lmridge(ridgesalary)
+car::vif(model.lasso1)
+plot(fitted.values(ridgesalary),residuals(ridgesalary),pch=19)
+abline(h=0,lty=2,lwd=2)
+bptest(ridgesalary)
+# Elastic NET
+library(glmnet)   
+library(faraway) 
+library(caret)
+#Intervalo para alpha y lambda: Creando Grid
+search.grid <-expand.grid(alpha = seq(0,1,.1),
+                          lambda = exp(seq(-1,1,.1)))
+
+#Validacion cruzada
+train.control <- trainControl(method = "cv", 
+                              number = 10)
+#Modelo
+step.model <- train(I(density^0.65)~., 
+                    data = X,
+                    method = "glmnet", 
+                    trControl = train.control,
+                    tuneGrid = search.grid)
+
+#Alpha y lambda optimos:
+step.model$bestTune$alpha
+step.model$bestTune$lambda
+#Coeficientes 
+coef(step.model$finalModel, step.model$bestTune$lambda)
+elastic.model <- glmnet(x=X., y=I(Y.^0.65),
+                        alpha  = 0.8, 
+                        lambda =0.3678794)
+elastic.model$beta
+plot(I(density^0.65)-predict(elastic.model,X.),predict(elastic.model,X.),pch=19)
+#Ejercicio de Predicción
+predict(elastic.model, 
+        newx = matrix(c(age=24, weight=210.25, height=74.75, 
+                        adipos=26.5, neck=39.0, chest=104.5, 
+                        abdom=94.4, hip=107.8, thigh=66.0, 
+                        knee=42.0, ankle=25.6,  biceps=35.7, 
+                        forearm=30.6, wrist=18.8),
+                      nrow = 1)
+)
+influence.measures(model.box)
+anova(model.lasso1)

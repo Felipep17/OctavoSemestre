@@ -1,0 +1,21 @@
+# numerical rules
+Age >= 65 
+Age <= 100
+ALP >= 30
+ALP <= 115
+CaMol >= 2.1
+CaMol <= 2.7
+PhoMol >= 0.84
+PhoMol <= 1.5
+
+# categorical rules
+Lab %in% c("1","2","3","4","5","6")
+Sex %in% c("1","2")
+AgeG %in% c("65 - 69","70 - 74","75 - 79","80 - 84","85 - 89")
+
+# mixed rules
+if(Age >=65 && Age <=69) AgeG == "65 - 69"
+if(Age >=70 && Age <=74) AgeG == "70 - 74"
+if(Age >=75 && Age <=79) AgeG == "75 - 79"
+if(Age >=80 && Age <=84) AgeG == "80 - 84"
+if(Age >=85 && Age <=89) AgeG == "85 - 89"
