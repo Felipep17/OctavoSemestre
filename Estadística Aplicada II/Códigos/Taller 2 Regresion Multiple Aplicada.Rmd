@@ -110,17 +110,12 @@ Esta es la suma de cuadrados del estimador por MCO más una penalización ($\lam
 
 ### Modelo a realizar regresión LASSO
 
-Como se establecio anteriormente, se asume un modelo de regresión usual, el cual debe cumplir los siguientes supuestos: E(y|x)=$x^T\beta$, y V(y|x)=$\sigma^2$, por ende es necesario proponer un modelo con p<n, en el cual se eliminaran las variables con menor correlación con la variable y. Dicho modelo se expresa acontinuación y se evaluan los supuestos:
+Como se establecio anteriormente, se asume un modelo de regresión usual, el cual debe cumplir los siguientes supuestos: E(y|x)=$x^T\beta$, y V(y|x)=$\sigma^2$, es decir, varianza constante y E($\varepsilon$)=0 . Por ende es necesario proponer un modelo con p<n, en el cual se eliminaran las variables con menor correlación con la variable y. Dicho modelo se expresa acontinuación y se evaluan los supuestos:
 
 ```{r, echo = T, results = 'asis', message= FALSE}
 
 model <- lm(density ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 validaciongrafica(model)
-
-
-
-
-
 
 ```
 
@@ -129,7 +124,7 @@ Como no se cumple el supuesto de normalidad se procede a corregir mediante el me
 ```{r, echo = T, results = 'asis', message= FALSE}
 model <- lm(density+0.0000001 ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 lambda(model,-3,3)
-model.box <- lm(I(density^0.95) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
+model.box <- lm(I(density^0.96) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
 validaciongrafica(model.box)
 
 
@@ -143,7 +138,6 @@ validaciongrafica(model.box)
 
 X.<-model.matrix(model.box)[,-1]
 lasso.mod <- glmnet(X., X$density, alpha = 1,nlambda = 100)
-lasso.mod$beta
 plot(lasso.mod,xvar='lambda',label=T,lwd=2,ylab='coeficientes de regresión')
 abline(h=0,lty=2)
 lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,nlambda = 100)
