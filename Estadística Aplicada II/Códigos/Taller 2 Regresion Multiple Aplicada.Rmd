@@ -18,6 +18,7 @@ La base de datos $"yarn"$ obtenida de la librería (PLS) contiene información s
 ```{r, echo = T, results = 'asis', message= FALSE, warning= FALSE}
 #Importación de librerías necesarias
 library(car)
+library(glmnet)
 library(MASS)
 library(xtable)
 library(lmtest)
@@ -84,18 +85,31 @@ lambda<- function(model,a,b){
 
 ## Selección de variables
 
-En el proceso de selección de variables se procede a realizar la Regresion de LASSO para identificar las posibles variables que tengan un aporte poco relevante, ademas se haran algorítmos de selcección como (forward selection, backward selection y stepwise selectión), del cual se observa el $R^2_{adj}$, para finalmente obtener un modelo cuyas variables tengan buenos indicadores y se pueda realizar corrección de supuestos
+En el proceso de selección de variables se procede a realizar la Regresion de LASSO para identificar las posibles variables que tengan un aporte poco relevante, Por ultimo se ajustara el modelo cuyas variables tengan buenos indicadores y se pueda realizar corrección de supuestos
 
-# Algotirmos de selección
+# Regresión de LASSO
 
-## Selección hacia adelante
+Este es un método de regularización que se implementa cuando se tiene muchas covariables disponibles y se cree que pocas tienen un aporte relevante.
+
+
+Se asume el siguiente modelo de regresión
+
 
 ```{r, echo = T, results = 'asis', message= FALSE}
-library(olsrr)
-model <- lm(density ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
+model.box <- lm(I(density^0.96) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
 
-validaciongrafica(model)
+X.<-model.matrix(model.box)[,-1]
+lasso.mod <- glmnet(X., X$density, alpha = 1,nlambda = 100)
+lasso.mod$beta
+plot(lasso.mod,xvar='lambda',label=T,lwd=2,ylab='coeficientes de regresión')
+abline(h=0,lty=2)
+lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,nlambda = 100)
+plot(lasso.cv)
+est = glmnet(X., X$density, alpha = 1,lambda = lasso.cv$lambda.1se)
+est$beta
 
 
 
 ```
+
+# 
