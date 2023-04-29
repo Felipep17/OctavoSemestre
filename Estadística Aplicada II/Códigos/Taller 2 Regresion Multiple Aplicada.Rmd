@@ -91,10 +91,13 @@ En el proceso de selección de variables se procede a realizar la Regresion de L
 
 Este es un método de regularización que se implementa cuando se tiene muchas covariables disponibles y se cree que pocas tienen un aporte relevante.
 
+Se asume el modelo de regresión usual, donde :
 
-Se asume el siguiente modelo de regresión
-
-
+```{=tex}
+\begin{center}
+E(y|x)=x´
+\end{center}
+```
 ```{r, echo = T, results = 'asis', message= FALSE}
 model.box <- lm(I(density^0.96) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
 
