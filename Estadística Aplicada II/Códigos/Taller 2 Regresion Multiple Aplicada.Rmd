@@ -24,7 +24,7 @@ library(lmtest)
 library(readxl)
 library(lmridge)
 library(pls)
-
+library(olsrr)
 ```
 
 
@@ -46,13 +46,55 @@ xtable(head(X[,22:31]))
 
 ```
 
+## Funciones creadas
+
+Antes de empezar con el proceso de seleccionar las variables para ajustar el modelo se crean funciones para optimizar el proceso. 
+
+```{r,echo = T, results = 'asis', message= FALSE}
+##Validacion grafica para homocedasticidad y normalidad y pruebas formales
+validaciongrafica<- function(model,cor=F){
+  
+  par(mfrow=c(1,2))
+  plot(fitted.values(model),studres(model),panel.first=grid(),pch=19,ylab='Residuos Estudentizados',xlab='Valores ajustados',main='A',col='aquamarine4')
+  lines(lowess(studres(model)~fitted.values(model)), col = "red1")
+  abline(h=c(-2,0,2),lty=2)
+  qqPlot(model,pch=19,ylab='Residuos Estudentizados',xlab='Cuantiles Teóricos',col=carPalette()[1],col.lines=carPalette()[3],main='B')
+  print('Shapiro Test')
+  print(shapiro.test(studres(model)))
+  print('Breusch Pagan Test')
+  print(bptest(model))
+  if(cor==T){
+    par(mfrow=c(1,2))
+    plot(studres(model),type="b",xlab="Tiempo",ylab="Residuos Estudentizados",main="A",pch=19,panel.first=grid())
+    plot(studres(model)[-length(fitted.values(model))],studres(model)[-1],pch=19,panel.first = grid(),col="turquoise3",xlab=TeX("$Residuos_{t-1}$"),ylab=TeX("$Residuos_{t}$"),main="B")
+    abline(lm(studres(model)[-1]~studres(model)[-length(fitted.values(model))]))
+    print('Durbin Watson Test')
+    print(durbinWatsonTest(model,method='resample',reps=10000))
+  }
+  par(mfrow=c(1,1))
+}
+
+## Calculo de lambda optimo para boxcox
+lambda<- function(model,a,b){
+  par(mfrow=c(1,1))
+  box.cox<-boxcox(model,lambda=seq(a,b,length.out = 1000),
+                  ylab='log-verosimilitud')
+  bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
+  print(bc)
+}
+
+```
+
+
+
+
 ## Selección de variables
 
-En el proceso de selección de variables se procede a ajustar todos los posibles modelos $2^{26}$, del cual se observa el $R^2_{adj}$, el AIC y el BIC y ademas se realiza la Regresion de LASSO para identificar las posibles variables que tengan un aporte poco relevante. Luego se ajustara el modelo con las variables que tengan buenos indicadores y ademas que permita corregir supuestos y multicolinealidad
+En el proceso de selección de variables se procede a ajustar todos los posibles modelos $2^{24}$, del cual se observa el $R^2_{adj}$, el AIC y el BIC y ademas se realiza la Regresion de LASSO para identificar las posibles variables que tengan un aporte poco relevante. Luego se ajustara el modelo con las variables que tengan buenos indicadores y ademas que permita corregir supuestos y multicolinealidad
 
 # Todos los posibles modelos
 
-Con la funcion ols_step_all_possible() de la librería olsrr es posible ajustar todos los posibles modelos y determinar el mejor bajo diferentes criterios. Para ajustar todos los posibles modelos es necesario tener los suficientes grados de libertad para calcular las estimaciones. Por ende no se tomaran las 30 variables, sino que se tomaran las 26 que tengan mejor correlación con la variables density. 
+Con la funcion ols_step_all_possible() de la librería olsrr es posible ajustar todos los posibles modelos y determinar el mejor bajo diferentes criterios. Para ajustar todos los posibles modelos es necesario tener los suficientes grados de libertad para calcular las estimaciones. Por ende no se tomaran las 30 variables, sino que se tomaran las 24 que tengan mejor correlación con la variables density. 
 
 
 
@@ -60,7 +102,7 @@ Con la funcion ols_step_all_possible() de la librería olsrr es posible ajustar 
 library(olsrr)
 model <- lm(density ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 
-
+validaciongrafica(model)
 
 
 
