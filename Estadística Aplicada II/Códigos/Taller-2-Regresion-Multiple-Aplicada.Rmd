@@ -149,7 +149,7 @@ Es un método para evaluar que tan bueno es un modelo para predecir observacione
 
 -   Validación: Se utiliza para validar el modelo ajustado.
 
-```{r, echo = T, results = 'asis', message= FALSE}
+```{r, echo = T, }
 
 lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,nlambda = 100)
 plot(lasso.cv)
@@ -175,7 +175,14 @@ donde $\beta_1$ es un vector (p-r)x1 y $\beta_2$ es un vector rx1 , se quiere ev
 $H_0 : \beta_2 =0$ vs $H_1: \beta_2 \neq 0 $
 \end{center}
 ```
-```{r, echo = T, results = 'asis', message= FALSE}
+
+Se tienen los siguientes modelos:
+Modelo completo : $y = X_1\beta_1+X_2\beta_2+\varepsilon$
+Modelo reducido : $y = X_1\beta_1\varepsilon$
+
+
+
+```{r, echo = T}
 model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)
 model.lasso2 <- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
 anova(model.lasso2,model.lasso1)
@@ -186,13 +193,13 @@ anova(model.lasso2,model.lasso1)
 
 Con base en el proceso de selección de variables se ajusta el siguiente modelo y se realiza la respectiva validación de supuestos:
 
-```{r, echo = T, results = 'asis', message= FALSE}
+```{r, echo = T}
 model.lasso1<- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
 
 summary(model.lasso1)
 ```
 
-```{r, echo = T, results = 'asis', message= FALSE}
+```{r, echo = T}
 validaciongrafica(model.lasso1)
 car::vif(model.lasso1)
 ```
