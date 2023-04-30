@@ -153,7 +153,7 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \end{Shaded}
 
 \% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Sat Apr
-29 19:13:44 2023
+29 20:01:39 2023
 
 \begin{table}[ht]
 \centering
@@ -178,7 +178,7 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \end{Shaded}
 
 \% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Sat Apr
-29 19:13:44 2023
+29 20:01:39 2023
 
 \begin{table}[ht]
 \centering
@@ -203,7 +203,7 @@ valores de los NIR disminuyen a medida que la covariable aumenta
 \end{Shaded}
 
 \% latex table generated in R 4.3.0 by xtable 1.8-4 package \% Sat Apr
-29 19:13:44 2023
+29 20:01:39 2023
 
 \begin{table}[ht]
 \centering
@@ -378,7 +378,7 @@ data: model BP = 23.94, df = 24, p-value = 0.4651
 
 Ya con los requerimentos necesarios para realizar regresión de LASSO, se
 procede a calcular las estimaciones para distintos valores de
-\lambda que se muestran en la siguiente figura:
+\(\lambda\) que se muestran en la siguiente figura:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -398,7 +398,15 @@ validación cruzada.
 \subsubsection{Validación cruzada}\label{validaciuxf3n-cruzada}}
 
 Es un método para evaluar que tan bueno es un modelo para predecir
-observaciones futuras de la población objeto de estudio.
+observaciones futuras de la población objeto de estudio. La muestra se
+divide en dos grupos:
+
+\begin{itemize}
+\item
+  Entrenamiento: Se usa para ajustar el modelo.
+\item
+  Validación: Se utiliza para validar el modelo ajustado.
+\end{itemize}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -416,16 +424,16 @@ observaciones futuras de la población objeto de estudio.
 \end{Highlighting}
 \end{Shaded}
 
-24 x 1 sparse Matrix of class ``dgCMatrix'' s0 NIR2 -4.570706 NIR3 .\\
+24 x 1 sparse Matrix of class ``dgCMatrix'' s0 NIR2 -9.925178 NIR3 .\\
 NIR4 .\\
 NIR5 .\\
-NIR6 85.027448 NIR12 .\\
+NIR6 87.822803 NIR12 .\\
 NIR13 .\\
 NIR14 .\\
 NIR15 .\\
 NIR16 .\\
 NIR17 .\\
-NIR18 -3.843097 NIR19 .\\
+NIR18 -5.289614 NIR19 .\\
 NIR20 .\\
 NIR21 .\\
 NIR22 .\\
@@ -434,6 +442,63 @@ NIR24 .\\
 NIR25 .\\
 NIR26 .\\
 NIR27 .\\
-NIR28 -85.263753 NIR29 -58.024653 NIR30 .
+NIR28 -91.135757 NIR29 -43.247958 NIR30 .
+
+\hypertarget{modelo-de-regresiuxf3n-multiple}{%
+\section{Modelo de regresión
+multiple}\label{modelo-de-regresiuxf3n-multiple}}
+
+Con base en el proceso de selección de variables se ajusta el siguiente
+modelo y se realiza la respectiva validación de supuestos:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model.lasso1}\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(density}\SpecialCharTok{\textasciitilde{}}\NormalTok{NIR2}\SpecialCharTok{+}\NormalTok{NIR6}\SpecialCharTok{+}\NormalTok{NIR18}\SpecialCharTok{+}\NormalTok{NIR28,}\AttributeTok{data=}\NormalTok{X)}
+\FunctionTok{summary}\NormalTok{(model.lasso1)}
+\end{Highlighting}
+\end{Shaded}
+
+Call: lm(formula = density \textasciitilde{} NIR2 + NIR6 + NIR18 +
+NIR28, data = X)
+
+Residuals: Min 1Q Median 3Q Max -2.1312 -0.9776 0.1102 0.8381 2.0416
+
+Coefficients: Estimate Std. Error t value
+Pr(\textgreater\textbar t\textbar)\\
+(Intercept) 29.389 10.712 2.744 0.0116 *\\
+NIR2 -26.257 3.892 -6.747 6.99e-07 \textbf{\emph{ NIR6 96.140 1.741
+55.211 \textless{} 2e-16 }} NIR18 -9.055 1.905 -4.753 8.62e-05
+\textbf{\emph{ NIR28 -109.939 5.818 -18.896 1.66e-15 }} --- Signif.
+codes: 0 `\emph{\textbf{' 0.001 '}' 0.01 '}' 0.05 `.' 0.1 ' ' 1
+
+Residual standard error: 1.169 on 23 degrees of freedom Multiple
+R-squared: 0.9984, Adjusted R-squared: 0.9981 F-statistic: 3584 on 4 and
+23 DF, p-value: \textless{} 2.2e-16
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{validaciongrafica}\NormalTok{(model.lasso1)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-8-1.pdf}
+{[}1{]} ``Shapiro Test''
+
+\begin{verbatim}
+Shapiro-Wilk normality test
+\end{verbatim}
+
+data: studres(model) W = 0.96468, p-value = 0.4471
+
+{[}1{]} ``Breusch Pagan Test''
+
+\begin{verbatim}
+studentized Breusch-Pagan test
+\end{verbatim}
+
+data: model BP = 1.6317, df = 4, p-value = 0.8031
+
+\hypertarget{section}{%
+\subsection{}\label{section}}
 
 \end{document}
