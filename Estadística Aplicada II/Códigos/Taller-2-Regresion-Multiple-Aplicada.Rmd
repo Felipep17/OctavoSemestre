@@ -144,19 +144,9 @@ lines(density(studres(model.box)),lwd=2,col='black')
 
 ```
 
-Ya con los requerimentos necesarios para realizar regresión de LASSO, se procede a calcular las estimaciones para distintos valores de $\lambda$ que se muestran en la siguiente figura:
-
-```{r, echo = T, results = 'asis', message= FALSE}
-
-X.<-model.matrix(model.box)[,-1]
-lasso.mod <- glmnet(X., X$density, alpha = 1,nlambda = 100)
-plot(lasso.mod,xvar='lambda',label=T,lwd=2,ylab='coeficientes de regresión')
-abline(h=0,lty=2)
+Ya con los requerimentos necesarios para realizar regresión de LASSO se procede a calcular el valor de $\lambda$ optimo mediante la validación cruzada
 
 
-```
-
-Para identificar el valor de $\lambda$ optimo se procede a realizar validación cruzada.
 
 ### Validación cruzada
 
