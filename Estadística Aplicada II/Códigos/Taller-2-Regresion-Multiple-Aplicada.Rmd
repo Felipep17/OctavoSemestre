@@ -149,8 +149,6 @@ Es un método para evaluar que tan bueno es un modelo para predecir observacione
 
 -   Validación: Se utiliza para validar el modelo ajustado.
 
-
-
 ```{r, echo = T, results = 'asis', message= FALSE}
 
 lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,nlambda = 100)
@@ -168,13 +166,15 @@ Sirve para probar la significancia de un subconjunto de coeficientes.
 
 Se tiene el siguiente modelo:
 
-$$y = X\beta+\varepsilon$$
-donde $\beta$=$\begin{bmatrix}
-\beta_{1}\\
-\beta_{2} \\
-\end{bmatrix}$
+$$y = X\beta+\varepsilon$$ donde $\beta$=$\begin{bmatrix} \beta_{1}\\ \beta_{2} \\ \end{bmatrix}$
 
+donde $\beta_1$ es un vector (p-r)x1 y $\beta_2$ es un vector rx1 , se quiere evaluar la siguiente hipotesis:
 
+```{=tex}
+\begin{center}
+$H_0 : \beta_2 =0$ vs $H_1: \beta_2 \neq 0 $
+\end{center}
+```
 ```{r, echo = T, results = 'asis', message= FALSE}
 model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)
 model.lasso2 <- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
@@ -197,12 +197,4 @@ validaciongrafica(model.lasso1)
 car::vif(model.lasso1)
 ```
 
-
-
-
-
-
-
 ## 
-
-
