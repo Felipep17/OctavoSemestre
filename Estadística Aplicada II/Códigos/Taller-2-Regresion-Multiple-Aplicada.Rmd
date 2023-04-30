@@ -164,6 +164,16 @@ La selección de variables por medio del estimador LASSO son: NIR2, NIR6, NIR18,
 
 ## Suma extra de cuadrados
 
+Sirve para probar la significancia de un subconjunto de coeficientes.
+
+Se tiene el siguiente modelo:
+
+$$y = X\beta+\varepsilon$$
+donde $\beta$=$\begin{bmatrix}
+\beta_{1}\\
+\beta_{2} \\
+\end{bmatrix}$
+
 
 ```{r, echo = T, results = 'asis', message= FALSE}
 model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)
