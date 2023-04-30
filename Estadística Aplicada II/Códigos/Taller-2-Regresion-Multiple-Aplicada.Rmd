@@ -50,21 +50,27 @@ Antes de empezar con el proceso de seleccionar las variables para ajustar el mod
 validaciongrafica<- function(model,cor=F){
   
   par(mfrow=c(1,2))
-  plot(fitted.values(model),studres(model),panel.first=grid(),pch=19,ylab='Residuos Estudentizados',xlab='Valores ajustados',main='A',col='aquamarine4')
-  lines(lowess(studres(model)~fitted.values(model)), col = "red1")
+  plot(fitted.values(model),studres(model),panel.first=grid(),
+       pch=19,ylab='Residuos Estudentizados',xlab='Valores ajustados',main='A',col='aquamarine4')
   abline(h=c(-2,0,2),lty=2)
-  qqPlot(model,pch=19,ylab='Residuos Estudentizados',xlab='Cuantiles Teóricos',col=carPalette()[1],col.lines=carPalette()[3],main='B')
-  print('Shapiro Test')
+  qqPlot(model,pch=19,ylab='Residuos Estudentizados',
+         xlab='Cuantiles Teóricos',col=carPalette()[1],
+         col.lines=carPalette()[3],main='B')
+  print('Shapiro Test; H0: Normalidad vs H1: No Normalidad')
   print(shapiro.test(studres(model)))
-  print('Breusch Pagan Test')
+  print('Breusch Pagan Test;H0: Homocedasticidad vs H1: No Homocedasticidad')
   print(bptest(model))
   if(cor==T){
     par(mfrow=c(1,2))
-    plot(studres(model),type="b",xlab="Tiempo",ylab="Residuos Estudentizados",main="A",pch=19,panel.first=grid())
-    plot(studres(model)[-length(fitted.values(model))],studres(model)[-1],pch=19,panel.first = grid(),col="turquoise3",xlab=TeX("$Residuos_{t-1}$"),ylab=TeX("$Residuos_{t}$"),main="B")
+    plot(studres(model),type="b",xlab="Tiempo",ylab="Residuos Estudentizados",main="A",
+         pch=19,panel.first=grid())
+    plot(studres(model)[-length(fitted.values(model))],
+         studres(model)[-1],pch=19,panel.first = grid(),col="turquoise3",
+         xlab=TeX("$Residuos_{t-1}$"),ylab=TeX("$Residuos_{t}$"),main="B")
     abline(lm(studres(model)[-1]~studres(model)[-length(fitted.values(model))]))
     print('Durbin Watson Test')
-    print(durbinWatsonTest(model,method='resample',reps=10000))
+    print(durbinWatsonTest(model,
+                           method='resample',reps=10000))
   }
   par(mfrow=c(1,1))
 }
@@ -92,7 +98,7 @@ Se asume el modelo de regresión usual, donde :
 
 ```{=tex}
 \begin{center}
-E(y|x)=$x^T\beta$, y V(y|x)=$\sigma^2$
+E(y|x)=$X^T\beta$, y V(y|x)=$\sigma^2$
 \end{center}
 ```
 Donde se asume que algunos $\beta$ son cero. El objetivo del estimador es seleccionar los coeficientes que tienen valores diferentes de cero. El cual se obtiene minimizando la siguiente expresión:
@@ -113,16 +119,20 @@ Como se establecio anteriormente, se asume un modelo de regresión usual, el cua
 
 model <- lm(density ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 validaciongrafica(model)
+hist(studres(model),lwd=2,col='aquamarine4',freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
+lines(density(studres(model)),lwd=2,col='black')
 
 ```
 
 Como no se cumple el supuesto de normalidad se procede a corregir mediante el metodo de BoxCox y se verifica el cumplimiento de los mismos.
 
 ```{r, echo = T, results = 'asis', message= FALSE}
-model <- lm(density+0.0000001 ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
+model <- lm(density+0.01 ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 lambda(model,-3,3)
 model.box <- lm(I(density^0.96) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
 validaciongrafica(model.box)
+hist(studres(model.box),lwd=2,col='aquamarine4',freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
+lines(density(studres(model.box)),lwd=2,col='black')
 
 
 ```
@@ -175,12 +185,7 @@ donde $\beta_1$ es un vector (p-r)x1 y $\beta_2$ es un vector rx1 , se quiere ev
 $H_0 : \beta_2 =0$ vs $H_1: \beta_2 \neq 0 $
 \end{center}
 ```
-
-Se tienen los siguientes modelos:
-Modelo completo : $y = X_1\beta_1+X_2\beta_2+\varepsilon$
-Modelo reducido : $y = X_1\beta_1\varepsilon$
-
-
+Se tienen los siguientes modelos: Modelo completo : $y = X_1\beta_1+X_2\beta_2+\varepsilon$ Modelo reducido : $y = X_1\beta_1\varepsilon$
 
 ```{r, echo = T}
 model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)

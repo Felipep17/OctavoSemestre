@@ -188,16 +188,16 @@ ols_step_backward_aic(model.ponderados,details = F)
 #Box-Cox
 #
 library(glmnet)
-X. = model.matrix(model.box)[,-1]
-lasso.mod1 <- glmnet(X., (X$Salary)^0.11,alpha = 1,nlambda = 10000)
+X. = model.matrix(model)[,-1]
+lasso.mod1 <- glmnet(X., X$Salary,alpha = 1,nlambda = 10000)
 plot(lasso.mod1,xvar='lambda',label=T,lwd=2,ylab='coeficientes de regresión')
 abline(h=0,lty=2)
 # CV
-lasso.cv <-cv.glmnet(X., (X$Salary)^0.11,nfolds = 10, alpha = 1,nlambda = 100)
+lasso.cv <-cv.glmnet(X., X$Salary,nfolds = 10, alpha = 1,nlambda = 100)
 plot(lasso.cv)
-est = glmnet(X., (X$Salary)^0.11, alpha = 1,lambda = lasso.cv$lambda.1se)
+est = glmnet(X., X$Salary, alpha = 1,lambda = lasso.cv$lambda.1se)
 est$beta
-modellasso<- lm(I(Salary^0.11)~Hits+CHits+CRuns+CRBI+Walks,data=X)
+modellasso<- lm(log(Salary)~Hits+CRuns+CRBI+Walks,data=X)
 summary(modellasso)
 car::vif(modellasso)
 modelstep<- lm(I(Salary^0.11)~CRuns+Hits+Years+Walks+AtBat+CWalks,data=X)
@@ -205,3 +205,10 @@ summary(modelstep)
 car::vif(modelstep)
 validaciongrafica(modelstep)
 validaciongrafica(modellasso)
+vif<-as.data.frame(t(as.numeric(car::vif(model.box))))
+xtable(as.data.frame(t(as.numeric(car::vif(modellasso)))))
+backward<- lm(Salary~CRuns+Hits+Years+Walks+AtBat+CWalks,data=X)
+r2<-lm(Salary~CRuns+Hits+Years+Walks+AtBat+CWalks+HmRun,data=X)
+xtable(as.data.frame(t(as.numeric(car::vif(backward)))))
+plot(rnorm(1000),rnorm(1000))
+xtable(as.data.frame(t(as.numeric(car::vif(r2)))))
