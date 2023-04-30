@@ -162,6 +162,23 @@ Es un método para evaluar que tan bueno es un modelo para predecir observacione
 
 -   Validación: Se utiliza para validar el modelo ajustado.
 
+Se realiza K interacciones dividiendo los datos en K subconjuntos. En cada interacción uno de los subconjuntos es utilizado para validación, el el resto (K-1) como datos de entrenamiento. Para cada división, k=1,..,k y para cada valor de $\lambda$ se estima el modelo basado en la muestra de entrenamiento. Mientras que con cada muestra de validación y para cada valor de $\lambda$ se utiliza para calcular el error cuadratico medio:
+
+$$ECM_k(\lambda)= \sum_{i=1}^{n_k}\frac{(y_i^k- x_i^k*\hat{\beta}^k(\lambda))^2}{n}$$
+
+Donde $y_i^k$ son las observaciones de la muestra de validación k y $\hat{\beta}^k$ es la estimacion utilizando la muestra de entrenamiento k. para cada $\lambda$ se calcula:
+
+$CV(\lambda)=\frac{1}{k}\sum_{i=1}^{K}ECM_k(\lambda)$
+
+Y la desviación estándar:
+
+$SD(\lambda)=\sqrt{\sum_{i=1}^{K}\frac{(ECM_k(\lambda)-CV(\lambda))^2}{K-1}}$
+
+$\lambda$ optimo: minimiza $CV{\lambda}$ o
+
+maximiza $\lambda$: $CV(\hat{\lambda}) < CV(\hat{\lambda}_{cv})+SD(\hat{\lambda}_{cv})$
+
+La maximisación es mas optima ya que se tiene en cuenta la variabilidad debida a la selección de las submuestras.
 ```{r, echo = T }
 X.<-model.matrix(model.box)[,-1]
 lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,
