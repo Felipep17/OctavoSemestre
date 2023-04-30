@@ -135,7 +135,6 @@ Como no se cumple el supuesto de normalidad se procede a corregir mediante el me
 model <- lm(density+0.01 ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 lambda(model,0.5,1.5)
 model.box <- lm(I(density^0.96) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
-car::vif(model.box)
 validaciongrafica(model.box)
 hist(studres(model.box),lwd=2,col='aquamarine4',
 freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
@@ -157,7 +156,7 @@ Es un método para evaluar que tan bueno es un modelo para predecir observacione
 -   Validación: Se utiliza para validar el modelo ajustado.
 
 ```{r, echo = T, }
-
+X.<-model.matrix(model.box)[,-1]
 lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,
                      nlambda = 100)
 plot(lasso.cv)
@@ -183,7 +182,21 @@ donde $\beta_1$ es un vector (p-r)x1 y $\beta_2$ es un vector rx1 , se quiere ev
 $H_0 : \beta_2 =0$ vs $H_1: \beta_2 \neq 0 $
 \end{center}
 ```
-Se tienen los siguientes modelos: Modelo completo : $y = X_1\beta_1+X_2\beta_2+\varepsilon$ Modelo reducido : $y = X_1\beta_1\varepsilon$
+Se tienen los siguientes modelos: Modelo completo : $y = X_1\beta_1+X_2\beta_2+\varepsilon$ 
+
+$SCR(B)= y^T(H-\frac{1}{n}11^T)y$
+
+Modelo reducido : $y = X_1\beta_1\varepsilon$
+
+$SCR(B_1)= y^T(H_1-\frac{1}{n}11^T)y$
+
+La suma de cuadrados de la regresión debida a $\beta_2$ dado que $\beta_1$ ya esta en el modelo es:
+$$SSR(\beta_2|\beta_1)=SSR(\beta)-SSR(\beta_1)$$
+Conocida como suma extra de cuadrados debido a $\beta_2$, y dado que queremos probar $H_0 : \beta_2 =0$ se construye el siguiente estadistico.
+
+$F_0 = \frac{\frac{SSR(\beta_2|\beta_1)}{r}}{\frac{SE}{n-p}}$
+
+Si $H_0$ es cierta entonces $F_0$ ~ $F_{r,n-p}$
 
 ```{r, echo = T}
 model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)
