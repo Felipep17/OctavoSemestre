@@ -43,7 +43,7 @@ colnames(X) <- c(paste("NIR",1:30,sep=""),"density")
 
 ## Funciones creadas
 
-Antes de empezar con el proceso de seleccionar las variables para ajustar el modelo se crean funciones para optimizar el proceso de validación de supuestos.
+Antes de empezar con el proceso de seleccionar las variables para ajustar el modelo se crean funciones para optimizar el proceso de validación de supuestos, debido a que constantemente se deben realizar, estas funciones estan diseñadas para objetos lm.
 
 ```{r,echo = T, results = 'asis', message= FALSE}
 ##Validacion grafica para homocedasticidad y normalidad y pruebas formales
@@ -118,8 +118,10 @@ Como se establecio anteriormente, se asume un modelo de regresión usual, el cua
 ```{r, echo = T, results = 'asis', message= FALSE}
 
 model <- lm(density ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
+car::vif(model)
 validaciongrafica(model)
-hist(studres(model),lwd=2,col='aquamarine4',freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
+hist(studres(model),lwd=2,col='aquamarine4',freq=F,ylim=c(0,0.4),
+     xlab='Residuos Estudentizados Modelo',main='')
 lines(density(studres(model)),lwd=2,col='black')
 
 ```
@@ -128,10 +130,12 @@ Como no se cumple el supuesto de normalidad se procede a corregir mediante el me
 
 ```{r, echo = T, results = 'asis', message= FALSE}
 model <- lm(density+0.01 ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
-lambda(model,-3,3)
+lambda(model,0.5,1.5)
 model.box <- lm(I(density^0.96) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
+car::vif(model.box)
 validaciongrafica(model.box)
-hist(studres(model.box),lwd=2,col='aquamarine4',freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
+hist(studres(model.box),lwd=2,col='aquamarine4',
+freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
 lines(density(studres(model.box)),lwd=2,col='black')
 
 
@@ -161,7 +165,8 @@ Es un método para evaluar que tan bueno es un modelo para predecir observacione
 
 ```{r, echo = T, }
 
-lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,nlambda = 100)
+lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,
+                     nlambda = 100)
 plot(lasso.cv)
 est = glmnet(X., X$density, alpha = 1,lambda = lasso.cv$lambda.1se)
 est$beta
@@ -191,7 +196,8 @@ Se tienen los siguientes modelos: Modelo completo : $y = X_1\beta_1+X_2\beta_2+\
 model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)
 model.lasso2 <- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
 anova(model.lasso2,model.lasso1)
-
+car::vif(model.lasso1)
+car::vif(model.lasso2)
 ```
 
 # Modelo de regresión multiple
@@ -202,11 +208,29 @@ Con base en el proceso de selección de variables se ajusta el siguiente modelo 
 model.lasso1<- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
 
 summary(model.lasso1)
+car::vif(model.lasso1)
 ```
 
 ```{r, echo = T}
 validaciongrafica(model.lasso1)
 car::vif(model.lasso1)
+hist(studres(model.lasso1),lwd=2,col='aquamarine4',
+freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
+lines(density(studres(model.lasso1)),lwd=2,col='black')
 ```
 
-## 
+## Identificación de puntosa atípicos e influyentes
+
+Para esto utilizaremos la función influence.measures()
+
+```{r, echo = T}
+influence.measures(model.lasso1)$infmat[,-1]
+```
+
+Dónde observamos que las observaciones 16,21 son influyentes a nuestro modelo. Los puntos dentro de la base de datos lucen así y procedemos a ilustrarlos para que cuando un experto en el tema pueda considerarlos y evaluar si fueron errores de mediciones o que ocurre realmente con ellos.
+
+```{r, echo=T}
+X[c(16,21),c(2,6,18,28,31)]
+
+
+```
