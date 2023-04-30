@@ -131,9 +131,16 @@ lines(density(studres(model)),lwd=2,col='black')
 
 Como no se cumple el supuesto de normalidad se procede a corregir mediante el metodo de BoxCox y se verifica el cumplimiento de los mismos.
 
-```{r, echo = T, results = 'asis', message= FALSE}
+```{r, echo = T, message= FALSE, fig.width=4, fig.height=3}
 model <- lm(density+0.01 ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 lambda(model,0.5,1.5)
+```
+
+
+
+
+
+```{r, echo = T, results = 'asis', message= FALSE}
 model.box <- lm(I(density^0.96) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
 validaciongrafica(model.box)
 hist(studres(model.box),lwd=2,col='aquamarine4',
@@ -155,7 +162,7 @@ Es un método para evaluar que tan bueno es un modelo para predecir observacione
 
 -   Validación: Se utiliza para validar el modelo ajustado.
 
-```{r, echo = T, }
+```{r, echo = T }
 X.<-model.matrix(model.box)[,-1]
 lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,
                      nlambda = 100)
@@ -165,7 +172,7 @@ est$beta
 
 ```
 
-La selección de variables por medio del estimador LASSO son: NIR2, NIR6, NIR18, NIR28, NIR29. Consiguiente a eso se procede a realizar una suma extra de cuadrados para evaluar si podemos eliminar NIR29 para disminuir problemas de multicolinealidad.
+La selección de variables por medio del estimador LASSO son: NIR2, NIR6, NIR18, NIR28, NIR29. Consiguiente a eso se procede a realizar una prueba sobre subconjuntos para evaluar si podemos eliminar NIR29 para disminuir problemas de multicolinealidad.
 
 ## Suma extra de cuadrados
 
@@ -197,6 +204,8 @@ Conocida como suma extra de cuadrados debido a $\beta_2$, y dado que queremos pr
 $F_0 = \frac{\frac{SSR(\beta_2|\beta_1)}{r}}{\frac{SE}{n-p}}$
 
 Si $H_0$ es cierta entonces $F_0$ ~ $F_{r,n-p}$
+
+Se realiza la respectiva prueba con la funcion anova, asumiento que el modelo reducido es el $\beta_5$ asociado al NIR29
 
 ```{r, echo = T}
 model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)
