@@ -115,7 +115,7 @@ Esta es la suma de cuadrados del estimador por MCO más una penalización ($\lam
 
 Como se establecio anteriormente, se asume un modelo de regresión usual, el cual debe cumplir los siguientes supuestos: E(y\|x)=$x^T\beta$, y V(y\|x)=$\sigma^2$, es decir, varianza constante y E($\varepsilon$)=0 . Por ende es necesario proponer un modelo con p\<n, en el cual se eliminaran las variables con menor correlación con la variable density. Dicho modelo se expresa acontinuación y se evaluan los supuestos:
 
-```{r, echo = T, results = 'asis', message= FALSE}
+```{r, echo = T, message= FALSE}
 
 model <- lm(density ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 car::vif(model)[1:5]
