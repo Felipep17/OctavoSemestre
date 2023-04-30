@@ -110,7 +110,7 @@ Esta es la suma de cuadrados del estimador por MCO más una penalización ($\lam
 
 ### Modelo a realizar regresión LASSO
 
-Como se establecio anteriormente, se asume un modelo de regresión usual, el cual debe cumplir los siguientes supuestos: E(y|x)=$x^T\beta$, y V(y|x)=$\sigma^2$, es decir, varianza constante y E($\varepsilon$)=0 . Por ende es necesario proponer un modelo con p<n, en el cual se eliminaran las variables con menor correlación con la variable y. Dicho modelo se expresa acontinuación y se evaluan los supuestos:
+Como se establecio anteriormente, se asume un modelo de regresión usual, el cual debe cumplir los siguientes supuestos: E(y\|x)=$x^T\beta$, y V(y\|x)=$\sigma^2$, es decir, varianza constante y E($\varepsilon$)=0 . Por ende es necesario proponer un modelo con p\<n, en el cual se eliminaran las variables con menor correlación con la variable y. Dicho modelo se expresa acontinuación y se evaluan los supuestos:
 
 ```{r, echo = T, results = 'asis', message= FALSE}
 
@@ -130,9 +130,7 @@ validaciongrafica(model.box)
 
 ```
 
-
-#
-
+Ya con los requerimentos necesarios para realizar regresión de LASSO, se procede a calcular las estimaciones para distintos valores de \lambda que se muestran en la siguiente figura: 
 
 ```{r, echo = T, results = 'asis', message= FALSE}
 
@@ -140,13 +138,22 @@ X.<-model.matrix(model.box)[,-1]
 lasso.mod <- glmnet(X., X$density, alpha = 1,nlambda = 100)
 plot(lasso.mod,xvar='lambda',label=T,lwd=2,ylab='coeficientes de regresión')
 abline(h=0,lty=2)
+
+
+```
+
+Para identificar el valor de $\lambda$ optimo se procede a realizar validación cruzada.
+
+### Validación cruzada
+
+Es un método para evaluar que tan bueno es un modelo para predecir observaciones futuras de la población objeto de estudio.
+
+```{r, echo = T, results = 'asis', message= FALSE}
+
 lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,nlambda = 100)
 plot(lasso.cv)
 est = glmnet(X., X$density, alpha = 1,lambda = lasso.cv$lambda.1se)
 est$beta
 
 ```
-
-
-
 
