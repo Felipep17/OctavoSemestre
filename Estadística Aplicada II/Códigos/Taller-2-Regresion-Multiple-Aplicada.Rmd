@@ -37,9 +37,6 @@ En la siguiente tabla se encuentra un encabezado de la base de datos que se trab
 X <- data.frame(matrix(c(yarn$NIR[,1:30],yarn$density),nrow =28, ncol= 31))
 colnames(X) <- c(paste("NIR",1:30,sep=""),"density")
 
-xtable(head(X[,1:11]))
-xtable(head(X[,12:21]))
-xtable(head(X[,22:31]))
 
 
 ```
@@ -163,17 +160,31 @@ est$beta
 
 ```
 
+La selección de variables por medio del estimador LASSO son: NIR2, NIR6, NIR18, NIR28, NIR29. Consiguiente a eso se procede a realizar una suma extra de cuadrados para evaluar si podemos eliminar NIR29 para evitar problemas de multicolinealidad.
+
+## Suma extra de cuadrados
+
+
+```{r, echo = T, results = 'asis', message= FALSE}
+model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)
+model.lasso2 <- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
+anova(model.lasso2,model.lasso1)
+
+```
 
 # Modelo de regresión multiple
 
 Con base en el proceso de selección de variables se ajusta el siguiente modelo y se realiza la respectiva validación de supuestos:
 
 ```{r, echo = T, results = 'asis', message= FALSE}
-
 model.lasso1<- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
-summary(model.lasso1)
-validaciongrafica(model.lasso1)
 
+summary(model.lasso1)
+```
+
+```{r, echo = T, results = 'asis', message= FALSE}
+validaciongrafica(model.lasso1)
+car::vif(model.lasso1)
 ```
 
 
