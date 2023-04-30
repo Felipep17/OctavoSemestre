@@ -118,7 +118,10 @@ Como se establecio anteriormente, se asume un modelo de regresión usual, el cua
 ```{r, echo = T, results = 'asis', message= FALSE}
 
 model <- lm(density ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
-car::vif(model)
+car::vif(model)[1:5]
+car::vif(model)[6:10]
+car::vif(model)[11:16]
+car::vif(model)[17:24]
 validaciongrafica(model)
 hist(studres(model),lwd=2,col='aquamarine4',freq=F,ylim=c(0,0.4),
      xlab='Residuos Estudentizados Modelo',main='')
@@ -206,7 +209,6 @@ Con base en el proceso de selección de variables se ajusta el siguiente modelo 
 
 ```{r, echo = T}
 model.lasso1<- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
-
 summary(model.lasso1)
 car::vif(model.lasso1)
 ```
@@ -225,12 +227,72 @@ Para esto utilizaremos la función influence.measures()
 
 ```{r, echo = T}
 influence.measures(model.lasso1)$infmat[,-1]
+#Puntos de Balanceo, Influyentes y Atípicos
+par(mfrow=c(1,1))
+influencePlot(model.lasso1,panel.first=grid(),ylab='Residuos Studentizados')
 ```
 
-Dónde observamos que las observaciones 16,21 son influyentes a nuestro modelo. Los puntos dentro de la base de datos lucen así y procedemos a ilustrarlos para que cuando un experto en el tema pueda considerarlos y evaluar si fueron errores de mediciones o que ocurre realmente con ellos.
+Dónde observamos que las observaciones 16,21son influyentes a nuestro modelo y las 6,7 atípicas. Los puntos dentro de la base de datos lucen así y procedemos a ilustrarlos para que cuando un experto en el tema pueda considerarlos y evaluar si fueron errores de mediciones o que ocurre realmente con ellos.
 
 ```{r, echo=T}
-X[c(16,21),c(2,6,18,28,31)]
+X[c(6,7,16,21),c(2,6,18,28,31)]
+
+
+```
+
+A pesar de que evidenciamos claras mejoras en los problemas de multicolinealidad dada la selección de variables, procederemos a realizar la regresión de ridge que propone la siguiente estimación:
+
+```{r,echo=T}
+# Regresión ridge
+K = seq(from=0,to=2,length.out = 1000)
+ridgedensity = lmridge(density~NIR2+NIR6+NIR18+NIR28,
+                       data=X,K=K,scaling='sc')
+#####
+criterios<- kest(ridgedensity)
+criterios
+par(mfrow=c(1,2))
+plot(K,criterios$GCV,panel.first=grid(),type='l',xlab='K',ylab='validación cruzada',main='GCV')
+points(K[criterios$GCV==min(criterios$GCV)],
+       criterios$GCV[criterios$GCV==min(criterios$GCV)],
+       pch=19,col='red1')
+text(K[criterios$GCV==min(criterios$GCV)],
+     criterios$GCV[criterios$GCV==min(criterios$GCV)],
+     labels=paste(K[1]),pos=3)
+##########
+plot(K,criterios$CV,panel.first=grid(),type='l',xlab='K',ylab='validación cruzada',main='CV')
+points(K[criterios$CV==min(criterios$CV)],
+       criterios$CV[criterios$CV==min(criterios$CV)],
+       pch=19,col='red1')
+text(K[criterios$CV==min(criterios$CV)],
+     criterios$CV[criterios$CV==min(criterios$CV)],
+     labels=paste(K[2]),pos=3)
+###########
+lambda<-c(K[criterios$GCV==min(criterios$GCV)],
+          K[criterios$CV==min(criterios$CV)])
+lambda
+######
+ridgedensity<-lmridge(density~NIR2+NIR6+NIR18+NIR28,
+                      data=X,K=0.01,scaling='sc')
+summary(ridgedensity)
+vif.lmridge(ridgedensity)
+car::vif(model.lasso1)
+lmridge::vif.lmridge(ridgedensity)
+
+par(mfrow=c(1,2))
+plot(fitted.values(ridgedensity),residuals(ridgedensity),pch=19,
+     ylab='Residuos Ridge',xlab='Valores Ajustados',main='A',col="aquamarine4",
+     ylim=c(-3,3))
+abline(h=0,lwd=2,lty=2)
+car::qqPlot(residuals(ridgedensity),xlab="Cuantiles Teóricos",ylab="Residuos Ridge",main="B",pch=19)
+print('H0: Homocedasticidad vs H1: No hay homocedasticidad')
+bptest(ridgedensity)
+print('H0: Normalidad vs H1: No Normalidad')
+shapiro.test(residuals(ridgedensity))
+par(mfrow=c(1,1))
+hist(residuals(ridgedensity),lwd=2,col='aquamarine4',
+freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
+lines(density(residuals(ridgedensity)),lwd=2,col='black')
+abline(h=0,lty=2,lwd=2)
 
 
 ```
