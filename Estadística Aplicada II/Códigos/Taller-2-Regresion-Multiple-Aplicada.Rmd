@@ -123,6 +123,11 @@ car::vif(model)[6:10]
 car::vif(model)[11:16]
 car::vif(model)[17:24]
 validaciongrafica(model)
+```
+
+Mediante el grafico y los valores P asociados a la homocedasticidad y normalidad de residuos se evidencia el incumplimiento de la normalidad de los residuos.
+
+```{r, echo = T, message= FALSE}
 hist(studres(model),lwd=2,col='aquamarine4',freq=F,ylim=c(0,0.4),
      xlab='Residuos Estudentizados Modelo',main='')
 lines(density(studres(model)),lwd=2,col='black')
@@ -136,13 +141,14 @@ model <- lm(density+0.01 ~ .-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7, data=X)
 lambda(model,0.5,1.5)
 ```
 
-
-
-
-
 ```{r, echo = T, results = 'asis', message= FALSE}
 model.box <- lm(I(density^0.96) ~.-NIR1-NIR8-NIR9-NIR10-NIR11-NIR7,data=X)
 validaciongrafica(model.box)
+```
+
+Mediante el grafico y los valores P asociados a la homocedasticidad y normalidad de residuos se evidencia el cumplimiento de ambos supuestos.
+
+```{r, echo = T, results = 'asis', message= FALSE}
 hist(studres(model.box),lwd=2,col='aquamarine4',
 freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
 lines(density(studres(model.box)),lwd=2,col='black')
@@ -151,8 +157,6 @@ lines(density(studres(model.box)),lwd=2,col='black')
 ```
 
 Ya con los requerimentos necesarios para realizar regresión de LASSO se procede a calcular el valor de $\lambda$ optimo mediante la validación cruzada
-
-
 
 ### Validación cruzada
 
@@ -179,6 +183,7 @@ $\lambda$ optimo: minimiza $CV{\lambda}$ o
 maximiza $\lambda$: $CV(\hat{\lambda}) < CV(\hat{\lambda}_{cv})+SD(\hat{\lambda}_{cv})$
 
 La maximisación es mas optima ya que se tiene en cuenta la variabilidad debida a la selección de las submuestras.
+
 ```{r, echo = T }
 X.<-model.matrix(model.box)[,-1]
 lasso.cv <-cv.glmnet(X., X$density, nfolds = 4, alpha = 1,
@@ -206,7 +211,7 @@ donde $\beta_1$ es un vector (p-r)x1 y $\beta_2$ es un vector rx1 , se quiere ev
 $H_0 : \beta_2 =0$ vs $H_1: \beta_2 \neq 0 $
 \end{center}
 ```
-Se tienen los siguientes modelos: Modelo completo : $y = X_1\beta_1+X_2\beta_2+\varepsilon$ 
+Se tienen los siguientes modelos: Modelo completo : $y = X_1\beta_1+X_2\beta_2+\varepsilon$
 
 $SCR(B)= y^T(H-\frac{1}{n}11^T)y$
 
@@ -214,20 +219,37 @@ Modelo reducido : $y = X_1\beta_1\varepsilon$
 
 $SCR(B_1)= y^T(H_1-\frac{1}{n}11^T)y$
 
-La suma de cuadrados de la regresión debida a $\beta_2$ dado que $\beta_1$ ya esta en el modelo es:
-$$SSR(\beta_2|\beta_1)=SSR(\beta)-SSR(\beta_1)$$
-Conocida como suma extra de cuadrados debido a $\beta_2$, y dado que queremos probar $H_0 : \beta_2 =0$ se construye el siguiente estadistico.
+La suma de cuadrados de la regresión debida a $\beta_2$ dado que $\beta_1$ ya esta en el modelo es: $$SSR(\beta_2|\beta_1)=SSR(\beta)-SSR(\beta_1)$$ Conocida como suma extra de cuadrados debido a $\beta_2$, y dado que queremos probar $H_0 : \beta_2 =0$ se construye el siguiente estadistico.
 
 $F_0 = \frac{\frac{SSR(\beta_2|\beta_1)}{r}}{\frac{SE}{n-p}}$
 
-Si $H_0$ es cierta entonces $F_0$ ~ $F_{r,n-p}$
+Si $H_0$ es cierta entonces $F_0$ \~ $F_{r,n-p}$
 
-Se realiza la respectiva prueba con la funcion anova, asumiento que el modelo reducido es el $\beta_5$ asociado al NIR29
+Se realiza la respectiva prueba con la funcion anova, asumiento que el modelo reducido es aquel $\beta_5$=0 asociado al NIR29
+
+Hipotesis: $H_0:\beta_5=0$ VS $H_1:\beta_5\neq0$
 
 ```{r, echo = T}
 model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)
 model.lasso2 <- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
 anova(model.lasso2,model.lasso1)
+```
+
+La prueba anova indica un valor P de 0.4495 lo que indica que el coeficiente asociado al NIR29 es significativamente 0, por ende, podemos retirarlo del modelo ya que no aporta a la estimación de la densidad y en cambio aumenta el VIF como se evidencia acontinuación.
+
+## Factor de inflación de varianza (VIF)
+
+Es una medida que detecta si hay problemas de multicolinealidad. Generalmente un VIF mayor a 10 indica problemas graves de multicolinealidad.
+
+$VIF_j = \frac{1}{1-R^2}$
+
+Donde R\^2_j es el coeficiente de determinación obtenido ajustando una regresión de x_j sobre las demás covariables.
+
+$VIF_j = \sum_{j=1}^{p-1}\frac{t^2_{ij}}{\lambda_j}$
+
+Donde T=(t_1,....,t\_{p-1}) es una matriz ortogonal de vectores propios y $\lambda_j$ los valores propios asociados a la descomposición de la matriz $R=Z^TZ$ y Z es la matrix de X estandarizada. $R=TAT^T$ (descomposición)
+
+```{r, echo = T}
 car::vif(model.lasso1)
 car::vif(model.lasso2)
 ```
@@ -239,16 +261,27 @@ Con base en el proceso de selección de variables se ajusta el siguiente modelo 
 ```{r, echo = T}
 model.lasso1<- lm(density~NIR2+NIR6+NIR18+NIR28,data=X)
 summary(model.lasso1)
-car::vif(model.lasso1)
+
 ```
 
-```{r, echo = T}
+## Interpretación
+
+-   En el resumen del modelo contamos con un $R^2=0.9984$, es decir, el 99.84$\%$ de la variabilidad de la densidad del Hilo PET está siendo explicada por el modelo. Se cuenta con un $R^2_{adj}$ de 0.9981. 
+
+
+```{r, echo = T,fig.height=4}
 validaciongrafica(model.lasso1)
-car::vif(model.lasso1)
+```
+
+## Validación de supuestos
+
+```{r, echo = T}
 hist(studres(model.lasso1),lwd=2,col='aquamarine4',
 freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
 lines(density(studres(model.lasso1)),lwd=2,col='black')
 ```
+
+Como se evidencia en los graficos y en las pruebas formales, ambos coinciden con sus respectivos resultados, es decir, Varianza constante (Homocedasticidad) y distribución Normal en los errores.
 
 ## Identificación de puntosa atípicos e influyentes
 
@@ -323,5 +356,7 @@ freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
 lines(density(residuals(ridgedensity)),lwd=2,col='black')
 abline(h=0,lty=2,lwd=2)
 
-
+x.nuevo<- data.frame(NIR2=3.06,NIR6=2.55,NIR18=2.14,NIR28=1.32)
+pred.media = predict(ridgedensity,x.nuevo,interval = "confidence")
+pred.media
 ```
