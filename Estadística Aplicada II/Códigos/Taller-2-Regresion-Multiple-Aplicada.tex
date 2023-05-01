@@ -455,18 +455,18 @@ debida a la selección de las submuestras.
 \begin{verbatim}
 ## 24 x 1 sparse Matrix of class "dgCMatrix"
 ##               s0
-## NIR2   -2.163620
+## NIR2  -11.314302
 ## NIR3    .       
 ## NIR4    .       
 ## NIR5    .       
-## NIR6   83.794869
+## NIR6   88.544252
 ## NIR12   .       
 ## NIR13   .       
 ## NIR14   .       
 ## NIR15   .       
 ## NIR16   .       
 ## NIR17   .       
-## NIR18  -3.225336
+## NIR18  -5.643411
 ## NIR19   .       
 ## NIR20   .       
 ## NIR21   .       
@@ -476,8 +476,8 @@ debida a la selección de las submuestras.
 ## NIR25   .       
 ## NIR26   .       
 ## NIR27   .       
-## NIR28 -80.411977
-## NIR29 -68.107255
+## NIR28 -92.202115
+## NIR29 -40.266344
 ## NIR30   .
 \end{verbatim}
 
@@ -649,26 +649,6 @@ modelo y se realiza la respectiva validación de supuestos:
 \hypertarget{anova}{%
 \paragraph{ANOVA}\label{anova}}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{Anova}\NormalTok{(model.lasso1)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Anova Table (Type II tests)
-## 
-## Response: density
-##           Sum Sq Df  F value    Pr(>F)    
-## NIR2        62.2  1   45.520 6.995e-07 ***
-## NIR6      4166.2  1 3048.258 < 2.2e-16 ***
-## NIR18       30.9  1   22.591 8.615e-05 ***
-## NIR28      488.0  1  357.056 1.661e-15 ***
-## Residuals   31.4 23                       
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-\end{verbatim}
-
 \hypertarget{validaciuxf3n-de-supuestos}{%
 \subsection{Validación de supuestos}\label{validaciuxf3n-de-supuestos}}
 
@@ -678,7 +658,7 @@ modelo y se realiza la respectiva validación de supuestos:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-14-1.pdf}
+\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-13-1.pdf}
 
 \begin{verbatim}
 ## [1] "Shapiro Test; H0: Normalidad vs H1: No Normalidad"
@@ -704,7 +684,7 @@ modelo y se realiza la respectiva validación de supuestos:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-15-1.pdf}
+\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-14-1.pdf}
 
 Como se evidencia en los graficos y en las pruebas formales, ambos
 coinciden con sus respectivos resultados, es decir, Varianza constante
@@ -791,7 +771,7 @@ Para esto utilizaremos la función influence.measures()
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-16-1.pdf}
+\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-15-1.pdf}
 
 \begin{verbatim}
 ##      StudRes       Hat     CookD
@@ -886,7 +866,7 @@ realizar la regresión de ridge que propone la siguiente estimación:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-18-1.pdf}
+\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-17-1.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -979,7 +959,7 @@ realizar la regresión de ridge que propone la siguiente estimación:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-18-2.pdf}
+\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-17-2.pdf}
 
 \begin{verbatim}
 ## [1]  7 16
@@ -1043,7 +1023,7 @@ realizar la regresión de ridge que propone la siguiente estimación:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-18-3.pdf}
+\includegraphics{Taller-2-Regresion-Multiple-Aplicada_files/figure-latex/unnamed-chunk-17-3.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
