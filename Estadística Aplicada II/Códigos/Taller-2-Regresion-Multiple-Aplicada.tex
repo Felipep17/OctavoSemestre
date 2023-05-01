@@ -455,18 +455,18 @@ debida a la selección de las submuestras.
 \begin{verbatim}
 ## 24 x 1 sparse Matrix of class "dgCMatrix"
 ##               s0
-## NIR2   -9.925178
+## NIR2   -2.163620
 ## NIR3    .       
 ## NIR4    .       
 ## NIR5    .       
-## NIR6   87.822803
+## NIR6   83.794869
 ## NIR12   .       
 ## NIR13   .       
 ## NIR14   .       
 ## NIR15   .       
 ## NIR16   .       
 ## NIR17   .       
-## NIR18  -5.289614
+## NIR18  -3.225336
 ## NIR19   .       
 ## NIR20   .       
 ## NIR21   .       
@@ -476,8 +476,8 @@ debida a la selección de las submuestras.
 ## NIR25   .       
 ## NIR26   .       
 ## NIR27   .       
-## NIR28 -91.135757
-## NIR29 -43.247958
+## NIR28 -80.411977
+## NIR29 -68.107255
 ## NIR30   .
 \end{verbatim}
 
@@ -560,12 +560,12 @@ multicolinealidad.
 
 \(VIF_j = \frac{1}{1-R^2}\)
 
-Donde R\^{}2\_j es el coeficiente de determinación obtenido ajustando
-una regresión de x\_j sobre las demás covariables.
+Donde \(R^2_j\) es el coeficiente de determinación obtenido ajustando
+una regresión de \(x_j\) sobre las demás covariables.
 
 \(VIF_j = \sum_{j=1}^{p-1}\frac{t^2_{ij}}{\lambda_j}\)
 
-Donde T=(t\_1,\ldots.,t\_\{p-1\}) es una matriz ortogonal de vectores
+Donde \(T=(t_1,....,t_{p-1})\) es una matriz ortogonal de vectores
 propios y \(\lambda_j\) los valores propios asociados a la
 descomposición de la matriz \(R=Z^TZ\) y Z es la matrix de X
 estandarizada. \(R=TAT^T\) (descomposición)
@@ -641,10 +641,9 @@ modelo y se realiza la respectiva validación de supuestos:
   explicada por el modelo. Se cuenta con un \(R^2_{adj}\) de 0.9981.
 \item
   El valor del estadístico F es de 3584 con un valor p asociado de
-  aproximadamente 0 lo que indica\\
-  que por lo menos una de estas estimaciones de los βi es diferente de
-  0. Por ende ajustar el modelo ayuda a la predicción de la densidad del
-  Hilo de Pet.
+  aproximadamente 0 lo que indica que por lo menos una de estas
+  estimaciones de los βi es diferente de 0. Por ende ajustar el modelo
+  ayuda a la predicción de la densidad del Hilo de Pet.
 \end{itemize}
 
 \hypertarget{anova}{%
