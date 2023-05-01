@@ -455,18 +455,18 @@ debida a la selección de las submuestras.
 \begin{verbatim}
 ## 24 x 1 sparse Matrix of class "dgCMatrix"
 ##               s0
-## NIR2  -11.314302
+## NIR2   -4.570706
 ## NIR3    .       
 ## NIR4    .       
 ## NIR5    .       
-## NIR6   88.544252
+## NIR6   85.027448
 ## NIR12   .       
 ## NIR13   .       
 ## NIR14   .       
 ## NIR15   .       
 ## NIR16   .       
 ## NIR17   .       
-## NIR18  -5.643411
+## NIR18  -3.843097
 ## NIR19   .       
 ## NIR20   .       
 ## NIR21   .       
@@ -476,8 +476,8 @@ debida a la selección de las submuestras.
 ## NIR25   .       
 ## NIR26   .       
 ## NIR27   .       
-## NIR28 -92.202115
-## NIR29 -40.266344
+## NIR28 -85.263753
+## NIR29 -58.024653
 ## NIR30   .
 \end{verbatim}
 
@@ -637,13 +637,13 @@ modelo y se realiza la respectiva validación de supuestos:
 \tightlist
 \item
   En el resumen del modelo contamos con un \(R^2=0.9984\), es decir, el
-  99.84\(\%\) de la variabilidad de la densidad del Hilo PET está siendo
+  99.84 de la variabilidad de la densidad del Hilo PET está siendo
   explicada por el modelo. Se cuenta con un \(R^2_{adj}\) de 0.9981.
 \item
   El valor del estadístico F es de 3584 con un valor p asociado de
   aproximadamente 0 lo que indica que por lo menos una de estas
-  estimaciones de los βi es diferente de 0. Por ende ajustar el modelo
-  ayuda a la predicción de la densidad del Hilo de Pet.
+  estimaciones de los \(β_i\) es diferente de 0. Por ende ajustar el
+  modelo ayuda a la predicción de la densidad del Hilo de Pet.
 \end{itemize}
 
 \hypertarget{anova}{%
@@ -801,7 +801,7 @@ Para esto utilizaremos la función influence.measures()
 ## 21 -1.799176 0.6129686 0.9344561
 \end{verbatim}
 
-Dónde observamos que las observaciones 16,21son influyentes a nuestro
+Dónde observamos que las observaciones 16,21 son influyentes a nuestro
 modelo y las 6,7 atípicas. Los puntos dentro de la base de datos lucen
 así y procedemos a ilustrarlos para que cuando un experto en el tema
 pueda considerarlos y evaluar si fueron errores de mediciones o que
