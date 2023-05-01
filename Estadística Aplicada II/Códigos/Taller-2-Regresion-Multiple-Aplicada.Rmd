@@ -267,7 +267,7 @@ summary(model.lasso1)
 ## Interpretación
 
 -   En el resumen del modelo contamos con un $R^2=0.9984$, es decir, el 99.84 de la variabilidad de la densidad del Hilo PET está siendo explicada por el modelo. Se cuenta con un $R^2_{adj}$ de 0.9981.
--   El valor del estadístico F es de 3584 con un valor p asociado de aproximadamente 0 lo que indica que por lo menos una de estas estimaciones de los $β_i$ es diferente de 0. Por ende ajustar el modelo ayuda a la predicción de la densidad del Hilo de Pet.
+-   El valor del estadístico F es de 3584 con un valor p asociado de aproximadamente 0 lo que indica que por lo menos una de estas estimaciones de los $\beta_i$ es diferente de 0. Por ende ajustar el modelo ayuda a la predicción de la densidad del Hilo de Pet.
 
 #### ANOVA
 
@@ -275,6 +275,28 @@ summary(model.lasso1)
 Anova(model.lasso1)
 
 ```
+
+La tabla ANOVA realiza pruebas sobre subconjuntos de coeficientes haciendo uso de la suma de cuadrados extra.
+
+Estadistico F asociado al NIR2 : $F_0 = \frac{{SSR(\beta_1|\beta_0)}}{\frac{SE}{26}}$
+
+Modelo:  $y =\beta_0+NIR2\beta_1+\varepsilon$
+
+Hipotesis: $H_0: \beta_1=0$
+
+Estadistico F asociado al NIR6 : $F_0 = \frac{{SSR(\beta_2|\beta_1,\beta_0)}}{\frac{SE}{26}}$
+
+Modelo:  $y =\beta_0+NIR2\beta_1+NIR6\beta_2+\varepsilon$
+
+Hipotesis: $H_0: \beta_2=0$
+
+Estadistico F asociado al NIR18 : $F_0 = \frac{{SSR(\beta_3|\beta_0,\beta_1,\beta_2)}}{\frac{SE}{26}}$
+
+Modelo:  $y =\beta_0+NIR2\beta_1+NIR6\beta_2+NIR18\beta_3+\varepsilon$
+
+Hipotesis: $H_0: \beta_3=0$
+
+En cada hipoteis evaluada el valor p es menor a un nivel de significancia al 5\% lo que indica que para cada caso, añadir el $\beta_i$ es significativamente distinto de 0
 
 ## Validación de supuestos
 
