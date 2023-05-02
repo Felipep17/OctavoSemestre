@@ -26,6 +26,7 @@ library(readxl)
 library(lmridge)
 library(pls)
 library(olsrr)
+library(effects)
 ```
 
 ## Base de datos
@@ -280,23 +281,23 @@ La tabla ANOVA realiza pruebas sobre subconjuntos de coeficientes haciendo uso d
 
 Estadistico F asociado al NIR2 : $F_0 = \frac{{SSR(\beta_1|\beta_0)}}{\frac{SE}{26}}$
 
-Modelo:  $y =\beta_0+NIR2\beta_1+\varepsilon$
+Modelo: $y =\beta_0+NIR2\beta_1+\varepsilon$
 
 Hipotesis: $H_0: \beta_1=0$
 
 Estadistico F asociado al NIR6 : $F_0 = \frac{{SSR(\beta_2|\beta_1,\beta_0)}}{\frac{SE}{26}}$
 
-Modelo:  $y =\beta_0+NIR2\beta_1+NIR6\beta_2+\varepsilon$
+Modelo: $y =\beta_0+NIR2\beta_1+NIR6\beta_2+\varepsilon$
 
 Hipotesis: $H_0: \beta_2=0$
 
 Estadistico F asociado al NIR18 : $F_0 = \frac{{SSR(\beta_3|\beta_0,\beta_1,\beta_2)}}{\frac{SE}{26}}$
 
-Modelo:  $y =\beta_0+NIR2\beta_1+NIR6\beta_2+NIR18\beta_3+\varepsilon$
+Modelo: $y =\beta_0+NIR2\beta_1+NIR6\beta_2+NIR18\beta_3+\varepsilon$
 
 Hipotesis: $H_0: \beta_3=0$
 
-En cada hipoteis evaluada el valor p es menor a un nivel de significancia al 5\% lo que indica que para cada caso, añadir el $\beta_i$ es significativamente distinto de 0
+En cada hipoteis evaluada el valor p es menor a un nivel de significancia al 5% lo que indica que para cada caso, añadir el $\beta_i$ es significativamente distinto de 0
 
 ## Validación de supuestos
 
@@ -310,7 +311,7 @@ freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
 lines(density(studres(model.lasso1)),lwd=2,col='black')
 ```
 
-Como se evidencia en los graficos y en las pruebas formales, ambos coinciden con sus respectivos resultados, es decir, Varianza constante (Homocedasticidad) y distribución Normal en los errores.
+Como se evidencia en los graficos y en las pruebas formales, ambos coinciden con sus respectivos resultados, es decir, varianza constante (Homocedasticidad) y distribución Normal en los errores.
 
 ## Identificación de puntosa atípicos e influyentes
 
@@ -323,16 +324,22 @@ par(mfrow=c(1,1))
 influencePlot(model.lasso1,panel.first=grid(),ylab='Residuos Studentizados')
 ```
 
-Dónde observamos que las observaciones 16,21 son influyentes a nuestro modelo y las 6,7 atípicas. Los puntos dentro de la base de datos lucen así y procedemos a ilustrarlos para que cuando un experto en el tema pueda considerarlos y evaluar si fueron errores de mediciones o que ocurre realmente con ellos.
+Dónde observamos que las observaciones 16,21 son influyentes a nuestro modelo y las 6,7 atípicas. Los puntos dentro de la base de datos lucen así y procedemos a ilustrarlos para que cuando un experto en el tema pueda considerarlos y evaluar si fueron errores de mediciones o que ocurre realmente con ellos. A su vez mostraremos los efectos de cada covariable con densidad. En general observamos que la relación de NIR2, 18 y 28 describen relaciones lineales negativas, inversamente proporcionales, a diferencia de la relación con NIR6 que es positiva, directamente proporcional.
 
 ```{r, echo=T}
 X[c(6,7,16,21),c(2,6,18,28,31)]
-
+plot(allEffects(model.lasso1))
 
 ```
+Generamos una predicción con el modelo seleccionado:
 
+```{r}
+x.nuevo<- data.frame(NIR2=3.06,NIR6=2.55,NIR18=2.14,NIR28=1.32)
+pred.media = predict(model.lasso1,x.nuevo,interval = "confidence")
+pred.media
+
+```
 A pesar de que evidenciamos claras mejoras en los problemas de multicolinealidad dada la selección de variables, procederemos a realizar la regresión de ridge que propone la siguiente estimación:
-
 ```{r,echo=T}
 # Regresión ridge
 K = seq(from=0,to=2,length.out = 1000)
@@ -384,8 +391,34 @@ hist(residuals(ridgedensity),lwd=2,col='aquamarine4',
 freq=F,ylim=c(0,0.4),xlab='Residuos Estudentizados Modelo',main='')
 lines(density(residuals(ridgedensity)),lwd=2,col='black')
 abline(h=0,lty=2,lwd=2)
-
+#Para generar predicciones no es posible en una función en R
 x.nuevo<- data.frame(NIR2=3.06,NIR6=2.55,NIR18=2.14,NIR28=1.32)
 pred.media = predict(ridgedensity,x.nuevo,interval = "confidence")
 pred.media
+#Por lo cuál creamos la estimación de la varianza y matrix de covarianzas
+# Obtener los coeficientes estimados y la matriz de diseño
+beta_hat <- coef(ridgedensity)
+X <- model.matrix(model.lasso1)
+
+# Calcular la varianza del error
+sigma2_hat <- sum(residuals(ridgedensity)^2) / (nrow(X)-length(coefficients(model.lasso1)))
+
+# Calcular la matriz de covarianza de los coeficientes
+V_beta_hat <- diag(residuals(ridgedensity)^2)*solve(t(X) %*% X
++0.01*diag(ncol(X))) %*% t(X) %*%X %*% solve(t(X) %*%
+X + 0.01 * diag(ncol(X)))
+# Hacer una predicción para nuevas observaciones
+x.nuevo<- data.frame(NIR2=3.06,NIR6=2.55,NIR18=2.14,NIR28=1.32)
+X_new <- cbind(1, as.matrix(x.nuevo))
+pred <- X_new %*% beta_hat
+se_pred <- sqrt(diag(X_new %*% V_beta_hat %*% t(X_new))) * sqrt(sigma2_hat)
+
+# Calcular los intervalos de confianza del 95%
+lower <- pred - qt(0.975, nrow(iris)-4) * se_pred
+upper <- pred + qt(0.975, nrow(iris)-4) * se_pred
+
+# Mostrar los resultados
+data.frame(lower, pred, upper)
+
+
 ```
