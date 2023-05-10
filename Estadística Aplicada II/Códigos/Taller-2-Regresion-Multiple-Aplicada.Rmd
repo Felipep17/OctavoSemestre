@@ -268,9 +268,10 @@ summary(model.lasso1)
 ## Interpretación
 
 -   En el resumen del modelo contamos con un $R^2=0.9984$, es decir, el 99.84 de la variabilidad de la densidad del Hilo PET está siendo explicada por el modelo. Se cuenta con un $R^2_{adj}$ de 0.9981.
+
 -   El valor del estadístico F es de 3584 con un valor p asociado de aproximadamente 0 lo que indica que por lo menos una de estas estimaciones de los $\beta_i$ es diferente de 0. Por ende ajustar el modelo ayuda a la predicción de la densidad del Hilo de Pet.
 
--   Observamos  relaciones negativas entre la densidad  y el conjunto de covariables NIR2, NIR 18 y NIR28 SI asumimos que se presentan aumentos con las demas covariables constantes, y se presenta una relación positiva entre la densidad y el NIR6 si mantenemos las demas covariables constantes.
+-   Observamos relaciones negativas entre la densidad y el conjunto de covariables NIR2, NIR 18 y NIR28 SI asumimos que se presentan aumentos con las demas covariables constantes, y se presenta una relación positiva entre la densidad y el NIR6 si mantenemos las demas covariables constantes.
 
 #### ANOVA
 
@@ -345,7 +346,15 @@ pred.media
 
 # Regresión ridge
 
-A pesar de que evidenciamos claras mejoras en los problemas de multicolinealidad dada la selección de variables, procederemos a realizar la regresión de ridge que propone la siguiente estimación: Luego de tener claro estos conceptos procedemos a realizar la regresión de ridge utilizando la librería lmridge. Para poder realizar esto generamos una secuencia de 1000 valores en los limites de 0 a 2, recordemos que el valor de párametro K es estrictamente positivo, generamos un proceso de validación obteniendo diversos criterios y al final seleccionamos un valor de k=0.1
+A pesar de que evidenciamos claras mejoras en los problemas de multicolinealidad dada la selección de variables, procederemos a realizar la regresión de ridge que tiene como objetivo minimizar la siguiente suma de cuadrados penalizada:
+
+```{=tex}
+\begin{center}
+$S_{k}(\beta)=\sum_{i=1}^{n}({y_{i}-z^
+T}\beta)^2+k\sum_{j=1}^{p-1}\beta^2_{j}$
+\end{center}
+```
+Luego de tener claro estos conceptos procedemos a realizar la regresión de ridge utilizando la librería lmridge. Para poder realizar esto generamos una secuencia de 1000 valores en los limites de 0 a 2, recordemos que el valor de párametro K es estrictamente positivo, generamos un proceso de validación obteniendo diversos criterios y al final seleccionamos un valor de k=0.1
 
 ```{r,echo=T}
 # Regresión ridge
@@ -381,21 +390,15 @@ ridgedensity<-lmridge(density~NIR2+NIR6+NIR18+NIR28,
 summary(ridgedensity)
 ```
 
-
 ### Interpretación
 
-procedemos a realizar las interpretaciones del modelo por regresión de ridge  donde evidenciamos cambios en los valores p de las pruebas individuales de los $\beta_{j}$, lo cual se debe a la disminución en varianza de las estimaciones. Observamos  relaciones negativas entre la densidad  y el conjunto de covariables NIR2, NIR 18 y NIR28 SI asumimos que se presentan aumentos con las demas covariables constantes, y se presenta una relación positiva entre la densidad y el NIR6 si mantenemos las demas covariables constantes. Es decir se mantienen las relaciones con el modelo principal, con algunas variaciones en las estimaciones. Ademas se cuenta con un $R^2_{adj}$ de 0.96440, el cual es $3\%$ menor a comparacion del principal.
-
-
-
+procedemos a realizar las interpretaciones del modelo por regresión de ridge donde evidenciamos cambios en los valores p de las pruebas individuales de los $\beta_{j}$, lo cual se debe a la disminución en varianza de las estimaciones. Observamos relaciones negativas entre la densidad y el conjunto de covariables NIR2, NIR 18 y NIR28 SI asumimos que se presentan aumentos con las demas covariables constantes, y se presenta una relación positiva entre la densidad y el NIR6 si mantenemos las demas covariables constantes. Es decir se mantienen las relaciones con el modelo principal, con algunas variaciones en las estimaciones. Ademas se cuenta con un $R^2_{adj}$ de 0.96440, el cual es $3\%$ menor a comparacion del principal.
 
 ```{r}
 car::vif(model.lasso1)
 lmridge::vif.lmridge(ridgedensity)
 
 ```
-
-
 
 Observamos claras mejorar en los valores del VIF dónde a pesar de tener un par de valores por encima de 10, notamos claras mejoras, si aumentamos el valor de K, disminuira claramente estos factores de inflación de varianza pero aun así no es óptimo debido a que aumentamos el sesgo. Por último realizamos predicciones puntuales, dónde en R no había opciones para generar los intervalos de confianza por lo cual procedimos a realizar las estimaciones de la varianza de forma analítica para poder obtenerlos.
 
@@ -430,7 +433,6 @@ upper <- pred + qt(0.975, nrow(iris)-4) * se_pred
 data.frame(lower, pred, upper)
 
 ```
-
 
 ## Validación de supuestos regresión ridge
 
