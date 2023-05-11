@@ -17,16 +17,11 @@ La base de datos $"yarn"$ obtenida de la librería (PLS) contiene información s
 
 ```{r, echo = T, results = 'asis', message= FALSE, warning= FALSE}
 #Importación de librerías necesarias
-library(car)
-library(glmnet)
-library(MASS)
-library(xtable)
-library(lmtest)
-library(readxl)
-library(lmridge)
-library(pls)
-library(olsrr)
-library(effects)
+lib_req<-c("glmnet","lmridge","scatterplot3d","plot3D","plotly","rgl","plot3Drgl",
+           'effects','psych',
+           'car','lmtest','MASS','latex2exp','orcutt',
+           'nlme',"zoom",'ggfortify','readxl','pls')# Listado de librerias requeridas por el script
+easypackages::packages(lib_req)
 ```
 
 ## Base de datos
@@ -84,6 +79,80 @@ lambda<- function(model,a,b){
   bc<-round(box.cox$x[box.cox$y ==max(box.cox$y)],2)
   print(bc)
 }
+
+```
+
+Antes de generar el proceso de selección de variables recordaremos brevemente que una regresión lineal múltiple no es el conjunto de la suma de regresiones lineales simples, es decir estamos trabajando con espacios generados en función de un conjunto de covariables. Por lo cuál haremos un breve ejercicio ilustrativo de como se evidencia esto. En el diagrama de dispersión inicial vemos que la relación entre las covariables no se evidenciaba de una manera fuerte lineal, con coeficientes de correlación lineal débiles, pero en el diagrama de dispersión en 3D se nota relaciones fuertes.
+
+```{r,fig.width=6, fig.height=5}
+par(mfrow=c(1,2))
+psych::pairs.panels(X[,c(31,4,29)], 
+                      method = "pearson", # correlation method
+                      hist.col = "aquamarine1",
+                      density = TRUE,  # show density plots
+                      ellipses = TRUE # show correlation ellipses
+  )
+z<-X[,31];y<-X[,4];x<-X[,29];
+scatter3D(x, y, z, phi = 0, bty = "b2",col = c('aquamarine','aquamarine2','aquamarine3','dodgerblue',
+'dodgerblue2','dodgerblue3','dodgerblue4'),pch = 20, cex = 2, 
+ticktype = "detailed",xlab='NIR29',ylab='NIR 4', zlab='Density')
+#Creamos un objeto para realizar las predicciones con elmodelo
+objr<-lm(z ~ x+y)
+summary(objr)
+#preparamos el modelado 3d
+grid.lines = 42
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+
+
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(objr, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# Marcamos las líneas de iteracción para que busquen la recta de regresión
+fitpoints <- predict(objr)
+#ploteamos la gráfica en 3d con recta de regresión
+scatter3D(x, y, z, pch = 19, cex = 2, 
+theta = 20, phi = 20, ticktype = "detailed",
+surf = list(x = x.pred, y = y.pred, z = z.pred,facets = NA, fit = fitpoints), 
+main = "",xlab='NIR29 ',zlab="Density",ylab='NIR4', 
+col = c('aquamarine','aquamarine2','aquamarine3',
+'dodgerblue','dodgerblue2','dodgerblue3','dodgerblue4'))
+par(mfrow=c(1,2))
+psych::pairs.panels(X[,c(31,2,18)], 
+                      method = "pearson", # correlation method
+                      hist.col = "aquamarine1",
+                      density = TRUE,  # show density plots
+                      ellipses = TRUE # show correlation ellipses
+  )
+
+z<-X[,31];y<-X[,2];x<-X[,18];
+scatter3D(x, y, z, phi = 0, bty = "b2",col = c('aquamarine','aquamarine2','aquamarine3','dodgerblue',
+'dodgerblue2','dodgerblue3','dodgerblue4'),pch = 20, cex = 2,
+ticktype = "detailed",
+xlab='NIR18',ylab='NIR 2', zlab='Density')
+#Creamos un objeto para realizar las predicciones con elmodelo
+objr<-lm(z ~ x+y)
+summary(objr)
+#preparamos el modelado 3d
+grid.lines = 42
+x.pred <- seq(min(x), max(x), length.out = grid.lines)
+
+
+y.pred <- seq(min(y), max(y), length.out = grid.lines)
+xy <- expand.grid( x = x.pred, y = y.pred)
+z.pred <- matrix(predict(objr, newdata = xy), 
+                 nrow = grid.lines, ncol = grid.lines)
+# Marcamos las líneas de iteracción para que busquen la recta de regresión
+fitpoints <- predict(objr)
+#ploteamos la gráfica en 3d con recta de regresión
+scatter3D(x, y, z, pch = 19, cex = 2, 
+theta = 20, phi = 20, ticktype = "detailed",
+surf = list(x = x.pred, y = y.pred, z = z.pred, 
+facets = NA, fit = fitpoints), main = "",
+xlab='NIR18 ',zlab="Density",ylab='NIR2', 
+col = c('aquamarine','aquamarine2','aquamarine3',
+'dodgerblue','dodgerblue2','dodgerblue3','dodgerblue4'))
+
 
 ```
 
@@ -195,7 +264,14 @@ est$beta
 
 ```
 
-La selección de variables por medio del estimador LASSO son: NIR2, NIR6, NIR18, NIR28, NIR29. Consiguiente a eso se procede a realizar una prueba sobre subconjuntos para evaluar si podemos eliminar NIR29 para disminuir problemas de multicolinealidad.
+La selección de variables por medio del estimador LASSO son: NIR2, NIR6, NIR18, NIR28, NIR29. Veremos el resumen del modelo para evaluar las pruebas individuales t a ver si podemos considerar descartar alguna covariable adicional. Cabe aclarar que a pesar de haber realizado la selección de variables, no podemos dejarlo todo a los métodos sino por el contrario seguir indagando e intetando llegar al mejor modelo posible.
+
+```{r,echo=T,warning=FALSE,message=FALSE}
+model.lasso1 <- lm(density~NIR2+NIR6+NIR18+NIR28+NIR29,data=X)
+summary(model.lasso1)
+```
+
+Consiguiente a eso se procede a realizar una prueba sobre subconjuntos para evaluar si podemos eliminar NIR29 para disminuir problemas de multicolinealidad.
 
 ## Suma extra de cuadrados
 
@@ -318,7 +394,7 @@ Como se evidencia en los graficos y en las pruebas formales, ambos coinciden con
 Para esto utilizaremos la función influence.measures()
 
 ```{r, echo = T}
-influence.measures(model.lasso1)$infmat[,-1]
+influence.measures(model.lasso1)
 #Puntos de Balanceo, Influyentes y Atípicos
 par(mfrow=c(1,1))
 influencePlot(model.lasso1,panel.first=grid(),ylab='Residuos Studentizados')
@@ -345,7 +421,7 @@ A pesar de que evidenciamos claras mejoras en los problemas de multicolinealidad
 
 ```{r,echo=T}
 # Regresión ridge
-K = seq(from=0,to=2,length.out = 1000)
+K = seq(from=0,to=2,length.out = 100000)
 ridgedensity = lmridge(density~NIR2+NIR6+NIR18+NIR28,
                        data=X,K=K,scaling='sc')
 #####
@@ -374,7 +450,6 @@ lambda
 ######
 ridgedensity<-lmridge(density~NIR2+NIR6+NIR18+NIR28,
                       data=X,K=0.01,scaling='sc')
-summary(ridgedensity)
 ```
 
 Antes de proceder a realizar el análisis del resumen del modelo procederemos a evaluar los grados de multicolinealidad en comparación con el modelo con regresión de ñasso y la respectiva validación de supuestos.
@@ -421,8 +496,8 @@ sigma2_hat <- sum(residuals(ridgedensity)^2) / (nrow(X)-length(coefficients(mode
 
 # Calcular la matriz de covarianza de los coeficientes
 V_beta_hat <- diag(residuals(ridgedensity)^2)*solve(t(X) %*% X
-+0.01*diag(ncol(X))) %*% t(X) %*%X %*% solve(t(X) %*%
-X + 0.01 * diag(ncol(X)))
++ridgedensity$K*diag(ncol(X))) %*% t(X) %*%X %*% solve(t(X) %*%
+X + ridgedensity$K* diag(ncol(X)))
 # Hacer una predicción para nuevas observaciones
 x.nuevo<- data.frame(NIR2=3.06,NIR6=2.55,NIR18=2.14,NIR28=1.32)
 X_new <- cbind(1, as.matrix(x.nuevo))
