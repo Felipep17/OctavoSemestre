@@ -354,6 +354,14 @@ $S_{k}(\beta)=\sum_{i=1}^{n}({y_{i}-z^
 T}\beta)^2+k\sum_{j=1}^{p-1}\beta^2_{j}$
 \end{center}
 ```
+Al realizar derivada e igualar a 0 se obtienen las siguiente estimación:
+
+$$\hat{\beta}_{k}= (R+kI)^{-1}Z^Ty$$ Donde: $$E(\hat{\beta}_{k})=E((I+kR^{-1})^{-1}\hat{\beta})=C\beta$$
+
+y $$V(\hat{\beta}_{k})=\sigma^2C^{T}R^{-1}C$$ 
+
+Se observa que si k crece, disminuye la varianza, pero aumenta el sesgo. Por lo que la idea es obtener un k que minimize el ECM. 
+
 Luego de tener claro estos conceptos procedemos a realizar la regresión de ridge utilizando la librería lmridge. Para poder realizar esto generamos una secuencia de 1000 valores en los limites de 0 a 2, recordemos que el valor de párametro K es estrictamente positivo, generamos un proceso de validación obteniendo diversos criterios y al final seleccionamos un valor de k=0.1
 
 ```{r,echo=T}
@@ -385,6 +393,13 @@ lambda<-c(K[criterios$GCV==min(criterios$GCV)],
           K[criterios$CV==min(criterios$CV)])
 lambda
 ######
+```
+
+
+## Modelo ajustado por estimación Ridge
+
+```{r,echo=T}
+
 ridgedensity<-lmridge(density~NIR2+NIR6+NIR18+NIR28,
                       data=X,K=0.01,scaling='sc')
 summary(ridgedensity)
@@ -401,6 +416,8 @@ lmridge::vif.lmridge(ridgedensity)
 ```
 
 Observamos claras mejorar en los valores del VIF dónde a pesar de tener un par de valores por encima de 10, notamos claras mejoras, si aumentamos el valor de K, disminuira claramente estos factores de inflación de varianza pero aun así no es óptimo debido a que aumentamos el sesgo. Por último realizamos predicciones puntuales, dónde en R no había opciones para generar los intervalos de confianza por lo cual procedimos a realizar las estimaciones de la varianza de forma analítica para poder obtenerlos.
+
+### Predicción
 
 ```{r}
 #Para generar predicciones no es posible en una función en R
