@@ -436,6 +436,11 @@ $$\hat{\beta}_{k}= (R+kI)^{-1}Z^Ty$$ Donde: $$E(\hat{\beta}_{k})=E((I+kR^{-1})^{
 
 y $$V(\hat{\beta}_{k})=\sigma^2C^{T}R^{-1}C$$ 
 
+Por ultimo se calcula el error cuadrático medio de $\hat{\beta_k}$
+
+$$ECM(\hat{\beta_k})=trV(\hat{\beta_k})+(E(\hat{\beta_k})-\beta)^t(E(\hat{\beta_k})-\beta)$$
+$$=\sigma^2tr(R^{-1}C^TC)+\beta^T(C-I)^T(C-I)\beta$$
+$$=\sigma^2\sum_{i=1}^{p-1}\frac{\lambda_j}{(\lambda_j+k)^2}+\sum_{i=1}^{p-1}\frac{\alpha^2_jk^2}{(\lambda_j+k)^2}$$
 Se observa que si k crece, disminuye la varianza, pero aumenta el sesgo. Por lo que la idea es obtener un k que minimize el ECM. 
 
 Luego de tener claro estos conceptos procedemos a realizar la regresión de ridge utilizando la librería lmridge. Para poder realizar esto generamos una secuencia de 1000 valores en los limites de 0 a 2, recordemos que el valor de párametro K es estrictamente positivo, generamos un proceso de validación obteniendo diversos criterios y al final seleccionamos un valor de k=0.1
