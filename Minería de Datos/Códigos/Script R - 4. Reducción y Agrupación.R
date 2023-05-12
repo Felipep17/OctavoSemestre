@@ -265,5 +265,7 @@ fviz_cluster(object=km_clusters, data = Factores, show.clust.cent = TRUE,
              axes=c(2,3))
 
 PIBFactores= cbind(PIB,Factores,Grupos)
-
+col.cluster <- c("orange","purple","aquamarine1","red1",'yellow')[Grupos]
+pairs(PIB)
+pairs(PIB[,11:12],col=col.cluster,pch=19)
 ##################################Fin Tema 4 ###############################
