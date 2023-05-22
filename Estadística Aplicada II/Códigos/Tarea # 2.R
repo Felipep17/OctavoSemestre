@@ -145,6 +145,7 @@ summary(model.ponderados)
 summary(model.box)
 #Selección de variables
 attach(X)
+Y.<- X$density
 X.<-model.matrix(lm(density~.,data=X))[,-1]
 lasso.mod <- glmnet(X., Y., alpha = 1,nlambda = 100)
 lasso.mod$beta
@@ -196,7 +197,7 @@ search.grid <-expand.grid(alpha = seq(0,1,.1),
 train.control <- trainControl(method = "cv", 
                               number = 10)
 #Modelo
-step.model <- train(I(density^0.65)~., 
+step.model <- train(density~., 
                     data = X,
                     method = "glmnet", 
                     trControl = train.control,
@@ -207,11 +208,11 @@ step.model$bestTune$alpha
 step.model$bestTune$lambda
 #Coeficientes 
 coef(step.model$finalModel, step.model$bestTune$lambda)
-elastic.model <- glmnet(x=X., y=I(Y.^0.65),
-                        alpha  = 0.8, 
+elastic.model <- glmnet(x=X., y=Y.,
+                        alpha  = 0.5, 
                         lambda =0.3678794)
 elastic.model$beta
-plot(I(density^0.65)-predict(elastic.model,X.),predict(elastic.model,X.),pch=19)
+plot(X$density-predict(elastic.model,X.),predict(elastic.model,X.),pch=19)
 #Ejercicio de Predicción
 predict(elastic.model, 
         newx = matrix(c(age=24, weight=210.25, height=74.75, 
@@ -221,5 +222,5 @@ predict(elastic.model,
                         forearm=30.6, wrist=18.8),
                       nrow = 1)
 )
-influence.measures(model.box)
+
 anova(model.lasso1)
