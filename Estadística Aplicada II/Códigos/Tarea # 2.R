@@ -1,8 +1,6 @@
 ##############################
 options(scipen=999)
 #
-library(lmridge)
-library(easypackages)
 library(glmnet)
 setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Estadística Aplicada II/Base de datos")
 lib_req<-c("glmnet","lmridge","scatterplot3d","plot3D","plotly","rgl","plot3Drgl",'effects','psych','car','lmtest','MASS','xtable','latex2exp','orcutt','nlme',
