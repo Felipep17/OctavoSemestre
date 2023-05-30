@@ -1,72 +1,45 @@
-#------------------------------------------------------------------------------#
-#                  Universidad del Valle - Escuela de Estadística              #
-#                            Programa Académico de:                            #
-#                             Pregrado en Estadística                           #
-#  Asignatura : Técnicas de Minería de Datos y Aprendizaje Automático          #           
-#                      Estadístico - Jaime Mosquera Restrepo                   #
-#------------------------------------------------------------------------------#
-
-#------------------------------------------------------------------------------#
-#          0. Configuración inicial-Librerías requeridas                    ####
-#------------------------------------------------------------------------------#
-                            # Establecer el directorio de trabajo  
-
-#install.packages("easypackages")        # Libreria especial para hacer carga automática de librerias
 library("easypackages")
 setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Minería de Datos/Códigos")
-lib_req<-c("readxl","visdat","corrplot","plotrix","cluster","factoextra", "FactoMineR")# Listado de librerias requeridas por el script
+lib_req<-c("MASS","readxl","visdat","corrplot","plotrix","cluster","factoextra", "FactoMineR")# Listado de librerias requeridas por el script
 easypackages::packages(lib_req)         # Verificación, instalación y carga de librerias.
 source("Script R - source.R")
-
-#------------------------------------------------------------------------------#
-#   1. Aprendizaje no Supervisado - Reducción - Segmentación                ####
-#              Caso -  PIB - Producción Económica Colombia                     #
-#------------------------------------------------------------------------------#
-
-#------------------------------------------------------------------------------#
-##                1.1 Lectura de Datos y ajuste estructura                  ####
-#------------------------------------------------------------------------------#
-PIB=data.frame(read_excel("PIBpc.xlsx",col_names=TRUE, range = "B2:O35"))
-
-rownames(PIB)=PIB[,1]; PIB=PIB[,-1]
-View(PIB); str(PIB)  
-windows(height=10,width=15); visdat::vis_miss(PIB)            
-
-#------------------------------------------------------------------------------#
-##                1.2 Preprocesamiento de datos                             ####
-#------------------------------------------------------------------------------#
+## Descriptivas ###
+#Cargamos la base de datos en una matriz
+X<- Boston
+dim(X)
+#Eliminar registros atípicos según el enunciado
+X<-X[-(which(X$medv==50)),]
+X<- X[,-4]
+View(X)
+windows(height=10,width=15); visdat::vis_miss(X) #Visualización NA'S
+#Breve Análisis Descriptivo
 coef_var=function(x){sd(x,na.rm=TRUE)/mean(x,na.rm=TRUE)}
-
-Resumen= rbind(apply(PIB,2,"mean"),apply(PIB,2,"sd"),apply(PIB,2,"coef_var"))
-rownames(Resumen)=c("Promedio", "Desviación","Coef. Var")
+Resumen= rbind(apply(X,2,mean),apply(X,2,"sd"),apply(X,2,"coef_var")*100)
+rownames(Resumen)<- c("Media","Desviación","Coef_ Var %")
 print(Resumen,2)
-   
+#____________________________________________________________________________#
+##  Análisis de datos atípicos
 # Datos Atipicos univariados
 windows(height=10,width=15)
 par(mfrow=c(3,5))
-lapply(colnames(PIB),function(y){
-   boxplot(PIB[,y],ylab=y,cex=1.5,pch=20,col="blue")
+lapply(colnames(X),function(y){
+  boxplot(X[,y],ylab=y,cex=1.5,pch=20,col="blue")
 })
-
-Out.Uni=lapply(PIB,id.out.uni,method="Tukey")
-rownames(PIB)[unlist(Out.Uni)]
-
+Out.Uni=lapply(X,id.out.uni,method="Tukey")
+# Análisis de correlaciones para evidenciar estructuras latentes
 ## Análisis Bivariado de la correlación.
-
 windows(height=10,width=15)
-pairs(PIB,pch=20,cex=1.5,lower.panel = NULL)
-
-M.cor = cor(PIB,method="pearson"); print(M.cor,2)
-p.cor=corrplot::cor.mtest(PIB)$p; print(p.cor,4)
-
+pairs(X,pch=20,cex=1.5,lower.panel = NULL)
+M.cor = cor(X,method="pearson"); print(M.cor,2)
+p.cor=corrplot::cor.mtest(X)$p; print(p.cor,4)
 windows(height=10,width=15)
 corrplot::corrplot(M.cor, method = "ellipse",addCoef.col = "black",type="upper",
                    col=c("blue","red"),diag=FALSE,
                    p.mat = p.cor, sig.level = 0.01, insig = "blank"
-                   )
-id.out.mult=out.mult(PIB)
+)
+id.out.mult=out.mult(X)
 
-# Sin considerar los registros atipicos multivariado
+# Sin considerar los  registros atipicos multivariado
 index.out=id.out.mult$Out_dist
 windows(height=10,width=15)
 pairs(X[-index.out,],pch=20,cex=1.5,lower.panel = NULL)
@@ -78,14 +51,10 @@ windows(height=10,width=15)
 corrplot::corrplot(M.cor, method = "ellipse",addCoef.col = "black",type="upper",
                    col=c("blue","red"),diag=FALSE,
                    p.mat = p.cor, sig.level = 0.01, insig = "blank")
-
-#------------------------------------------------------------------------------#
 ##     2. Análisis de Componentes Principales                               ####
 #------------------------------------------------------------------------------#
-X=PIB[-index.out,]
+Y=X[-index.out,]
 PCA=PCA(Y,scale.unit=TRUE,ncp=10,graph=FALSE)   # Las variables son autoescaladas
-
-PCA
 summary(PCA)
 
 #------------------------------------------------------------------------------#
@@ -104,7 +73,6 @@ coord=barplot(Var_acum, xlab="Componente",ylab="Varianza Acumulada")
 lines(coord,Var_acum,col="blue",lwd=2)
 text(coord,Var_acum,round(Var_acum,2), pos=3,cex=0.6)
 
-# 3 componentes-->  82% de la Varianza Explicada --> Son interpretables?
 PCA_var=get_pca_var(PCA)
 
 PCA_var$coord[,1:3]; PCA_var$cos2[,1:3]; PCA_var$contrib[,1:3]
@@ -182,7 +150,7 @@ fviz_pca_biplot(PCA, repel = TRUE,axes=c(2,3),
 #------------------------------------------------------------------------------#
 
 Factores= PCA_ind$coord[,1:3]
-Proy.out= predict(PCA,newdata=PIB[index.out,])$coord[,1:3]
+Proy.out= predict(PCA,newdata=X[index.out,])$coord[,1:3]
 Factores= rbind(Factores,Proy.out)
 
 
@@ -223,7 +191,7 @@ Grupos=km_clusters$cluster
 Evaluar_k=function(n_clust,data,iter.max,nstart){
   km <- kmeans(x = data, centers = n_clust, nstart = nstart,iter.max=iter.max)
   return(km$tot.withinss)
-  }
+}
 
 k.opt=2:10
 Eval_k=sapply(k.opt,Evaluar_k,data=Factores,iter.max=1000,nstart=50)
@@ -250,8 +218,9 @@ fviz_cluster(object=km_clusters, data = Factores, show.clust.cent = TRUE,
              ellipse.type = "euclid", star.plot = TRUE, repel = TRUE,
              axes=c(2,3))
 
-PIBFactores= cbind(PIB,Factores,Grupos)
+PIBFactores= cbind(X,Factores,Grupos)
 col.cluster <- c("orange","purple","aquamarine1","red1",'yellow')[Grupos]
-pairs(PIB)
-pairs(PIB[,11:12],col=col.cluster,pch=19)
+pairs(X)
+pairs(X[,11:12],col=col.cluster,pch=19)
 ##################################Fin Tema 4 ###############################
+

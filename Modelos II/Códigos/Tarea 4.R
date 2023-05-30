@@ -3,6 +3,7 @@ names(X)
 X<- X[,-1]
 pairs(X)
 str(X)
+options(scipen=999)
 modrugs.logit = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(logit),data=X)
 modrugs.probit = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(probit),data=X)
 modrugs.cloglog = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(cloglog),data=X)
