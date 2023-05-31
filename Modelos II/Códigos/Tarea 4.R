@@ -63,10 +63,10 @@ rownames(metricas)<- c("AUC","Sensibilidad","Especificidad","Punto de corte")
 xtable(metricas)
 ROCbw.logit
 
-plot(ROCbw.probit,col=1, print.thres = "best", print.auc = TRUE,
+lines(ROCbw.probit,col=1, print.thres = "best", print.auc = TRUE,
       auc.polygon = FALSE, max.auc.polygon = FALSE, auc.polygon.col = "gainsboro"
       , grid = TRUE)
-plot(ROCbw.loglog,col=3, print.thres = "best", print.auc = TRUE,
+lines(ROCbw.loglog,col=3, print.thres = "best", print.auc = TRUE,
       auc.polygon = FALSE, max.auc.polygon = FALSE, auc.polygon.col = "gainsboro"
       , grid = TRUE)
 legend(x = "topleft",legend=c("Logit","Probit","CLogLog"),
