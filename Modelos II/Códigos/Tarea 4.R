@@ -55,7 +55,7 @@ ROCbw.loglog = roc(X$DFREE~modrugs.cloglog$fitted.values)
 x11()
 ?roc
 plot(ROCbw.logit, print.thres = "best", print.auc = TRUE,
-     auc.polygon = FALSE, max.auc.polygon = FALSE, auc.polygon.col = "gainsboro",
+     auc.polygon = FALSE, max.auc.polygon = F, auc.polygon.col = "gainsboro",
      col = 2, grid = TRUE,xlim=c(1,0))
 metricas<- cbind(rbind(0.633,0.453,0.776,0.235),rbind(0.631,0.435,0.782,0.233),rbind(0.633,0.465,0.776,0.235))
 colnames(metricas)<- c("Logit","Probit","CLogLog")
