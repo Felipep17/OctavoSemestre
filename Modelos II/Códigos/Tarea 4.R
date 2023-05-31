@@ -1,4 +1,5 @@
 library(xtable)
+library(aod)
 X<- AbusoDrogas
 names(X)
 X<- X[,-1]
@@ -19,10 +20,8 @@ VarMat = vcov(modrugs.logitinter)
 Coef = coefficients(modrugs.logitinter)
 xtable(summary(modrugs.logitinter))
 wald.test(VarMat,Coef,Terms=c(6,7,8))
-library(aod)
-??anova
 summary(modrugs.logitinter)
-vif(modrugs.logit)
+car::vif(modrugs.logit)
 modrugs.probit = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(probit),data=X)
 modrugs.cloglog = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(cloglog),data=X)
 Mods<-round(cbind(coef(modrugs.logit),sqrt(diag(vcov(modrugs.logit))),coef(modrugs.logit)/sqrt(diag(vcov(modrugs.logit))),(1-pnorm(abs(coef(modrugs.logit)/sqrt(diag(vcov(modrugs.logit))))))*2,coef(modrugs.probit),sqrt(diag(vcov(modrugs.probit))),coef(modrugs.probit)/sqrt(diag(vcov(modrugs.probit))),(1-pnorm(abs(coef(modrugs.probit)/sqrt(diag(vcov(modrugs.probit))))))*2,coef(modrugs.cloglog),sqrt(diag(vcov(modrugs.cloglog))),coef(modrugs.cloglog)/sqrt(diag(vcov(modrugs.cloglog))),(1-pnorm(abs(coef(modrugs.cloglog)/sqrt(diag(vcov(modrugs.cloglog))))))*2),4)
@@ -50,7 +49,6 @@ deviance(modrugs.logit)
 deviance(modrugs.probit)
 deviance(modrugs.cloglog)
 library(pROC)
-?roc
 ROCbw.logit = roc(X$DFREE~modrugs.logit$fitted.values)
 ROCbw.probit = roc(X$DFREE~modrugs.probit$fitted.values)
 ROCbw.loglog = roc(X$DFREE~modrugs.cloglog$fitted.values)
@@ -74,6 +72,7 @@ plot(ROCbw.loglog,col=3, print.thres = "best", print.auc = TRUE,
 legend(x = "topleft",legend=c("Logit","Probit","CLogLog"),
        col=c(1,2,3),lwd=2,title='Enlace',
        box.lwd=1,text.font =20,cex=0.8)
+table(X$DFREE)
 #####
 library(pROC)
 # Cálculo de la curva ROC y determinación del mejor punto de corte usando el método de Youden
@@ -111,4 +110,17 @@ predicciones_closest_logit <- ifelse(modrugs.logit$fitted.values >= cutoff_close
 # Calcular la matriz de confusión
 matriz_confusion_closest_logit <- table(Real = X$DFREE, Prediccion = predicciones_closest_logit)
 print(matriz_confusion_closest_logit)
-
+#Sobre dispersión
+phi<-rbind(sum(residuals(modrugs.logit,method="pearson")^2)/modrugs.logit$df.residual,
+                    sum(residuals(modrugs.probit,method="pearson")^2)/modrugs.probit$df.residual,
+                    sum(residuals(modrugs.cloglog,method="pearson")^2)/modrugs.cloglog$df.residual)
+rownames(phi)<- c("Logit","Probit","CLogLog")
+colnames(phi)<- "Sobredispersión"
+xtable(phi)
+#Bondad de ajuste
+# devianza
+D = deviance(modrugs.logit)
+1-pchisq(D,6) # valor p
+# chi-cuadrado de Pearson
+X2 = sum(residuals(modrugs.logit,type='pearson')^2)
+1-pchisq(X2,6) # valor p

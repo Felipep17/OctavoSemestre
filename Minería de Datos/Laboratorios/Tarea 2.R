@@ -1,6 +1,6 @@
 library("easypackages")
 setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Minería de Datos/Códigos")
-lib_req<-c("MASS","readxl","visdat","corrplot","plotrix","cluster","factoextra", "FactoMineR")# Listado de librerias requeridas por el script
+lib_req<-c("xtable","MASS","readxl","visdat","corrplot","plotrix","cluster","factoextra", "FactoMineR")# Listado de librerias requeridas por el script
 easypackages::packages(lib_req)         # Verificación, instalación y carga de librerias.
 source("Script R - source.R")
 ## Descriptivas ###
@@ -17,6 +17,7 @@ coef_var=function(x){sd(x,na.rm=TRUE)/mean(x,na.rm=TRUE)}
 Resumen= rbind(apply(X,2,mean),apply(X,2,"sd"),apply(X,2,"coef_var")*100)
 rownames(Resumen)<- c("Media","Desviación","Coef_ Var %")
 print(Resumen,2)
+xtable(Resumen)
 #____________________________________________________________________________#
 ##  Análisis de datos atípicos
 # Datos Atipicos univariados
@@ -38,7 +39,7 @@ corrplot::corrplot(M.cor, method = "ellipse",addCoef.col = "black",type="upper",
                    p.mat = p.cor, sig.level = 0.01, insig = "blank"
 )
 id.out.mult=out.mult(X)
-
+length(id.out.mult$Out_dist)
 # Sin considerar los  registros atipicos multivariado
 index.out=id.out.mult$Out_dist
 windows(height=10,width=15)
