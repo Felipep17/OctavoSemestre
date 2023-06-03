@@ -20,6 +20,7 @@ VarMat = vcov(modrugs.logitinter)
 Coef = coefficients(modrugs.logitinter)
 xtable(summary(modrugs.logitinter))
 wald.test(VarMat,Coef,Terms=c(6,7,8))
+summary(modrugs.logit)
 summary(modrugs.logitinter)
 car::vif(modrugs.logit)
 modrugs.probit = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(probit),data=X)
@@ -56,14 +57,14 @@ x11()
 ?roc
 plot(ROCbw.logit, print.thres = "best", print.auc = TRUE,
      auc.polygon = FALSE, max.auc.polygon = F, auc.polygon.col = "gainsboro",
-     col = 2, grid = TRUE,xlim=c(1,0))
+     col = 1, grid = TRUE,xlim=c(1,0))
 metricas<- cbind(rbind(0.633,0.453,0.776,0.235),rbind(0.631,0.435,0.782,0.233),rbind(0.633,0.465,0.776,0.235))
 colnames(metricas)<- c("Logit","Probit","CLogLog")
 rownames(metricas)<- c("AUC","Sensibilidad","Especificidad","Punto de corte")
 xtable(metricas)
 ROCbw.logit
 
-lines(ROCbw.probit,col=1, print.thres = "best", print.auc = TRUE,
+lines(ROCbw.probit,col=2, print.thres = "best", print.auc = TRUE,
       auc.polygon = FALSE, max.auc.polygon = FALSE, auc.polygon.col = "gainsboro"
       , grid = TRUE)
 lines(ROCbw.loglog,col=3, print.thres = "best", print.auc = TRUE,
@@ -77,7 +78,7 @@ table(X$DFREE)
 library(pROC)
 # Cálculo de la curva ROC y determinación del mejor punto de corte usando el método de Youden
 ROCbw.logit <- roc(X$DFREE, modrugs.logit$fitted.values)
-coords(ROCbw.logit, "best",best.method="closest.topleft")
+coords(ROCbw.logit, "best")
 cutoff_youden_logit <- coords(ROCbw.logit, "best", best.method = "youden")
 sensitivity_youden_logit <- cutoff_youden_logit$sensitivity
 specificity_youden_logit <- cutoff_youden_logit$specificity
@@ -124,3 +125,34 @@ D = deviance(modrugs.logit)
 # chi-cuadrado de Pearson
 X2 = sum(residuals(modrugs.logit,type='pearson')^2)
 1-pchisq(X2,6) # valor p
+#Hipotesis
+modrugs.logit = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(logit),data=X)
+modrugs.logit2 = glm(DFREE~AGE+NDRUGTX+TREAT,family=binomial(logit),data=X)
+summary(modrugs.logit)
+summary(modrugs.logit2)
+anova(modrugs.logit,modrugs.logit2,test='LRT')
+#
+plot(fitted.values(modrugs.logit2))
+abline(h=0.235)
+points(fitted.values(modrugs.logit2)[modrugs.logit2$fitted.values>0.235],pch=19,col=2)
+points(fitted.values(modrugs.logit2)[modrugs.logit2$fitted.values<=0.235],pch=19,col=4)
+library(pROC)
+ROCbw.logit = roc(X$DFREE~modrugs.logit$fitted.values)
+plot(ROCbw.logit, print.thres = "best", print.auc = TRUE,
+     auc.polygon = FALSE, max.auc.polygon = F, auc.polygon.col = "gainsboro",
+     col = 2, grid = TRUE,xlim=c(1,0))
+cutoff_youden_logit <- coords(ROCbw.logit, "best")
+sensitivity_youden_logit <- cutoff_youden_logit$sensitivity
+specificity_youden_logit <- cutoff_youden_logit$specificity
+
+# Obtener las predicciones utilizando el mejor punto de corte según el método de Youden
+predicciones_youden_logit <- ifelse(modrugs.logit$fitted.values >= cutoff_youden_logit$threshold, 1, 0)
+
+# Calcular la matriz de confusión
+matriz_confusion_youden_logit <- table(Real = X$DFREE, Prediccion = predicciones_youden_logit)
+print(matriz_confusion_youden_logit)
+# Imprimir los resultados
+cat("Método de Youden (Logit): \n")
+cat("Mejor punto de corte:", cutoff_youden_logit$threshold, "\n")
+cat("Sensibilidad:", sensitivity_youden_logit, "\n")
+cat("Especificidad:", specificity_youden_logit, "\n")

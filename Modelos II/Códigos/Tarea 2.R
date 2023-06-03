@@ -1,6 +1,14 @@
 ##############################
 options(scipen=999)
 # Cargo las librerías
+library(car)
+data("cornell")
+YX <- cornell
+View(YX)
+rowSums(YX[,-8])
+names(YX)# 1 : multicolineal
+reg <- lm(Octane~.,data=YX)	# descarta la variable x7 
+
 library(easypackages)
 lib_req<-c('tidyr','pls','psych','lmridge','ISLR','car','lmtest','MASS','xtable','latex2exp','orcutt','nlme',
            'mixtools',"alr4","depth","readr","ddalpha","robustbase","rrcov","zoom",'ggfortify','readxl')# Listado de librerias requeridas por el script
