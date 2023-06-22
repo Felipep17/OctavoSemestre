@@ -136,8 +136,8 @@ exp(pre[["mean"]])
 #intervalos de confianza
 exp(pre[["lower"]])
 exp(pre[["upper"]])
-
-
+library(lmtest)
+coeftest(modelofinal)
 
 #la raices fuera del circulo unitario, lo cual implica estacionariedad e invertibilidad
 library(UnitCircle)
