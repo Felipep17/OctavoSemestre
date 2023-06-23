@@ -62,9 +62,22 @@ ecmp2<- (1/48)*sum(X.te$Life.expectancy-pre2)^2
 library(readr)
 Y <- data.frame(read_csv("campuscrime.csv"))
 View(Y)
-rownames(Y)<- colnames(Y[,2])
+rownames(Y)<- Y[,2]
 Y<- Y[,-(1:2)]
+hist(Y$burg09,xlab="Frecuencia",ylab="Número de robos",main="",col="aquamarine4")
 rect(par("usr")[1], par("usr")[3],
      par("usr")[2], par("usr")[4],
      col = "azure1")
-hist(Y$burg09,xlab="Frecuencia",ylab="Número de robos",main="",add=T,col="aquamarine4")
+hist(Y$burg09,xlab="Frecuencia",ylab="Número de robos",main="",col="aquamarine4",add=T)
+##
+boxplot(Y$burg09~Y$region)
+names(Y)
+poisson<- glm(burg09 ~ region + pct.male + sat.tot+act.comp+tuition+offset(log(total)), 
+                     family = poisson(link = "log"), data = Y)
+summary(poisson)
+X2.poisson = sum(residuals(poisson,type='pearson')^2)
+X2.poisson/poisson$df.residual
+library(MASS)
+library(pscl)
+modbinNeg = glm.nb(burg09 ~ region + pct.male + sat.tot+act.comp+ tuition +offset(log(total)),data = Y)
+summary(modbinNeg)
