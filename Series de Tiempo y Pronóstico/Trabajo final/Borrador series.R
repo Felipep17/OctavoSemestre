@@ -10,6 +10,7 @@ require("here")
 require("spatstat")
 library(ggplot2)
 require(mapdata)
+library(lmtest)
 require(maps)
 require(ggrepel)
 library(tseries)
@@ -65,13 +66,12 @@ layout(layout_matriz)
 # Crear el gráfico
 library(TSA)
 auto.arima(ts(X$Pygtk,freq=12,start=c(09,01,2016)))
-u$acf[u$acf>0]<-u$acf[u$acf>0]-0.05
-u$acf[u$acf<0]<-u$acf[u$acf<0]+0.05
-plot(diff(log(ts1)),xlab="Time",ylab="Serie diferenciada y transformada",main="Log Diff Count Pytgk",type="o",pch=19)
-plot(u$acf,type="h",ylim=c(-0.5,0.5),ylab="ACF",xlab="Lag")
-abline(h=c(0,-0.2,0.2),col=c("black","blue4","blue4"),lty=c(1,2,2))
-pacf(diff(log(X$Pygtk)),main="")
 modelofinal<- Arima(log(X$Pygtk),order = c(0,1,1))
+modelofinal2<- Arima(log(X$Pygtk),order = c(1,1,2))
+modelofinal3<- Arima(log(X$Pygtk),order = c(1,1,3))
+modelofinal4<- Arima(log(X$Pygtk),order = c(1,1,5))
+coeftest(modelofinal4)
+BIC(modelofinal);BIC(modelofinal2);BIC(modelofinal3);BIC(modelofinal4)
 coeficientes <- coef(modelofinal)
 matriz_cov <- vcov(modelofinal)
 grados_libertad <- length(X$Pygtk) - length(coeficientes)
@@ -88,20 +88,11 @@ for(i in 1:length(x)){
   y[i]<-Box.test(res_est_w1, lag = x[i], type = c("Ljung-Box"), fitdf = 0)$p.value
 }
 x11()
-
-u1<- acf(residuals(modelofinal))
-u2<- pacf(residuals(modelofinal))
-u1$acf[u1$acf>0]<-u1$acf[u1$acf>0]-0.045
-u1$acf[u1$acf<0]<-u1$acf[u1$acf<0]
-u2$acf[u2$acf>0]<-u2$acf[u2$acf>0]-0.045
-u2$acf[u2$acf<0]<-u2$acf[u2$acf<0]
 layout_matriz <- matrix(c(1, 1, 2,3,4,5), nrow = 3, ncol = 2, byrow = T)
 layout(layout_matriz)
 plot(res_est_w1,type='o',pch=19,ylab="Standarized Residuals",xlab="Time",main="Validación de supuestos para el modelo ARIMA(0,1,1)")
-plot(u1$acf,type="h",ylim=c(-0.25,0.25),main="ACF of Residuals",ylab="ACF",xlab="Lag")
-abline(h=c(0,-0.2,0.2),col=c("black","blue4","blue4"),lty=c(1,2,2))
-plot(u2$acf,type="h",ylim=c(-0.25,0.25),main="PACF of Residuals",ylab="PACF",xlab="Lag")
-abline(h=c(0,-0.2,0.2),col=c("black","blue4","blue4"),lty=c(1,2,2))
+acf(res_est_w1)
+pacf(res_est_w1)
 car::qqPlot(res_est_w1,pch=19,xlab="Theoretical Quantile",ylab="Sample Quantiles",main="Normal Q-Q Plot to Residuals")
 plot(y,ylim=c(0,1),ylab="P-Value",xlab="Lag",pch=19,main="p values for Ljung-Box statistic")
 abline(h=c(0.05),lwd=2,lty=2,col="blue4")
@@ -142,3 +133,17 @@ coeftest(modelofinal)
 #la raices fuera del circulo unitario, lo cual implica estacionariedad e invertibilidad
 library(UnitCircle)
 UnitCircle::uc.check(c(1, -coef(modelofinal)[1]))
+adf.test(ts1,k=10)
+adf.test()
+par(mfrow=c(1,2))
+pacf(ts1,main="")
+acf(ts1,main="")
+
+wbar <- mean(diff(log(as.numeric(X$Pygtk))))
+Swbar <- sqrt(var(diff(log(as.numeric(X$Pygtk)))) / length(diff(log(as.numeric(X$Pygtk)))))
+
+t_ratio <- wbar/Swbar
+t_ratio
+
+#cuantil 0.025 superior con 498 g.l.
+qt(p=0.025, df=, length(diff(log(seriew6)))-1,lower.tail=F)

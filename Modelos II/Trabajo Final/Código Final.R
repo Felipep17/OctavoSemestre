@@ -10,26 +10,46 @@ X<- data.frame(read_csv("WHO2016.csv"))
 source("Source.R")
 rownames(X)<-X[,1];X<- X[,-1]
 X[,1]<- factor(X[,1])
+X[,10]<- X[,10]+1
+X[,10:11]<- log(X[,10:11])
+colnames(X)[c(10,11)]<-c("Log(HIV.AIDS)","Log(GDP)")
+X<- X[,-13]
+colnames(X)
+plot(X)
+View(X)
 str(X)
+Y<- cbind(X[,2],X[,-2])
+colnames(Y)[1]<- "Life.expetancy"
+par(mar=c(4,4,4,4))
+par(mfrow=c(4,4))
+options(scipen=999)
+col<- ifelse(Y[,2]=="Developed",1,2)
+sapply(seq(2,ncol(Y)),function(j)plot(Y[,1]~Y[,j],xlab=paste(colnames(Y)[j]),ylab=colnames(Y)[1],col=col,pch=19))
+sapply(seq(3,ncol(Y)),function(j)plot(density(Y[,j]),xlab=paste(colnames(Y)[j]),ylab="Densidad",col="blue",main="",lwd=2))
+boxplot(Life.expectancy~X[,1],xlab="Status",ylab="Life.expentacy")
 attach(X)
 #Modelo inicial
+summary(X)
 model1<- lm(Life.expectancy~.,data=X)
 validaciongrafica(model1)
 influencePlot(model1)
 influence.measures(model1)
-model2<- lm(Life.expectancy~.,data=X[-(which((rownames(X)=="Mozambique"))),])
+model2<- lm(Life.expectancy~.,data=X)
 validaciongrafica(model2)
 influencePlot(model2)
-X.<-X[-(which((rownames(X)=="Mozambique"))),]
+X.<-X
+View(X.)
 N = nrow(X.); id = 1:N; N.tr=ceiling((1-0.324)*N)
 set.seed(10); id.tr=sample(id,N.tr,replace=F)
 X.tr= X.[id.tr,]   # Datos de entrenamiento de los modelos
 X.te= X.[-id.tr,]
 # Ajuste de los modelos
 model<- lm(Life.expectancy~.,data=X.tr)
+library(xtable)
+xtable(summary(model))
 validaciongrafica(model)
 summary(model)
-car::vif(model)
+xtable(t(t(as.matrix(car::vif(model)))))
 #Ajuste por medio de LASSO
 library(glmnet)
 options(scipen = 999)
@@ -44,15 +64,29 @@ est = glmnet(XD, X.tr$Life.expectancy, alpha = 1,lambda = lasso.cv$lambda.1se)
 ind<-which(est$beta==0)
 modlasso<- lm(Life.expectancy~.,data=X.tr[,-(ind+1)])
 summary(modlasso)
+xtable(modlasso)
 validaciongrafica(modlasso)
 influencePlot(modlasso)
-car::vif(modlasso)
+xtable(t(t(car::vif(modlasso))))
 #Stepwise
 step<-ols_step_both_aic(model,details = F)
-modelstep<- lm(Life.expectancy~Infant.deaths+GDP+HIV.AIDS+Schooling+HDI+Status+Percentage.expenditure+Alcohol+Unemployment.rate..women,data=X.tr)
+modelstep<- lm(Life.expectancy~Infant.deaths+`Log(GDP)`+`Log(HIV.AIDS)`+Status +Schooling  +Alcohol+Percentage.expenditure+BMI,data=X.tr)
+model2<- lm(Life.expectancy~Infant.deaths+HIV.AIDS+Schooling+HDI+Status+Percentage.expenditure+Alcohol,data=X.tr)
+xtable(summary(modelstep))
+anova(modelstep,model2)
 summary(modelstep)
 car::vif(modelstep)
+xtable(modlasso)
+xtable(modelstep)
 validaciongrafica(modelstep)
+xtable(t(t(car::vif(modelstep))))
+xtable(t(vif(modlasso)[7:12]))
+AIC(model)
+AIC(modlasso)
+AIC(modelstep)
+AIC(model2)
+summary(modelstep)
+summary(modlasso)
 #Validación
 pre1<- predict(modlasso,X.te)
 ecmp1<- (1/48)*sum(X.te$Life.expectancy-pre1)^2
@@ -64,11 +98,12 @@ Y <- data.frame(read_csv("campuscrime.csv"))
 View(Y)
 rownames(Y)<- Y[,2]
 Y<- Y[,-(1:2)]
-hist(Y$burg09,xlab="Frecuencia",ylab="Número de robos",main="",col="aquamarine4")
+hist(Y$burg09,xlab="Frecuencia",ylab="Número de robos",main="",col="aquamarine4",breaks=10)
 rect(par("usr")[1], par("usr")[3],
      par("usr")[2], par("usr")[4],
      col = "azure1")
-hist(Y$burg09,xlab="Frecuencia",ylab="Número de robos",main="",col="aquamarine4",add=T)
+hist(Y$burg09,xlab="Frecuencia",ylab="Número de robos",main="",col="aquamarine4",add=T,breaks=10)
+     
 ##
 boxplot(Y$burg09~Y$region)
 names(Y)
