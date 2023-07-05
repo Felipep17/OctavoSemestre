@@ -20,10 +20,10 @@ View(X)
 str(X)
 Y<- cbind(X[,2],X[,-2])
 colnames(Y)[1]<- "Life.expetancy"
-par(mar=c(4,4,4,4))
+par(mar=c(4,4,1,1))
 par(mfrow=c(4,4))
 options(scipen=999)
-col<- ifelse(Y[,2]=="Developed",1,2)
+col<- ifelse(Y[,2]=="Developed",1,2)+2
 sapply(seq(2,ncol(Y)),function(j)plot(Y[,1]~Y[,j],xlab=paste(colnames(Y)[j]),ylab=colnames(Y)[1],col=col,pch=19))
 sapply(seq(3,ncol(Y)),function(j)plot(density(Y[,j]),xlab=paste(colnames(Y)[j]),ylab="Densidad",col="blue",main="",lwd=2))
 boxplot(Life.expectancy~X[,1],xlab="Status",ylab="Life.expentacy")
@@ -71,9 +71,7 @@ xtable(t(t(car::vif(modlasso))))
 #Stepwise
 step<-ols_step_both_aic(model,details = F)
 modelstep<- lm(Life.expectancy~Infant.deaths+`Log(GDP)`+`Log(HIV.AIDS)`+Status +Schooling  +Alcohol+Percentage.expenditure+BMI,data=X.tr)
-model2<- lm(Life.expectancy~Infant.deaths+HIV.AIDS+Schooling+HDI+Status+Percentage.expenditure+Alcohol,data=X.tr)
 xtable(summary(modelstep))
-anova(modelstep,model2)
 summary(modelstep)
 car::vif(modelstep)
 xtable(modlasso)
@@ -105,7 +103,14 @@ rect(par("usr")[1], par("usr")[3],
 hist(Y$burg09,xlab="Frecuencia",ylab="Número de robos",main="",col="aquamarine4",add=T,breaks=10)
      
 ##
-boxplot(Y$burg09~Y$region)
+boxplot(Y$burg09~Y$region,xlab="Región",ylab="Número de robos",col="aquamarine4")
+# Points
+stripchart(Y$burg09~Y$region,              # Data
+           method = "jitter" , pch=19,         # Pch symbols
+           col = 'black',           # Color of the symbol
+           vertical = TRUE,   # Vertical mode
+           add = TRUE)   
+grid()
 names(Y)
 poisson<- glm(burg09 ~ region + pct.male + sat.tot+act.comp+tuition+offset(log(total)), 
                      family = poisson(link = "log"), data = Y)
@@ -115,4 +120,21 @@ X2.poisson/poisson$df.residual
 library(MASS)
 library(pscl)
 modbinNeg = glm.nb(burg09 ~ region + pct.male + sat.tot+act.comp+ tuition +offset(log(total)),data = Y)
-summary(modbinNeg)
+xtable(summary(modbinNeg))
+X2.poisson1 = sum(residuals(modbinNeg,type='pearson')^2)
+si2<-X2.poisson1/modbinNeg$df.residual
+si1<-X2.poisson/poisson$df.residual
+AIC(poisson)
+AIC(modbinNeg)
+H<-matrix(c(si1,AIC(poisson),deviance(poisson),si2,AIC(modbinNeg),deviance(modbinNeg)),nrow=2,ncol=3)
+colnames(H)<- c("Psi","AIC","Devianza")
+rownames(H)<- c("Modelo Poisson Ofsset","Modelo Binomial Negativo")
+xtable(H)
+##########
+Modelo_PCA <- FactoMineR::PCA(X[,-1],ncp=2,quali.sup=8)
+H<-matrix(X[,-1] )
+windows(height=10,width=15)
+factoextra::fviz_pca_ind(H,addEllipses = T, ellipse.level = 0.95) 
+windows(height=10,width=15)
+color=c("Gray","Blue")  
+factoextra::fviz_pca_biplot(Modelo_PCA,col.ind=color) 
