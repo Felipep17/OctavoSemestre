@@ -1,4 +1,3 @@
-
 fPLS1na <- function(YX){ 
   Z <- as.matrix(YX)
   Xo <- scale(YX[,-1])	# matriz n.p
@@ -226,11 +225,10 @@ P <- fpls1[[4]]
 b <- fpls1[[5]]	# y^ = X.b
 # 15% d'NA aleatorios
 ncomp(Yi,T)
-yimput<- c[1]%*%T[,1]
+yimput<- c[1]%*%T[,1]+c[2]%*%T[,2]
 Yi<-scale(Yi)
 Yi[which(is.na(Yi))]<-yimput[which(is.na(Yi))]
 Yi<- scale(Yi)
-Xna(cbind(Yi))
 ##############################
 fPLS1naY <- function(YX){ 
   Z <- as.matrix(YX)
@@ -368,3 +366,6 @@ P <- plsy[[4]]
 b <- plsy[[5]]	# y^ = X.b
 model<- lm(Yi~T[,1:2]-1)
 summary(model)
+ncomp(Yi,T)
+#########################################
+anova(rgYT.1)
