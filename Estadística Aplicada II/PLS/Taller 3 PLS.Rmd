@@ -1,5 +1,5 @@
 ---
-title: "Taller 2 Regresión lineal Multiple"
+title: "Taller 3 Regresión lineal Multiple"
 author: "Andrés Felipe Palomino - David Stiven Rojas"
 date: "2023-04-21"
 output: 
