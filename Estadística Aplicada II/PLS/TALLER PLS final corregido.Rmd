@@ -1,0 +1,510 @@
+---
+title: "Taller pls otro intento"
+author: "Andrés Felipe Palomino - David Stiven Rojas"
+date: "2023-07-12"
+output: 
+  pdf_document: 
+    number_sections: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introducción
+
+A continuacion se presenta el desarrollo del codigo para realizar un ajuste de regresión multiple via PLS, con una aplicación a una base de datos que cuenta con multicolinealidad perfecta y que se contamina con datos faltanes.
+
+## Base de datos sin NA´S
+
+En los datos de Cornell (1990), se registra el índice de octano de motor y en n=12 mezclas, para determinar la influencia de p=7 componentes, x1= destilación directa,.., x7 = esencia natural.
+
+```{r echo = T, results = 'asis', message= FALSE, warning=FALSE, }
+library(car)
+library(xtable)
+
+YX <- read.table("Cornell.txt",header=TRUE)
+xtable(YX)
+
+
+```
+
+# Base de datos con 11% NA´s
+
+Para contaminar la base de datos con el 11% de NA´s se realizara la funcion fmd() del "Script PLS1 tenenhaus".
+
+En primer lugar la funcion tiene dos componentes de entrada, la base de datos y el porcentaje de NA´s que se colocaran (a), seguidamente la base de datos se transforma en una matriz y se cuenta el total de datos que hay (N), por ultimo se realiza un sample, que extrae una muestra aleatoria de tamaño a\*N de N datos, y por ultimo las posiciones que se hayan obtenido en la muestra aleatoria se reemplaza por NA en la matriz.
+
+```{r echo=T, message=FALSE, warning=FALSE, results='asis'}
+ fmd <- function(Xo,a)	# Genera a: % NAs , md: miss data
+  {
+    X. <- as.matrix(Xo)
+    n <- nrow(X.); p <- ncol(X.); N <- n*p
+    m <- sample(N,round(a*N,0))
+    
+    X.[m] <- NA
+    
+    return(X.)
+  }
+
+set.seed(1379)
+
+YXna <- fmd(YX,0.11)
+xtable(YXna)
+
+
+```
+
+# componentes $t_h$ no centradas y no ortogonales.
+
+En primer lugar se corre la función fPLS1na del "Script PLS1 tenenhaus"
+
+```{r echo=T, message=FALSE, warning=FALSE, results='asis'}
+
+fPLS1na <- function(YX)
+	{ 
+	  Z <- as.matrix(YX)
+        Xo <- scale(YX[,-1])	# matriz n.p
+	   p <- ncol(Xo); n <- nrow(Xo)
+
+	   if(any(!is.finite(Z)))H <- p	
+		else H <- qr(Xo)$rank 
+		
+        Yo <- scale(YX[,1]); yz <- Yo
+
+	  cv2 <- matrix(0,1,H)		
+	 
+	  W <- matrix(0,p,H); W. <- matrix(0,p,H)
+	  T <- matrix(0,n,H); C <- matrix(0,1,H)
+	  P <- matrix(0,p,H); B <- matrix(0,p,H)
+
+	  for(h in 1:H)
+	  {
+	     for(j in 1:p)
+	     {
+		 wh. <- na.omit(cbind(Xo[,j],Yo))
+		 W.[j,h] <- sum(wh.[,1]*wh.[,2])/sum(wh.[,2]^2)
+	     }
+	    
+	     nW. <- sqrt(sum(W.[,h]^2))
+	     W[,h] <- W.[,h]/nW.
+
+	     for(i in 1:n)
+	     {
+		 ti <- na.omit(cbind(Xo[i,],W[,h]))
+		 T[i,h] <- sum(ti[,1]*ti[,2])/sum(ti[,2]^2)
+	     }
+	   
+	     th <- T[,h] ; cv2[1,h] <- cov(th,yz)^2 
+
+	     ch. <- na.omit(cbind(th,Yo))
+	     ch <- sum(ch.[,1]*ch.[,2])/sum(ch.[,1]^2)
+	     C[,h] <- ch
+
+	     for(j in 1:p)
+	     {
+		 ph. <- na.omit(cbind(Xo[,j],th))
+		 P[j,h] <- sum(ph.[,1]*ph.[,2])/sum(ph.[,2]^2)
+	     }
+	     ph <- P[,h]
+
+	     X1 <- Xo - th%*%t(ph); Xo <- X1
+	     Y1 <- Yo - th%*%t(ch); Yo <- Y1
+
+	    B[,h] <- W[,1:h]%*%(solve(t(P[,1:h])%*%W[,1:h]))%*%C[1:h]
+
+	  } # end h
+
+	  r.PLS1na <- list(W,T,C,P,B,cv2)
+	  return(r.PLS1na)
+
+	} # end fPLS1na con y sin datos completos
+
+
+
+```
+
+Dicha funcion tiene de salida una lista con 6 resultados, en donde la segunda entrada de la lista (T) corresponde a los componentes $t_h$ de maxima covarianza con y. Para evaluar que las componentes no son ortogonales se procede a calcular la correlacion entre ellas, esto porque la ortogonalidad se refiere a la independencia lineal entre los componentes principales, lo cual se ve reflejado en la matriz de covarianzas la cual deberia de ser diagonal. Tambien se realiza el calculo de media de los componentes para evaluar la centralidad de los mismos
+
+```{r echo=T, message=FALSE, warning=FALSE, results='asis'}
+
+fpls1 <- fPLS1na(YXna)
+
+T <- fpls1[[2]]	# Componentes
+labs <- paste(c("T"),1:7,sep=""); colnames(T) <- labs
+
+xtable(cor(T)) # Correlacion para evaluar ortogonalidad
+Centra <- c(mean(T[,1]),mean(T[,2]),mean(T[,3]),mean(T[,4]),mean(T[,5])
+            ,mean(T[,6]),mean(T[,7])) #media para evaluar centralidad
+Centra
+```
+
+Como se evidencia, la matriz de covarianzas presenta correlaciones entre los componentes, por ende estos no son ortogonales, ademas la media de los mismos no es cero y por ende no estan centrados.
+
+# Funcion fPLS1 por partes con las respectivas propiedades
+
+En primer lugar se especificara partes del codigo de la Funcion fPLS1 que tienen como objetivo garantizar las propiedades descritas.
+
+## Base de Datos con NAs \< 30%
+
+Para verificar la propiedad de que la funcion fPLS1 funcione con NAs \< 30% tanto por fila como por columna, se realizaron contadores, los contadores representan el porcentaje de NAs, tanto por filas como por columnas. estos contadores son los siguientes:
+
+contary: realiza el calculo del porcentage de NAs que hay en la variable de respuesta Y
+
+contarcolumna: es un vector de unos y ceros, los unos se dan cuando el calculo de porcentage de NAs por columna es mayor al 30%, y ceros en el caso contrario, por ultimo se realiza la suma de este vector.
+
+contarcolumna: es un vector de unos y ceros, los unos se dan cuando el calculo de porcentage de NAs por fila es mayor al 30%, y ceros en el caso contrario, por ultimo se realiza la suma de este vector.
+
+Entonces, si no se cumple la condicion de que contarfila \<1 & contarcolumna\<1 & contary\> 0 & contary\<0.3 o la condicion de que contarfila \<1 & contarcolumna\<1 & contary==0, entonces la funcion fPLS1 imprime "Warning Demasiados NA'S por fila o columna o en Y".
+
+En el siguiente codigo se evidencia el procedimiento a realizar, y al final se implementara a la funcion fPLS1na
+
+```{r}
+#YX Base de datos
+ Z <- as.matrix(YX) # convertida a matriz
+Xo <- scale(YX[,-1])	# matriz de variables predictoras
+p <- ncol(Xo); n <- nrow(Xo)
+Yo <- scale(YX[,1]) # vector de la variable de respuesta
+contary<- sum(is.na(Yo))/length(Yo) #Contar porcentaje Na's y
+ind<- which(is.na(Yo))
+contarcolumna<-c(); contarfila<- c()
+for(i in 1:dim(Xo)[2]){                    
+  if(sum(is.na(Xo[,i]))/dim(Xo)[1]>=0.3){  #Contar porcentaje Na's por cada columna 
+      contarcolumna[i]<- 1
+    }
+  else{
+      contarcolumna[i]<-0
+    }
+  }
+for(i in 1:dim(Xo)[1]){
+  if(sum(is.na(Xo[i,]))/dim(Xo)[2]>=0.3){   #Contar porcentaje Na's por cada fila
+      contarfila[i]<- 1
+    }
+  else{
+      contarfila[i]<-0
+    }
+  }
+contarfila<- sum(contarfila) #Contador NA's filas
+contarcolumna<- sum(contarcolumna)#Contador NA's filas
+
+```
+
+## Numero de componentes
+
+Para determinar el numero de componentes significativas en la regresión se tendra en cuenta el $R^2_{Adj}$, para ello se realiza la diferencia en los $R^2_{Adj}$ agregando cada componente, y cuando se evidencie la condicion de un aumento no mayor al 5%, se toman los anteriores componentes al que cumplio con la condicion.
+
+```{r}
+  
+  RAdj<- c() # R2 ajustado para cada componente agregada
+  diff<- c() # Diferencia de los R^2 ajustados con i componentes e i-1 componentes.
+  for(i in 1:ncol(T)){
+    model<- lm(scale(Yo)~T[,1:ncol(T)])
+    resumen <- summary(model)
+    RAdj[i] <- resumen$adj.r.squared #calculo de los R^2 ajustados agregando I componentes
+    
+  }
+  for(i in 2:ncol(T)){
+    diff[i]<- RAdj[i]-RAdj[i-1] 
+    
+  }
+  ncomp<- (which(diff < 0.05)) #Numero de componentes a utilizar -1 
+  
+  
+```
+
+## Ortogonalidad
+
+
+
+## Funcion del algoritmo con y sin datos faltantes
+
+La funcion fPLS1na se separa en seccion con condicionales, los condicionales estan dados por los contadores mencionados anteriormente. si (contarfila \<1 & contarcolumna\<1 & contary==0) se corre el PLS teniendo en cuenta que no hay datos faltantes en "y", si (contarfila \<1 & contarcolumna\<1 & contary\> 0 & contary\<0.3) se corre el PLS teniendo en cuenta que hay datos faltantes en "y" \< 30%, por ultimo en caso de no cumplir con las respectivas condiciones se esta asumiendo que existe un NAs mayor al 30\% ya sea en la matriz de covariables X o Y.
+
+## Funcion fPLS1 completa
+
+```{r}
+
+fPLS1na <- function(YX){ 
+  Z <- as.matrix(YX) # Base de datos convertida en Matriz
+  Xo <- scale(YX[,-1])	# matriz de variables predictoras
+  p <- ncol(Xo); n <- nrow(Xo) # numero de individuos y variables
+  Yo <- scale(YX[,1]); yz <- Yo #variables y escalonada
+  
+##### Seccion porcentaje de datos faltantes  
+  contary<- sum(is.na(Yo))/length(Yo) #Contar Na's y
+  ind<- which(is.na(Yo))
+  contarcolumna<-c();  contarfila<- c()
+  for(i in 1:dim(Xo)[2]){
+    if(sum(is.na(Xo[,i]))/dim(Xo)[1]>=0.3){ #Contar porcentaje Na's por cada columna 
+      contarcolumna[i]<- 1
+    }
+    else{
+      contarcolumna[i]<-0
+    }
+  }
+  for(i in 1:dim(Xo)[1]){
+    if(sum(is.na(Xo[i,]))/dim(Xo)[2]>=0.3){ #Contar porcentaje Na's por cada fila
+      contarfila[i]<- 1
+    }
+    else{
+      contarfila[i]<-0
+    }
+  }
+  contarfila<- sum(contarfila) #Contador NA's filas
+  contarcolumna<- sum(contarcolumna)#Contador NA's filas
+
+##### Seccion calculos PLS cuando no hay datos faltantes en y    
+  
+  if(contarfila <1 & contarcolumna<1 & contary==0){
+  if(any(!is.finite(Z)))H <- p	
+  else H <- qr(Xo)$rank
+  cv2 <- matrix(0,1,H)		
+  
+  W <- matrix(0,p,H); W. <- matrix(0,p,H)
+  T <- matrix(0,n,H); C <- matrix(0,1,H)
+  P <- matrix(0,p,H); B <- matrix(0,p,H)
+  
+  for(h in 1:H)
+  {
+    for(j in 1:p)
+    {
+      wh. <- na.omit(cbind(Xo[,j],Yo))
+      W.[j,h] <- sum(wh.[,1]*wh.[,2])/sum(wh.[,2]^2)
+    }
+    
+    nW. <- sqrt(sum(W.[,h]^2))
+    W[,h] <- W.[,h]/nW.
+    
+    for(i in 1:n)
+    {
+      ti <- na.omit(cbind(Xo[i,],W[,h]))
+      T[i,h] <- sum(ti[,1]*ti[,2])/sum(ti[,2]^2)
+    }
+    
+    th <- T[,h] ; cv2[1,h] <- cov(th,yz)^2 
+    
+    ch. <- na.omit(cbind(th,Yo))
+    ch <- sum(ch.[,1]*ch.[,2])/sum(ch.[,1]^2)
+    C[,h] <- ch
+    
+    for(j in 1:p)
+    {
+      ph. <- na.omit(cbind(Xo[,j],th))
+      P[j,h] <- sum(ph.[,1]*ph.[,2])/sum(ph.[,2]^2)
+    }
+    ph <- P[,h]
+    
+    X1 <- Xo - th%*%t(ph); Xo <- X1
+    Y1 <- Yo - th%*%t(ch); Yo <- Y1
+    
+    B[,h] <- W[,1:h]%*%(solve(t(P[,1:h])%*%W[,1:h]))%*%C[1:h]
+    
+  } # end h
+  RAdj<- c() # R2 ajustado para cada componente agregada
+  diff<- c() # Diferencia de los R^2 ajustados con i componentes e i-1 componentes.
+  for(i in 1:ncol(T)){
+    model<- lm(scale(yz)~T[,1:ncol(T)])
+    resumen <- summary(model)
+    RAdj[i] <- resumen$adj.r.squared #calculo de los R^2 ajustados agregando I componentes
+    
+  }
+  for(i in 2:ncol(T)){
+    diff[i]<- RAdj[i]-RAdj[i-1]
+    
+  }
+  ncomp<- (which(diff < 0.05)) #Numero de componentes a utilizar -1 
+  r.PLS1na <- list(W,T,C,P,B,cv2,ncomp)
+  
+  return(r.PLS1na)
+  }
+  
+##### Seccion calculos PLS cuando hay datos faltantes en y   
+  
+if(contarfila <1 & contarcolumna<1 & contary> 0 & contary<0.3){
+      if(any(!is.finite(Z)))H <- p	
+      else H <- qr(Xo)$rank
+      cv2 <- matrix(0,1,H)		
+      
+      W <- matrix(0,p,H); W. <- matrix(0,p,H)
+      T <- matrix(0,n,H); C <- matrix(0,1,H)
+      P <- matrix(0,p,H); B <- matrix(0,p,H)
+      
+      for(h in 1:H)
+      {
+        for(j in 1:p)
+        {
+          wh. <- na.omit(cbind(Xo[,j],Yo))
+          W.[j,h] <- sum(wh.[,1]*wh.[,2])/sum(wh.[,2]^2)
+        }
+        
+        nW. <- sqrt(sum(W.[,h]^2))
+        W[,h] <- W.[,h]/nW.
+        
+        for(i in 1:n)
+        {
+          ti <- na.omit(cbind(Xo[i,],W[,h]))
+          T[i,h] <- sum(ti[,1]*ti[,2])/sum(ti[,2]^2)
+        }
+        
+        th <- T[,h] ; cv2[1,h] <- cov(th,yz)^2 
+        
+        ch. <- na.omit(cbind(th,Yo))
+        ch <- sum(ch.[,1]*ch.[,2])/sum(ch.[,1]^2)
+        C[,h] <- ch
+        
+        for(j in 1:p)
+        {
+          ph. <- na.omit(cbind(Xo[,j],th))
+          P[j,h] <- sum(ph.[,1]*ph.[,2])/sum(ph.[,2]^2)
+        }
+        ph <- P[,h]
+        
+        X1 <- Xo - th%*%t(ph); Xo <- X1
+        Y1 <- Yo - th%*%t(ch); Yo <- Y1
+        
+        B[,h] <- W[,1:h]%*%(solve(t(P[,1:h])%*%W[,1:h]))%*%C[1:h]
+        
+      } # end h
+      RAdj<- c() # R2 ajustado para cada componente agregada
+      diff<- c() # Diferencia de los R^2 ajustados con i componentes e i-1 componentes.
+      for(i in 1:ncol(T)){
+        model<- lm(scale(yz)~T[,1:ncol(T)])
+        resumen <- summary(model)
+        RAdj[i] <- resumen$adj.r.squared #calculo de los R^2 ajustados agregando I componentes
+        
+      }
+      for(i in 2:ncol(T)){
+        diff[i]<- RAdj[i]-RAdj[i-1]
+        
+      }
+      ncomp<- (which(diff < 0.05)) #Numero de componentes a utilizar -1 
+      r.PLS1na <- list(W,T,C,P,B,cv2,ncomp)
+      
+      return(r.PLS1na)
+      
+    }
+  else{
+    print("Warning Demasiados NA'S por fila o columna o en Y") #Pasa cuando no se cumplen las condiciones
+                                                              # del contador (30% o mas de NAS)
+  }
+} # end fPLS1na con y sin datos completos  
+
+
+```
+
+# Correccion NA en y
+
+Para solucionar el problema de que las pruebas $F(R^2_{adj})$ son afectadas en sus gl, debido a que no participan las líneas que contienen NA en y s procede a estimar esos datos faltantes a partir de la regresión obtenida por fPLS1na con la siguiente ecuacion:
+
+$$\hat{Y}=T_hc_h$$
+
+Donde $t_h$ es el numero de componentes necesarios en la regresion.
+
+```{r,eval=FALSE}
+  yimput<- matrix(0,length(Yi),ncomp) #Matriz de las estimaciones
+  for( i in 1:ncomp){
+    yimput[,i]<- as.matrix(t(c[i]%*%T[,i])) #calculo de la estimacion ThCh
+  }
+  yimput<- rowSums(yimput)
+  Yi<-scale(Yi) 
+  Yi[which(is.na(Yi))]<-yimput[which(is.na(Yi))] #reemplazo de la estimacion donde 
+                                                  # se encuentren datos faltantes
+  Yinew<-scale(Yi)
+  ######## Nuevamente PLS
+  Xi <- YX[,-1]; Yi <- Yinew
+  Xna <- fmd(Xi,0.1)
+  YXna <- cbind(Yi,Xna) ; YXna
+  YXna <- cbind(Yi,Xna) ; YXna
+  fpls1 <- fPLS1na(YXna) #Calculo de PLS con los datos faltantes en y corregidos
+  
+```
+
+# Resultados aplicativos de las funciones
+
+## Resultados sin NAS
+
+Con base en las funciones creadas anteriormente, se procede a realizar la regresión via PLS de la base de datos Cornell con datos completos:
+
+```{r}
+YX
+Yi <- YX[,1]
+fpls0 <- fPLS1na(YX)
+T <- fpls0[[2]]	
+ncomp<- fpls0[[7]][1]
+ncomp
+model<- lm(scale(Yi)~T[,1:ncomp]-1)
+summary(model)
+```
+
+Como se observa en la regresion multiple via PLS, se obtiene un $R^2$ de 0.9763, el cual se calculo con dos componentes, ya que la diferencia entre los $R^2_{adj}$ era de 0.055, lo que indica que era necesario tener un segundo componente.
+
+
+
+## Resultados con NAS mayores al 30\% por fila o columna
+
+Con base en las funciones creadas anteriormente, se procede a realizar la regresión via PLS de la base de datos Cornell con el 11\% de NAs que no cumpla con la condicion de datos faltantes menores al 30% en alguna columna o fila
+
+```{r}
+set.seed(1)
+YXna0<- fmd (YX,0.11)
+YXna0
+
+fpls1 <- fPLS1na(YXna0)
+```
+
+Como se observa, en el individuo 3 se cuenta con un 42% de datos faltantes, por ende no corre el PLS.
+
+
+## Resultados con NAS menores al 30\% por fila o columna
+
+```{r}
+
+set.seed(1379)
+
+YXna <- fmd(YX,0.11)
+YXna
+Xina <- YXna[,-1]; Yina <- YXna[,1]
+fpls1 <- fPLS1na(YXna)
+T <- fpls1[[2]]
+c <- fpls1[[3]]
+labs <- paste(c("T"),1:7,sep=""); colnames(T) <- labs
+ncomp<- fpls1[[7]][1]-1
+ncomp
+model<- lm(scale(Yina)~T[,1:ncomp]-1)
+summary(model)
+```
+
+Como se observa en la regresion multiple via PLS, se obtiene un $R^2$ de 0.952, el cual se calculo con un componente, ya que la diferencia entre los $R^2_{adj}$ era de 0.038, lo que indica que no era necesario tener un segundo componente.
+
+
+## Resultados con imputacion por el metodo de estimacion
+
+En primer lugar se calcula el PLS con los datos que se tienen (1 paso), seguidamente se calcula las estimaciones de yi (2 paso), despues donde estan los NAs en la variable de respuesta y escalonada se cambian por los valores estimados (3 paso), se escalona denuevo y se contruye denuevo la base de datos (4 paso). Por ultimo se realiza denuevo el pls (5 paso)
+
+```{r}
+fpls1 <- fPLS1na(YXna) #1 paso
+Yina <- YXna[,1]
+yimput<- matrix(0,length(Yina),ncomp)
+for( i in 1:ncomp){
+  yimput[,i]<- as.matrix(t(c[i]%*%T[,i])) #2 paso
+}
+yimput<- rowSums(yimput)
+yimput
+Y<-scale(Yina)
+Y
+Y[which(is.na(Y))]<- yimput[which(is.na(Y))]#3 paso
+Y
+Yinew<-scale(Y)#4 paso
+Yinew
+######## Nuevamente PLS
+YXna1 <- cbind(Yinew,Xina) ;  #4 paso
+fpls2 <- fPLS1na(YXna1) #5 paso
+T <- fpls2[[2]]	
+labs <- paste(c("T"),1:7,sep=""); colnames(T) <- labs
+ncomp<- fpls1[[7]][1]-1
+summary(lm(Yinew~T[,1:ncomp]))
+
+```
+
+
+Como se observa en la regresion multiple via PLS con imputacion, se obtiene un $R^2$ de 0.9584, el cual se calculo con un componente, ya que la diferencia entre los $R^2_{adj}$ era de 0.0227, lo que indica que no era necesario tener un segundo componente. Ademas se cuenta con un mayor grado de libertad.
