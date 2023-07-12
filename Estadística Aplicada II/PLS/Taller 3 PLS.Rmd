@@ -23,10 +23,9 @@ natural.
 
 ```{r, echo = T, results = 'asis', message= FALSE}
 
-YX <- read.table("Cornell.txt",header=TRUE)
-YX
+
 
 
 ```
 
-
+dsadad
