@@ -1,5 +1,5 @@
 ---
-title: "Taller pls otro intento"
+title: "Regresión múltiple vía PLS1"
 author: "Andrés Felipe Palomino - David Stiven Rojas"
 date: "2023-07-12"
 output: 
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introducción
 
-A continuacion se presenta el desarrollo del codigo para realizar un ajuste de regresión multiple via PLS, con una aplicación a una base de datos que cuenta con multicolinealidad perfecta y que se contamina con datos faltanes.
+A continuación se presenta el desarrollo del código para realizar un ajuste de regresión múltiple vía PLS, con una aplicación a una base de datos que cuenta con multicolinealidad perfecta y que se contamina con datos faltantes.
 
 ## Base de datos sin NA´S
 
@@ -31,9 +31,9 @@ xtable(YX)
 
 # Base de datos con 11% NA´s
 
-Para contaminar la base de datos con el 11% de NA´s se realizara la funcion fmd() del "Script PLS1 tenenhaus".
+Para contaminar la base de datos con el 11% de NA´s se realizará la función fmd() del "Script PLS1 tenenhaus".
 
-En primer lugar la funcion tiene dos componentes de entrada, la base de datos y el porcentaje de NA´s que se colocaran (a), seguidamente la base de datos se transforma en una matriz y se cuenta el total de datos que hay (N), por ultimo se realiza un sample, que extrae una muestra aleatoria de tamaño a\*N de N datos, y por ultimo las posiciones que se hayan obtenido en la muestra aleatoria se reemplaza por NA en la matriz.
+En primer lugar, la función tiene dos componentes de entrada, la base de datos y el porcentaje de NA´s que se colocaran (a), seguidamente la base de datos se transforma en una matriz y se cuenta el total de datos que hay (N), por último se realiza un sample, que extrae una muestra aleatoria de tamaño a\*N de N datos, y por ultimo las posiciones que se hayan obtenido en la muestra aleatoria se reemplaza por NA en la matriz.
 
 ```{r echo=T, message=FALSE, warning=FALSE, results='asis'}
  fmd <- function(Xo,a)	# Genera a: % NAs , md: miss data
@@ -57,7 +57,7 @@ xtable(YXna)
 
 # componentes $t_h$ no centradas y no ortogonales.
 
-En primer lugar se corre la función fPLS1na del "Script PLS1 tenenhaus"
+En primer lugar, se corre la función fPLS1na del "Script PLS1 tenenhaus"
 
 ```{r echo=T, message=FALSE, warning=FALSE, results='asis'}
 
@@ -124,7 +124,7 @@ fPLS1na <- function(YX)
 
 ```
 
-Dicha funcion tiene de salida una lista con 6 resultados, en donde la segunda entrada de la lista (T) corresponde a los componentes $t_h$ de maxima covarianza con y. Para evaluar que las componentes no son ortogonales se procede a calcular la correlacion entre ellas, esto porque la ortogonalidad se refiere a la independencia lineal entre los componentes principales, lo cual se ve reflejado en la matriz de covarianzas la cual deberia de ser diagonal. Tambien se realiza el calculo de media de los componentes para evaluar la centralidad de los mismos
+Dicha función tiene de salida una lista con 6 resultados, en donde la segunda entrada de la lista (T) corresponde a los componentes $t_h$ de máxima covarianza con y. Para evaluar que las componentes no son ortogonales se procede a calcular la correlación entre ellas, esto porque la ortogonalidad se refiere a la independencia lineal entre los componentes principales, lo cual se ve reflejado en la matriz de covarianzas, la cual debería de ser diagonal. También se realiza el cálculo de media de los componentes para evaluar la centralidad de los mismos.
 
 ```{r echo=T, message=FALSE, warning=FALSE, results='asis'}
 
@@ -139,25 +139,25 @@ Centra <- c(mean(T[,1]),mean(T[,2]),mean(T[,3]),mean(T[,4]),mean(T[,5])
 Centra
 ```
 
-Como se evidencia, la matriz de covarianzas presenta correlaciones entre los componentes, por ende estos no son ortogonales, ademas la media de los mismos no es cero y por ende no estan centrados.
+Como se evidencia, la matriz de covarianzas presenta correlaciones entre los componentes, por ende estos no son ortogonales, además la media de los mismos no es cero y por ende no están centrados.
 
-# Funcion fPLS1 por partes con las respectivas propiedades
+# Función fPLS1 por partes con las respectivas propiedades
 
-En primer lugar se especificara partes del codigo de la Funcion fPLS1 que tienen como objetivo garantizar las propiedades descritas.
+En primer lugar, se especificará partes del código de la Función fPLS1 que tienen como objetivo garantizar las propiedades descritas.
 
 ## Base de Datos con NAs \< 30%
 
-Para verificar la propiedad de que la funcion fPLS1 funcione con NAs \< 30% tanto por fila como por columna, se realizaron contadores, los contadores representan el porcentaje de NAs, tanto por filas como por columnas. estos contadores son los siguientes:
+Para verificar la propiedad de que la función fPLS1 funcione con NAs \< 30% tanto por fila como por columna, se realizaron contadores, los contadores representan el porcentaje de NAs, tanto por filas como por columnas. Estos contadores son los siguientes:
 
-contary: realiza el calculo del porcentage de NAs que hay en la variable de respuesta Y
+contary: realiza el cálculo del porcentaje de NAs que hay en la variable de respuesta Y
 
-contarcolumna: es un vector de unos y ceros, los unos se dan cuando el calculo de porcentage de NAs por columna es mayor al 30%, y ceros en el caso contrario, por ultimo se realiza la suma de este vector.
+contarcolumna: es un vector de unos y ceros, los unos se dan cuando el cálculo de porcentaje de NAs por columna es mayor al 30%, y ceros en el caso contrario, por último se realiza la suma de este vector.
 
-contarcolumna: es un vector de unos y ceros, los unos se dan cuando el calculo de porcentage de NAs por fila es mayor al 30%, y ceros en el caso contrario, por ultimo se realiza la suma de este vector.
+contarcolumna: es un vector de unos y ceros, los unos se dan cuando el cálculo de porcentaje de NAs por fila es mayor al 30%, y ceros en el caso contrario, por último se realiza la suma de este vector.
 
-Entonces, si no se cumple la condicion de que contarfila \<1 & contarcolumna\<1 & contary\> 0 & contary\<0.3 o la condicion de que contarfila \<1 & contarcolumna\<1 & contary==0, entonces la funcion fPLS1 imprime "Warning Demasiados NA'S por fila o columna o en Y".
+Entonces, si no se cumple la condición de que contarfila \<1 & contarcolumna\<1 & contary\> 0 & contary\<0.3 o la condición de que contarfila \<1 & contarcolumna\<1 & contary==0, entonces la función fPLS1 imprime "Warning Demasiados NA'S por fila o columna o en Y".
 
-En el siguiente codigo se evidencia el procedimiento a realizar, y al final se implementara a la funcion fPLS1na
+En el siguiente código se evidencia el procedimiento a realizar, y al final se implementará a la función fPLS1na.
 
 ```{r}
 #YX Base de datos
@@ -189,9 +189,9 @@ contarcolumna<- sum(contarcolumna)#Contador NA's filas
 
 ```
 
-## Numero de componentes
+## Número de componentes
 
-Para determinar el numero de componentes significativas en la regresión se tendra en cuenta el $R^2_{Adj}$, para ello se realiza la diferencia en los $R^2_{Adj}$ agregando cada componente, y cuando se evidencie la condicion de un aumento no mayor al 5%, se toman los anteriores componentes al que cumplio con la condicion.
+Para determinar el número de componentes significativas en la regresión se tendrá en cuenta el $R^2_{Adj}$, para ello se realiza la diferencia en los $R^2_{Adj}$ agregando cada componente, y cuando se evidencie la condición de un aumento no mayor al 5%, se toman los anteriores componentes al que cumplió con la condición.
 
 ```{r}
   
@@ -212,15 +212,14 @@ Para determinar el numero de componentes significativas en la regresión se tend
   
 ```
 
-## Ortogonalidad
 
 
 
 ## Funcion del algoritmo con y sin datos faltantes
 
-La funcion fPLS1na se separa en seccion con condicionales, los condicionales estan dados por los contadores mencionados anteriormente. si (contarfila \<1 & contarcolumna\<1 & contary==0) se corre el PLS teniendo en cuenta que no hay datos faltantes en "y", si (contarfila \<1 & contarcolumna\<1 & contary\> 0 & contary\<0.3) se corre el PLS teniendo en cuenta que hay datos faltantes en "y" \< 30%, por ultimo en caso de no cumplir con las respectivas condiciones se esta asumiendo que existe un NAs mayor al 30\% ya sea en la matriz de covariables X o Y.
+La función fPLS1na se separa en sección con condicionales, los condicionales están dados por los contadores mencionados anteriormente. si (contarfila \<1 & contarcolumna\<1 & contary==0) se corre el PLS teniendo en cuenta que no hay datos faltantes en "y", si (contarfila \<1 & contarcolumna\<1 & contary\> 0 & contary\<0.3) se corre el PLS teniendo en cuenta que hay datos faltantes en "y" \< 30%, por último en caso de no cumplir con las respectivas condiciones se está asumiendo que existe un NAs mayor al 30\% ya sea en la matriz de covariables X o Y.
 
-## Funcion fPLS1 completa
+## Función fPLS1 completa
 
 ```{r}
 
@@ -392,13 +391,13 @@ if(contarfila <1 & contarcolumna<1 & contary> 0 & contary<0.3){
 
 ```
 
-# Correccion NA en y
+# Corrección NA en "y"
 
-Para solucionar el problema de que las pruebas $F(R^2_{adj})$ son afectadas en sus gl, debido a que no participan las líneas que contienen NA en y s procede a estimar esos datos faltantes a partir de la regresión obtenida por fPLS1na con la siguiente ecuacion:
+Para solucionar el problema de que las pruebas $F(R^2_{adj})$ son afectadas en sus gl, debido a que no participan las líneas que contienen NA en "y" se procede a estimar esos datos faltantes a partir de la regresión obtenida por fPLS1na con la siguiente ecuación:
 
 $$\hat{Y}=T_hc_h$$
 
-Donde $t_h$ es el numero de componentes necesarios en la regresion.
+Donde $t_h$ es el número de componentes necesarios en la regresión.
 
 ```{r,eval=FALSE}
   yimput<- matrix(0,length(Yi),ncomp) #Matriz de las estimaciones
@@ -423,7 +422,7 @@ Donde $t_h$ es el numero de componentes necesarios en la regresion.
 
 ## Resultados sin NAS
 
-Con base en las funciones creadas anteriormente, se procede a realizar la regresión via PLS de la base de datos Cornell con datos completos:
+Con base en las funciones creadas anteriormente, se procede a realizar la regresión vía PLS de la base de datos Cornell con datos completos:
 
 ```{r}
 YX
@@ -436,13 +435,13 @@ model<- lm(scale(Yi)~T[,1:ncomp]-1)
 summary(model)
 ```
 
-Como se observa en la regresion multiple via PLS, se obtiene un $R^2$ de 0.9763, el cual se calculo con dos componentes, ya que la diferencia entre los $R^2_{adj}$ era de 0.055, lo que indica que era necesario tener un segundo componente.
+Como se observa en la regresión múltiple vía PLS, se obtiene un $R^2$ de 0.9763, el cual se calculó con dos componentes, ya que la diferencia entre los $R^2_{adj}$ era de 0.055, lo que indica que era necesario tener un segundo componente.
 
 
 
 ## Resultados con NAS mayores al 30\% por fila o columna
 
-Con base en las funciones creadas anteriormente, se procede a realizar la regresión via PLS de la base de datos Cornell con el 11\% de NAs que no cumpla con la condicion de datos faltantes menores al 30% en alguna columna o fila
+Con base en las funciones creadas anteriormente, se procede a realizar la regresión vía PLS de la base de datos Cornell con el 11\% de NAs que no cumpla con la condición de datos faltantes menores al 30% en alguna columna o fila.
 
 ```{r}
 set.seed(1)
@@ -474,12 +473,12 @@ model<- lm(scale(Yina)~T[,1:ncomp]-1)
 summary(model)
 ```
 
-Como se observa en la regresion multiple via PLS, se obtiene un $R^2$ de 0.952, el cual se calculo con un componente, ya que la diferencia entre los $R^2_{adj}$ era de 0.038, lo que indica que no era necesario tener un segundo componente.
+Como se observa en la regresión múltiple vía PLS, se obtiene un $R^2$ de 0.952, el cual se calculó con un componente, ya que la diferencia entre los $R^2_{adj}$ era de 0.038, lo que indica que no era necesario tener un segundo componente.
 
 
-## Resultados con imputacion por el metodo de estimacion
+## Resultados con imputación por el método de estimación
 
-En primer lugar se calcula el PLS con los datos que se tienen (1 paso), seguidamente se calcula las estimaciones de yi (2 paso), despues donde estan los NAs en la variable de respuesta y escalonada se cambian por los valores estimados (3 paso), se escalona denuevo y se contruye denuevo la base de datos (4 paso). Por ultimo se realiza denuevo el pls (5 paso)
+En primer lugar, se calcula el PLS con los datos que se tienen (1 paso), seguidamente se calcula las estimaciones de yi (2 paso), después donde están los NAs en la variable de respuesta y escalonada se cambian por los valores estimados (3 paso), se escalona de nuevo y se construye de nuevo la base de datos (4 paso). Por último se realiza de nuevo el pls (5 paso)
 
 ```{r}
 fpls1 <- fPLS1na(YXna) #1 paso
@@ -507,4 +506,4 @@ summary(lm(Yinew~T[,1:ncomp]))
 ```
 
 
-Como se observa en la regresion multiple via PLS con imputacion, se obtiene un $R^2$ de 0.9584, el cual se calculo con un componente, ya que la diferencia entre los $R^2_{adj}$ era de 0.0227, lo que indica que no era necesario tener un segundo componente. Ademas se cuenta con un mayor grado de libertad.
+Como se observa en la regresión múltiple vía PLS con imputación, se obtiene un $R^2$ de 0.9584, el cual se calculó con un componente, ya que la diferencia entre los $R^2_{adj}$ era de 0.0227, lo que indica que no era necesario tener un segundo componente. Además se cuenta con un mayor grado de libertad.
