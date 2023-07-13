@@ -1,158 +1,92 @@
-library(xtable)
-library(aod)
-X<- AbusoDrogas
-names(X)
-X<- X[,-1]
-pairs(X)
-str(X)
+#install.packages("easypackages")        # Libreria especial para hacer carga automática de librerias
+library("easypackages")
+lib_req<-c("MASS","aod","doBy",
+           "FactoMineR","factoextra","ggdist",
+           "caret","pROC","xtable","ggplot2")# Listado de librerias requeridas por el script
+easypackages::packages(lib_req)  
+setwd("C:/Users/sebas/OneDrive/Escritorio/Octavo Semestre/OctavoSemestre/Modelos II/Bases de datos")
+#Limpieza columna ineccesaria
+X<- AbusoDrogas;View(X);names(X);X<- X[,-1]
+X<- X[,c(8,1,2,4,6)]
+View(X)
+# Cargar la librería ggplot2
+tabla1<-data.frame(prop.table(table(X$DFREE)))
+colnames(tabla1)<- c("Categoria","Probabilidad")
+tabla1$Probabilidad<- round(tabla1$Probabilidad,2);tabla1
+# Crear el gráfico de barras con ggplot2 y personalizarlo
+ggplot(tabla1, aes(x = Categoria, y = Probabilidad, fill = Categoria)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = Probabilidad), vjust = -0.5) +
+  scale_fill_manual(values = c("Free" = "red", "No Free"="aquamarine4"))+
+  labs(title = "DrugsFree")
+########### Tratamiento
+tabla2<-data.frame(prop.table(table(X$TREAT)))
+colnames(tabla2)<- c("Categoria","Probabilidad")
+tabla2$Probabilidad<- round(tabla2$Probabilidad,2);tabla2
+# Crear el gráfico de barras con ggplot2 y personalizarlo
+ggplot(tabla2, aes(x = Categoria, y = Probabilidad, fill = Categoria)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = Probabilidad), vjust = -0.5) +
+  labs(title = "TREAT")
+###############
+tabla3<-data.frame(prop.table(table(X$NDRUGTX)))
+colnames(tabla3)<- c("Categoria","Probabilidad")
+tabla3$Probabilidad<- round(tabla3$Probabilidad,2);tabla3
+# Crear el gráfico de barras con ggplot2 y personalizarlo
+ggplot(tabla3, aes(x = Categoria, y = Probabilidad, fill = Categoria)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = Probabilidad), vjust = -0.5) +
+  labs(title = "NDRUGTX")
+################### Cuantitaivas Descriptivas
+par(mfrow=c(1,2))
+hist(X$AGE,main="Age",freq=F,ylab="Frequency",xlab="Age",panel.first=grid(),col="aquamarine4",xlim=c(0,70))
+lines(density(X$AGE),lwd=2,lty=2);summary(X$AGE)
+hist(X$BECK,main="BECK",freq=F,ylab="Frequency",xlab="BECK",panel.first=grid(),col="purple1",xlim=c(0,70))
+lines(density(X$BECK),lwd=2,lty=2);summary(X$BECK)
+pairs(AGE~BECK,col=X$DFREE+1,pch=19,data=X)
+pairs(AGE~BECK,col=X$TREAT+1,pch=19,data=X)
+#######
+#Notación científica
 options(scipen=999)
-modrugs.logit = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(logit),data=X)
-p<- c()
-for(i in 1:length(coef(modrugs.logit))){
-p[i]<- exp(coef(modrugs.logit)[i])
-}
-cbind(coef(modrugs.logit),p)[-1,]
-xtable(cbind(coef(modrugs.logit),p)[-1,])
-xtable(summary(modrugs.logit))
-modrugs.logitinter = glm(DFREE~AGE*TREAT+BECK*TREAT+NDRUGTX*TREAT,family=binomial(logit),data=X)
-xtable(anova(modrugs.logit,modrugs.logitinter,test='LRT'))
-VarMat = vcov(modrugs.logitinter)
-Coef = coefficients(modrugs.logitinter)
-xtable(summary(modrugs.logitinter))
-wald.test(VarMat,Coef,Terms=c(6,7,8))
+#Modelo logístico
+modrugs.logit <- glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(logit),data=X)
+#Resumen
 summary(modrugs.logit)
-summary(modrugs.logitinter)
-car::vif(modrugs.logit)
-modrugs.probit = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(probit),data=X)
-modrugs.cloglog = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(cloglog),data=X)
-Mods<-round(cbind(coef(modrugs.logit),sqrt(diag(vcov(modrugs.logit))),coef(modrugs.logit)/sqrt(diag(vcov(modrugs.logit))),(1-pnorm(abs(coef(modrugs.logit)/sqrt(diag(vcov(modrugs.logit))))))*2,coef(modrugs.probit),sqrt(diag(vcov(modrugs.probit))),coef(modrugs.probit)/sqrt(diag(vcov(modrugs.probit))),(1-pnorm(abs(coef(modrugs.probit)/sqrt(diag(vcov(modrugs.probit))))))*2,coef(modrugs.cloglog),sqrt(diag(vcov(modrugs.cloglog))),coef(modrugs.cloglog)/sqrt(diag(vcov(modrugs.cloglog))),(1-pnorm(abs(coef(modrugs.cloglog)/sqrt(diag(vcov(modrugs.cloglog))))))*2),4)
-rbind(0,0,Mods)
-name<-c("Est","Std","Z", "P-Val")
-Mods[1,]<-c(name,name,name)
+#OR
+exp(coef(modrugs.logit))
+# Gráfico
+# Obtener los coeficientes, intervalos de confianza y valores p del modelo logístico
+coeficientes <- coef(modrugs.logit)
+intervalos_confianza <- confint(modrugs.logit)
+valores_p <- summary(modrugs.logit)$coefficients[, "Pr(>|z|)"]
 
-crit<- cbind(rbind(AIC(modrugs.logit),deviance(modrugs.logit)),rbind(AIC(modrugs.probit),deviance(modrugs.probit)),rbind(AIC(modrugs.cloglog),deviance(modrugs.cloglog)))
-colnames(crit)<- c("Logit","Probit","CLogLog")
-rownames(crit)<- c("AIC","Devianza")
-xtable(crit)
-xtable(Mods)
-summary(modrugs.cloglog)
-y<-c()
-x<-coef(modrugs.probit)/sqrt(diag(vcov(modrugs.probit)))
-for( i in 1:length(x)){
-  y[i]<- (1-pnorm(abs(x[i])))*2
-  
-}
+# Crear un data frame con los coeficientes, intervalos de confianza y valores p
+datos_coeficientes <- data.frame(
+  Variables = names(coeficientes),
+  Coeficientes = coeficientes,
+  Inferior_CI = intervalos_confianza[, 1],
+  Superior_CI = intervalos_confianza[, 2],
+  Valores_p = valores_p
+)
 
-(1-pnorm(1.24))*2
-summary(modrugs.probit)
-summary(modrugs.cloglog)
-deviance(modrugs.logit)
-deviance(modrugs.probit)
-deviance(modrugs.cloglog)
-library(pROC)
+# Crear el gráfico de barras con intervalos de confianza y etiquetas
+grafico_coeficientes <- ggplot(datos_coeficientes, aes(x = Variables, y = Coeficientes)) +
+  geom_pointrange(aes(ymin = Inferior_CI, ymax = Superior_CI), color = "steelblue") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  geom_text(aes(label = paste0(round(Coeficientes, 2), " [", round(Inferior_CI, 2), "; ", round(Superior_CI, 2), "]\n(p = ", round(Valores_p, 3), ")")), 
+            vjust = -1.5, color = "black") +
+  coord_flip() +
+  labs(x = "Variables", y = "Odds Ratio", title = "Odds del Modelo Logístico") +
+  theme_minimal()
+
+# Mostrar el gráfico
+print(grafico_coeficientes)
 ROCbw.logit = roc(X$DFREE~modrugs.logit$fitted.values)
-ROCbw.probit = roc(X$DFREE~modrugs.probit$fitted.values)
-ROCbw.loglog = roc(X$DFREE~modrugs.cloglog$fitted.values)
-x11()
-?roc
 plot(ROCbw.logit, print.thres = "best", print.auc = TRUE,
      auc.polygon = FALSE, max.auc.polygon = F, auc.polygon.col = "gainsboro",
      col = 1, grid = TRUE,xlim=c(1,0))
-metricas<- cbind(rbind(0.633,0.453,0.776,0.235),rbind(0.631,0.435,0.782,0.233),rbind(0.633,0.465,0.776,0.235))
-colnames(metricas)<- c("Logit","Probit","CLogLog")
-rownames(metricas)<- c("AUC","Sensibilidad","Especificidad","Punto de corte")
-xtable(metricas)
-ROCbw.logit
-
-lines(ROCbw.probit,col=2, print.thres = "best", print.auc = TRUE,
-      auc.polygon = FALSE, max.auc.polygon = FALSE, auc.polygon.col = "gainsboro"
-      , grid = TRUE)
-lines(ROCbw.loglog,col=3, print.thres = "best", print.auc = TRUE,
-      auc.polygon = FALSE, max.auc.polygon = FALSE, auc.polygon.col = "gainsboro"
-      , grid = TRUE)
-legend(x = "topleft",legend=c("Logit","Probit","CLogLog"),
-       col=c(1,2,3),lwd=2,title='Enlace',
-       box.lwd=1,text.font =20,cex=0.8)
-table(X$DFREE)
-#####
-library(pROC)
-# Cálculo de la curva ROC y determinación del mejor punto de corte usando el método de Youden
-ROCbw.logit <- roc(X$DFREE, modrugs.logit$fitted.values)
-coords(ROCbw.logit, "best")
-cutoff_youden_logit <- coords(ROCbw.logit, "best", best.method = "youden")
-sensitivity_youden_logit <- cutoff_youden_logit$sensitivity
-specificity_youden_logit <- cutoff_youden_logit$specificity
-
-# Cálculo de la curva ROC y determinación del mejor punto de corte usando el método de closest.topleft
-ROCbw.probit <- roc(X$DFREE, modrugs.logit$fitted.values)
-cutoff_closest_logit <- coords(ROCbw.logit, "best", best.method = "closest.topleft")
-sensitivity_closest_logit <- cutoff_closest_logit$sensitivity
-specificity_closest_logit <- cutoff_closest_logit$specificity
-
-# Imprimir los resultados
-cat("Método de Youden (Logit): \n")
-cat("Mejor punto de corte:", cutoff_youden_logit$threshold, "\n")
-cat("Sensibilidad:", sensitivity_youden_logit, "\n")
-cat("Especificidad:", specificity_youden_logit, "\n")
-
-cat("\nMétodo de closest.topleft (Logit): \n")
-cat("Mejor punto de corte:", cutoff_closest_logit$threshold, "\n")
-cat("Sensibilidad:", sensitivity_closest_logit, "\n")
-cat("Especificidad:", specificity_closest_logit, "\n")
-# Obtener las predicciones utilizando el mejor punto de corte según el método de Youden
-predicciones_youden_logit <- ifelse(modrugs.logit$fitted.values >= cutoff_youden_logit$threshold, 1, 0)
-
-# Calcular la matriz de confusión
-matriz_confusion_youden_logit <- table(Real = X$DFREE, Prediccion = predicciones_youden_logit)
-print(matriz_confusion_youden_logit)
-# Obtener las predicciones utilizando el mejor punto de corte según el método de closest.topleft
-predicciones_closest_logit <- ifelse(modrugs.logit$fitted.values >= cutoff_closest_logit$threshold, 1, 0)
-
-# Calcular la matriz de confusión
-matriz_confusion_closest_logit <- table(Real = X$DFREE, Prediccion = predicciones_closest_logit)
-print(matriz_confusion_closest_logit)
-#Sobre dispersión
-phi<-rbind(sum(residuals(modrugs.logit,method="pearson")^2)/modrugs.logit$df.residual,
-                    sum(residuals(modrugs.probit,method="pearson")^2)/modrugs.probit$df.residual,
-                    sum(residuals(modrugs.cloglog,method="pearson")^2)/modrugs.cloglog$df.residual)
-rownames(phi)<- c("Logit","Probit","CLogLog")
-colnames(phi)<- "Sobredispersión"
-xtable(phi)
-#Bondad de ajuste
-# devianza
-D = deviance(modrugs.logit)
-1-pchisq(D,6) # valor p
-# chi-cuadrado de Pearson
-X2 = sum(residuals(modrugs.logit,type='pearson')^2)
-1-pchisq(X2,6) # valor p
-#Hipotesis
-modrugs.logit = glm(DFREE~AGE+BECK+NDRUGTX+TREAT,family=binomial(logit),data=X)
-modrugs.logit2 = glm(DFREE~AGE+NDRUGTX+TREAT,family=binomial(logit),data=X)
-summary(modrugs.logit)
-summary(modrugs.logit2)
-anova(modrugs.logit,modrugs.logit2,test='LRT')
-#
-plot(fitted.values(modrugs.logit2))
-abline(h=0.235)
-points(fitted.values(modrugs.logit2)[modrugs.logit2$fitted.values>0.235],pch=19,col=2)
-points(fitted.values(modrugs.logit2)[modrugs.logit2$fitted.values<=0.235],pch=19,col=4)
-library(pROC)
-ROCbw.logit = roc(X$DFREE~modrugs.logit$fitted.values)
-plot(ROCbw.logit, print.thres = "best", print.auc = TRUE,
-     auc.polygon = FALSE, max.auc.polygon = F, auc.polygon.col = "gainsboro",
-     col = 2, grid = TRUE,xlim=c(1,0))
-cutoff_youden_logit <- coords(ROCbw.logit, "best")
-sensitivity_youden_logit <- cutoff_youden_logit$sensitivity
-specificity_youden_logit <- cutoff_youden_logit$specificity
-
-# Obtener las predicciones utilizando el mejor punto de corte según el método de Youden
-predicciones_youden_logit <- ifelse(modrugs.logit$fitted.values >= cutoff_youden_logit$threshold, 1, 0)
-
-# Calcular la matriz de confusión
-matriz_confusion_youden_logit <- table(Real = X$DFREE, Prediccion = predicciones_youden_logit)
-print(matriz_confusion_youden_logit)
-# Imprimir los resultados
-cat("Método de Youden (Logit): \n")
-cat("Mejor punto de corte:", cutoff_youden_logit$threshold, "\n")
-cat("Sensibilidad:", sensitivity_youden_logit, "\n")
-cat("Especificidad:", specificity_youden_logit, "\n")
+#Class logit
+Class.Logit<-as.factor(ifelse(modrugs.logit$fitted.values<0.235,"No","Yes"))
+Class.original<- as.factor(ifelse(X$DFREE==0,"No","Yes"))
+############
+caret::confusionMatrix(Class.Logit,Class.original,dnn=c("Drugs - Logit", "Drugs - Obs"),positive = "Yes",mode="everything")
