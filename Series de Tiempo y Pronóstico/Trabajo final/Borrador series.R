@@ -134,7 +134,6 @@ coeftest(modelofinal)
 library(UnitCircle)
 UnitCircle::uc.check(c(1, -coef(modelofinal)[1]))
 adf.test(ts1,k=10)
-adf.test()
 par(mfrow=c(1,2))
 pacf(ts1,main="")
 acf(ts1,main="")
@@ -146,4 +145,4 @@ t_ratio <- wbar/Swbar
 t_ratio
 
 #cuantil 0.025 superior con 498 g.l.
-qt(p=0.025, df=, length(diff(log(seriew6)))-1,lower.tail=F)
+qt(p=0.025, df=, length(X$Pygtk)-1-1,lower.tail=F)
